@@ -66,61 +66,6 @@ export const Header: React.FC<HeaderProps> = ({
             Home
           </button>
 
-          {/* Properties with Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => handleNavClick('projects')}
-              onMouseEnter={() => setPropertyDropdownOpen(true)}
-              className={`text-sm font-semibold transition-colors cursor-pointer relative py-2 flex items-center gap-1 ${
-                currentPage === 'projects' || currentPage === 'project-detail' || currentPage === 'realtor-registration'
-                  ? 'text-[#000f22] font-bold after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[2.5px] after:bg-[#000f22]'
-                  : 'text-[#475569] hover:text-[#000f22]'
-              }`}
-            >
-              <span>Currently Selling Properties</span>
-              <ChevronDown className="w-4 h-4 text-[#94A3B8]" />
-            </button>
-
-            {propertyDropdownOpen && (
-              <div
-                onMouseLeave={() => setPropertyDropdownOpen(false)}
-                className="absolute top-full left-0 mt-1 w-56 bg-white border border-[#E2E8F0] rounded-xl shadow-lg py-2 flex flex-col z-50 animate-fadeIn"
-              >
-                <button
-                  onClick={() => handleNavClick('projects')}
-                  className="px-4 py-2 text-left text-xs font-semibold text-[#000f22] hover:bg-[#F8FAFC]"
-                >
-                  All Properties & Inventory
-                </button>
-                <button
-                  onClick={() => handleNavClick('realtor-registration')}
-                  className="px-4 py-2 text-left text-xs font-semibold text-[#b7102a] hover:bg-[#F8FAFC] flex items-center justify-between"
-                >
-                  <span>Realtor Registration Portal</span>
-                  <span className="text-[10px] bg-[#b7102a]/10 px-1.5 py-0.5 rounded font-bold">New</span>
-                </button>
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={handleSpeakToAgent}
-            className="text-sm font-semibold text-[#475569] hover:text-[#000f22] transition-colors cursor-pointer py-2"
-          >
-            Speak to an Agent
-          </button>
-
-          <button
-            onClick={() => handleNavClick('blog')}
-            className={`text-sm font-semibold transition-colors cursor-pointer relative py-2 ${
-              currentPage === 'blog' || currentPage === 'video-detail'
-                ? 'text-[#000f22] font-bold after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[2.5px] after:bg-[#000f22]'
-                : 'text-[#475569] hover:text-[#000f22]'
-            }`}
-          >
-            Blog
-          </button>
-
           {/* About Us with Subtle Dropdown */}
           <div className="relative">
             <button
@@ -172,6 +117,55 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
+
+
+          {/* Properties with Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => handleNavClick('projects')}
+              onMouseEnter={() => setPropertyDropdownOpen(true)}
+              className={`text-sm font-semibold transition-colors cursor-pointer relative py-2 flex items-center gap-1 ${
+                currentPage === 'projects' || currentPage === 'project-detail' || currentPage === 'realtor-registration'
+                  ? 'text-[#000f22] font-bold after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[2.5px] after:bg-[#000f22]'
+                  : 'text-[#475569] hover:text-[#000f22]'
+              }`}
+            >
+              <span>Property</span>
+              <ChevronDown className="w-4 h-4 text-[#94A3B8]" />
+            </button>
+
+            {propertyDropdownOpen && (
+              <div
+                onMouseLeave={() => setPropertyDropdownOpen(false)}
+                className="absolute top-full left-0 mt-1 w-56 bg-white border border-[#E2E8F0] rounded-xl shadow-lg py-2 flex flex-col z-50 animate-fadeIn"
+              >
+                <button
+                  onClick={() => handleNavClick('projects')}
+                  className="px-4 py-2 text-left text-xs font-semibold text-[#000f22] hover:bg-[#F8FAFC]"
+                >
+                  All Properties & Inventory
+                </button>
+                <button
+                  onClick={() => handleNavClick('realtor-registration')}
+                  className="px-4 py-2 text-left text-xs font-semibold text-[#b7102a] hover:bg-[#F8FAFC] flex items-center justify-between"
+                >
+                  <span>Realtor Registration Portal</span>
+                  <span className="text-[10px] bg-[#b7102a]/10 px-1.5 py-0.5 rounded font-bold">New</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => handleNavClick('blog')}
+            className={`text-sm font-semibold transition-colors cursor-pointer relative py-2 ${
+              currentPage === 'blog' || currentPage === 'video-detail'
+                ? 'text-[#000f22] font-bold after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[2.5px] after:bg-[#000f22]'
+                : 'text-[#475569] hover:text-[#000f22]'
+            }`}
+          >
+            Blog
+          </button>
         </nav>
 
         {/* Right Section: Book Visit CTA */}
