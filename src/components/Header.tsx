@@ -149,8 +149,7 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={() => handleNavClick('realtor-registration')}
                   className="px-4 py-2 text-left text-xs font-semibold text-[#b7102a] hover:bg-[#F8FAFC] flex items-center justify-between"
                 >
-                  <span>Realtor Registration Portal</span>
-                  <span className="text-[10px] bg-[#b7102a]/10 px-1.5 py-0.5 rounded font-bold">New</span>
+                  <span>Realtor Registration</span>
                 </button>
               </div>
             )}

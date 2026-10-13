@@ -98,7 +98,7 @@ export const RealtorRegistrationScreen: React.FC<RealtorRegistrationScreenProps>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
             <div className="w-12 h-12 rounded-xl bg-[#000f22]/5 text-[#000f22] flex items-center justify-center mb-6">
-              <DollarSign className="w-8 h-8 text-[#b7102a]" />
+              <DollarSign className="w-6 h-6 text-[#b7102a]" />
             </div>
             <h3 className="font-display text-lg font-bold text-[#000f22] mb-2">
               Industry-Leading Commissions
@@ -110,7 +110,7 @@ export const RealtorRegistrationScreen: React.FC<RealtorRegistrationScreenProps>
 
           <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
             <div className="w-12 h-12 rounded-xl bg-[#000f22]/5 text-[#000f22] flex items-center justify-center mb-6">
-              <QrCode className="w-8 h-8 text-[#000f22]" />
+              <QrCode className="w-6 h-6 text-[#000f22]" />
             </div>
             <h3 className="font-display text-lg font-bold text-[#000f22] mb-2">
               Instant Referral & QR Codes
@@ -122,7 +122,7 @@ export const RealtorRegistrationScreen: React.FC<RealtorRegistrationScreenProps>
 
           <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
             <div className="w-12 h-12 rounded-xl bg-[#000f22]/5 text-[#000f22] flex items-center justify-center mb-6">
-              <ShieldCheck className="w-8 h-8 text-emerald-600" />
+              <ShieldCheck className="w-6 h-6 text-emerald-600" />
             </div>
             <h3 className="font-display text-lg font-bold text-[#000f22] mb-2">
               100% Verified Titles
@@ -140,7 +140,6 @@ export const RealtorRegistrationScreen: React.FC<RealtorRegistrationScreenProps>
           {!submitted ? (
             <div className="bg-[#F8FAFC] border border-slate-200 rounded-2xl p-8 sm:p-12 shadow-sm">
               <div className="text-center mb-8">
-                <span className="text-xs font-bold text-[#b7102a] uppercase tracking-wider">Secure Portal</span>
                 <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#000f22] mt-1">
                   Realtor Registration Form
                 </h2>

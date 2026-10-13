@@ -167,11 +167,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Hero Search Dock (Exact layout & styling from Screenshot 1) */}
         <div className="relative z-10 max-w-[1120px] mx-auto px-6 sm:px-8 w-full mt-8 sm:mt-10">
           {/* "FOR SALE" White Tab */}
-          <div className="flex items-center">
-            <div className="bg-white text-[#000f22] font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-t-lg shadow-md border-t border-x border-[#E2E8F0]">
-              FOR SALE
-            </div>
-          </div>
 
           {/* Main White Dock */}
           <form
