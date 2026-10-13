@@ -142,7 +142,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Full-bleed background image with modern luxury terraces */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
-            src="/src/assets/images/caih_luxury_residence_1791879278290.jpg"
+            src="/images/caih_luxury_residence_1791879278290.jpg"
             alt="Caih Group Premier Luxury Residences in Lagos"
             className="w-full h-full object-cover object-center scale-105 transition-transform duration-1000 ease-out"
             referrerPolicy="no-referrer"
