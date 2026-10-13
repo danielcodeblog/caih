@@ -485,10 +485,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-white/15 max-w-4xl mx-auto border-y md:border-y-0 border-white/15 bg-neutral-900/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
             {/* 1. Apartment */}
             <button
-              onClick={() => handleCategorySelect('apartment')}
-              className={`p-6 sm:p-8 flex flex-col items-center justify-center group cursor-pointer transition-all ${
+              className={`p-6 sm:p-8 flex flex-col items-center justify-center group transition-all ${
                 activeCategory === 'apartment' ? 'bg-white/5' : 'hover:bg-white/5'
               }`}
+              disabled={true}
             >
               {/* Custom Line Icon: Multi-story Building with Checkmark in Badge */}
               <div className="w-16 h-16 mb-4 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
@@ -523,10 +523,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
             {/* 2. House */}
             <button
-              onClick={() => handleCategorySelect('house')}
-              className={`p-6 sm:p-8 flex flex-col items-center justify-center group cursor-pointer transition-all ${
+              className={`p-6 sm:p-8 flex flex-col items-center justify-center group transition-all ${
                 activeCategory === 'house' ? 'bg-white/5' : 'hover:bg-white/5'
               }`}
+              disabled={true}
             >
               {/* Custom Line Icon: Arc Floor Lamp + Living Room Sofa */}
               <div className="w-16 h-16 mb-4 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
@@ -561,10 +561,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
             {/* 3. Office */}
             <button
-              onClick={() => handleCategorySelect('office')}
-              className={`p-6 sm:p-8 flex flex-col items-center justify-center group cursor-pointer transition-all ${
+              className={`p-6 sm:p-8 flex flex-col items-center justify-center group transition-all ${
                 activeCategory === 'office' ? 'bg-white/5' : 'hover:bg-white/5'
               }`}
+              disabled={true}
             >
               {/* Custom Line Icon: Twin Corporate Skyscrapers */}
               <div className="w-16 h-16 mb-4 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
@@ -601,10 +601,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
             {/* 4. Villa */}
             <button
-              onClick={() => handleCategorySelect('villa')}
-              className={`p-6 sm:p-8 flex flex-col items-center justify-center group cursor-pointer transition-all ${
+              className={`p-6 sm:p-8 flex flex-col items-center justify-center group transition-all ${
                 activeCategory === 'villa' ? 'bg-white/5' : 'hover:bg-white/5'
               }`}
+              disabled={true}
             >
               {/* Custom Line Icon: Gable House with Eco Leaf Emblem */}
               <div className="w-16 h-16 mb-4 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
