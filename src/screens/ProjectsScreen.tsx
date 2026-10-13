@@ -298,7 +298,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                 <div className="grid grid-cols-2 gap-3 py-4 border-y border-[#E2E8F0] bg-[#F8FAFC]/60 rounded-xl px-4">
                   <div className="flex flex-col">
                     <span className="text-[10px] uppercase text-[#94A3B8] font-bold">Starting Deposit</span>
-                    <span className="text-2xl font-extrabold text-[#b7102a] mt-0.5">₦3,280,000</span>
+                    <span className="text-2xl font-extrabold text-[#b7102a] mt-0.5">₦3,28B</span>
                     <span className="text-[11px] text-[#475569]">Flexible 18-month plan</span>
                   </div>
                   <div className="flex flex-col">

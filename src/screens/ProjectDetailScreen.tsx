@@ -236,7 +236,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                     Escrow Protected
                   </span>
                 </div>
-                <div className="flex items-baseline gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
                   <span className="text-3xl sm:text-4xl font-extrabold text-[#b7102a] tracking-tight">
                     {project.priceDisplay}
                   </span>

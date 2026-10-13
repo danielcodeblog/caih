@@ -24,7 +24,7 @@ export const PROJECTS: Project[] = [
     image: '/images/appleton_enclave_1791879258411.jpg',
     priceDisplay: '₦3,280,000',
     priceSub: 'Flexible 18-month plan',
-    startingDeposit: '₦3,280,000',
+    startingDeposit: '₦3,28B',
     handoverDate: 'Q4 2026',
     specs: {
       beds: 4,
@@ -112,7 +112,7 @@ export const PROJECTS: Project[] = [
     statusLabel: 'Fully Handed Over',
     badge: 'COMMERCIAL PRESTIGE',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuABOJR1YJOlLdbob69c45ir5N5sJqaVqjsoudPeslkiBXfdJh8rBnLwtDR1kAZeBDr5cd-OjHZOTsaGXnLrvTtF-YuJvKSf6VyDGjQvhipTwWgpYpqOVyqsCGyk-d0zh8mvuR_sdCarP4fBfKdTJBg53CjWFR0C6ZWdLp2zPZWC0TeUHCYgVVT3P9pCwRHffPh-gElZ4BuLbOeQbHxO_DkTNXOB4SsECBPqBfpJ62eRcL8Ir0WgG5Bkpg',
-    priceDisplay: '₦2.4B Deliverable',
+    priceDisplay: '₦3B Deliverable',
     priceSub: 'Turnkey Commercial Contract',
     specs: {
       floors: 7,

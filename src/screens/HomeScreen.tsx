@@ -160,7 +160,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* Emotional Narrative Paragraph */}
           <p className="text-lg sm:text-xl md:text-2xl text-slate-100 max-w-4xl mx-auto leading-relaxed drop-shadow">
-            Discover premier luxury residences and master-planned communities across Lagos with Caih Group. From upcoming off-plan developments like Appleton Enclave to fully delivered homes like Appleton Court, explore living spaces crafted for comfort, prestige, and lasting value.
+            Discover premier luxury residences and master-planned communities across Lagos with Caih Group. Explore living spaces crafted for comfort, prestige, and lasting value.
           </p>
         </div>
 

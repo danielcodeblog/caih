@@ -202,6 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
             Home
           </button>
 
+          <div className="text-xs font-bold text-[#b7102a] uppercase tracking-wider mt-3 mb-1 px-3">Property</div>
           <button
             onClick={() => handleNavClick('projects')}
             className={`text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors ${
@@ -210,24 +211,17 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'text-[#475569] hover:bg-[#F8FAFC]'
             }`}
           >
-            Currently Selling Properties
+            All Properties & Inventory
           </button>
           <button
             onClick={() => handleNavClick('realtor-registration')}
-            className={`text-left py-2 pl-6 pr-3 rounded-lg text-xs font-bold transition-colors ${
+            className={`text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors ${
               currentPage === 'realtor-registration'
                 ? 'bg-[#F1F5F9] text-[#b7102a]'
-                : 'text-[#b7102a] hover:bg-[#F8FAFC]'
+                : 'text-[#475569] hover:bg-[#F8FAFC]'
             }`}
           >
-            ↳ Realtor Registration Portal
-          </button>
-
-          <button
-            onClick={handleSpeakToAgent}
-            className="text-left py-2 px-3 rounded-lg text-sm font-semibold text-[#475569] hover:bg-[#F8FAFC]"
-          >
-            Speak to an Agent
+            Realtor Registration
           </button>
 
           <button
@@ -239,13 +233,32 @@ export const Header: React.FC<HeaderProps> = ({
             Blog
           </button>
 
+          <div className="text-xs font-bold text-[#b7102a] uppercase tracking-wider mt-3 mb-1 px-3">About Us</div>
           <button
             onClick={() => handleNavClick('about-us')}
             className={`text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors ${
               currentPage === 'about-us' ? 'bg-[#F1F5F9] text-[#b7102a]' : 'text-[#475569] hover:bg-[#F8FAFC]'
             }`}
           >
-            About Us
+            Our Conglomerate
+          </button>
+          <button
+            onClick={() => {
+              handleNavClick('about-us');
+              setTimeout(() => { document.getElementById('leadership')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
+            }}
+            className="text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors text-[#475569] hover:bg-[#F8FAFC]"
+          >
+            Executive Leadership
+          </button>
+          <button
+            onClick={() => {
+              handleNavClick('about-us');
+              setTimeout(() => { document.getElementById('conglomerate-sectors')?.scrollIntoView({ behavior: 'smooth' }); }, 150);
+            }}
+            className="text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors text-[#475569] hover:bg-[#F8FAFC]"
+          >
+            Three Structural Pillars
           </button>
 
           <div className="pt-3 border-t border-[#E2E8F0] flex flex-col gap-2">
