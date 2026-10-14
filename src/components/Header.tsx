@@ -42,13 +42,13 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-4 shrink-0">
           <button
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-2 group text-left cursor-pointer focus:outline-none"
+            className="flex items-center gap-3 group text-left cursor-pointer focus:outline-none"
             aria-label="Caih Group Home"
           >
             <img
-              src={BRAND_ASSETS.headerLogo}
+              src="/images/Caih-group.png"
               alt="Caih Group"
-              className="h-10 w-auto object-contain transition-transform group-hover:scale-102"
+              className="h-11 w-auto object-contain"
             />
           </button>
         </div>
@@ -165,6 +165,17 @@ export const Header: React.FC<HeaderProps> = ({
           >
             Blog
           </button>
+
+          <button
+            onClick={() => handleNavClick('contact')}
+            className={`text-sm font-semibold transition-colors cursor-pointer relative py-2 ${
+              currentPage === 'contact'
+                ? 'text-[#000f22] font-bold after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[2.5px] after:bg-[#000f22]'
+                : 'text-[#475569] hover:text-[#000f22]'
+            }`}
+          >
+            Contact
+          </button>
         </nav>
 
         {/* Right Section: Book Visit CTA */}
@@ -259,6 +270,15 @@ export const Header: React.FC<HeaderProps> = ({
             className="text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors text-[#475569] hover:bg-[#F8FAFC]"
           >
             Three Structural Pillars
+          </button>
+
+          <button
+            onClick={() => handleNavClick('contact')}
+            className={`text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors ${
+              currentPage === 'contact' ? 'bg-[#F1F5F9] text-[#b7102a]' : 'text-[#475569] hover:bg-[#F8FAFC]'
+            }`}
+          >
+            Contact & Inspection Desk
           </button>
 
           <div className="pt-3 border-t border-[#E2E8F0] flex flex-col gap-2">

@@ -17,7 +17,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [targetProject, setTargetProject] = useState(
-    initialProject || 'Appleton Enclave Phase I & II (Lekki Phase 2)'
+    initialProject || 'Appleton Enclave (Idera)'
   );
   const [preferredDate, setPreferredDate] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -181,23 +181,20 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                     onChange={(e) => setTargetProject(e.target.value)}
                     className="h-12 px-4 rounded-lg border border-[#E2E8F0] bg-white text-[#000f22] text-sm focus:outline-none focus:ring-2 focus:ring-[#000f22] cursor-pointer"
                   >
-                    <option value="Appleton Enclave Phase I & II (Lekki Phase 2)">
-                      Appleton Enclave Phase I & II (Lekki Phase 2)
+                    <option value="Appleton Enclave (Idera)">
+                      Appleton Enclave (Idera Scheme)
                     </option>
-                    <option value="Appleton Court Terraces (Lekki Phase 2)">
-                      Appleton Court Terraces (Lekki Phase 2)
+                    <option value="Appleton Court Terraces (Akachukwu Street)">
+                      Appleton Court Terraces (Akachukwu Street)
                     </option>
-                    <option value="Epe Gateway Industrial Plots (Epe Expressway)">
-                      Epe Gateway Industrial Plots (Epe Expressway)
+                    <option value="Appleton (Commercial & Residential) (Dangote Refinery)">
+                      Appleton (Commercial & Residential) – Dangote Refinery Axis
                     </option>
-                    <option value="Guzape Ridge Enclave (Guzape Hills, Abuja)">
-                      Guzape Ridge Enclave (Guzape Hills, Abuja)
+                    <option value="Appleton Garden (Ibeju-Lekki)">
+                      Appleton Garden (Ibeju-Lekki Axis)
                     </option>
-                    <option value="Eleganza Commercial Arcade (Lekki)">
-                      Eleganza Commercial Arcade (Lekki)
-                    </option>
-                    <option value="Ahmadu Bello Commercial Plaza (Victoria Island)">
-                      Ahmadu Bello Commercial Plaza (Victoria Island)
+                    <option value="Appleton Haven (Victoria Island)">
+                      Appleton Haven (Victoria Island)
                     </option>
                   </select>
                 </div>

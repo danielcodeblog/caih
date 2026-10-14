@@ -10,13 +10,17 @@ import { AboutScreen } from './screens/AboutScreen';
 import { ProjectDetailScreen } from './screens/ProjectDetailScreen';
 import { VideoDetailScreen } from './screens/VideoDetailScreen';
 import { RealtorRegistrationScreen } from './screens/RealtorRegistrationScreen';
+import { ContactScreen } from './screens/ContactScreen';
 import { PROJECTS, VIDEO_DISPATCHES } from './data/mockData';
 
-// Helper component for Project Detail Route
 function ProjectDetailWrapper({ onNavigate, onBookInspection }: { onNavigate: (page: PageId) => void; onBookInspection: (target?: string) => void }) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const project = PROJECTS.find((p) => p.id === id) || PROJECTS[0];
+  const project =
+    PROJECTS.find((p) => p.id === id) ||
+    PROJECTS.find((p) => p.unitsOrPlots?.some((u) => u.id === id)) ||
+    PROJECTS.find((p) => id?.startsWith(p.id) || p.id.startsWith(id || '')) ||
+    PROJECTS[0];
 
   return (
     <ProjectDetailScreen
@@ -59,13 +63,14 @@ export default function App() {
     if (pathname === '/blog') return 'blog';
     if (pathname === '/about-us') return 'about-us';
     if (pathname === '/realtor-registration') return 'realtor-registration';
+    if (pathname === '/contact') return 'contact';
     return 'home';
   };
 
   const currentPage = getPageIdFromPath(location.pathname);
 
   const [inspectionTargetProject, setInspectionTargetProject] = useState<string>(
-    'Appleton Enclave Phase I & II (Lekki Phase 2)'
+    'Appleton Enclave (Idera)'
   );
   const [projectsFilter, setProjectsFilter] = useState({
     keyword: '',
@@ -97,6 +102,9 @@ export default function App() {
       case 'realtor-registration':
         navigate('/realtor-registration');
         break;
+      case 'contact':
+        navigate('/contact');
+        break;
       default:
         navigate('/');
         break;
@@ -107,22 +115,11 @@ export default function App() {
   const handleOpenInspectionBooking = (target?: string) => {
     if (target) {
       setInspectionTargetProject(target);
+      navigate(`/contact?project=${encodeURIComponent(target)}`);
+    } else {
+      navigate('/contact');
     }
-    if (location.pathname.startsWith('/projects/')) {
-      const el = document.getElementById('project-inspection-anchor') || document.getElementById('inspection-form-section');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-        return;
-      }
-    }
-
-    navigate('/projects');
-    setTimeout(() => {
-      const el = document.getElementById('inspection-form-section');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleViewProject = (proj: Project) => {
@@ -170,6 +167,7 @@ export default function App() {
             element={
               <ProjectsScreen
                 onViewProject={handleViewProject}
+                onBookInspection={handleOpenInspectionBooking}
                 selectedProjectForInspection={inspectionTargetProject}
                 initialFilter={projectsFilter}
               />
@@ -220,6 +218,15 @@ export default function App() {
               <RealtorRegistrationScreen
                 onNavigateToProjects={() => navigate('/projects')}
                 onBookInspection={() => handleOpenInspectionBooking()}
+              />
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <ContactScreen
+                initialProject={inspectionTargetProject}
+                onNavigateToProjects={() => navigate('/projects')}
               />
             }
           />

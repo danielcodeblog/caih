@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Project, Article, VideoDispatch, PageId } from '../types';
-import { PROJECTS, ARTICLES, VIDEO_DISPATCHES, TESTIMONIALS, BRAND_ASSETS } from '../data/mockData';
+import { PROJECTS, VIDEO_DISPATCHES, TESTIMONIALS, BRAND_ASSETS } from '../data/mockData';
+import { ARTICLES } from '../data/articles';
 import gsap from 'gsap';
 import {
   Search,
@@ -13,7 +14,6 @@ import {
   ShieldCheck,
   Phone,
   Layers,
-  Sparkles,
   Plus,
   Minus,
   Zap,
@@ -235,16 +235,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
 
             {/* Advanced Toggle Link Bar */}
-            <div className="px-5 py-2.5 bg-[#F8FAFC] border-t border-[#E2E8F0] flex justify-between items-center text-xs">
-              <span className="text-[#64748B]">Need specific locations, corridors or bedroom configurations?</span>
-              <button
-                type="button"
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="text-[#b7102a] font-bold hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                {showAdvanced ? 'Hide Advanced Filters' : '+ Advanced Filters'}
-              </button>
-            </div>
+
 
             {/* Advanced Drawer Expansion */}
             {showAdvanced && (
@@ -258,12 +249,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     onChange={(e) => setSelectedLocation(e.target.value)}
                     className="w-full bg-white border border-[#CBD5E1] rounded-lg p-2.5 text-xs font-bold text-[#000f22]"
                   >
-                    <option value="ALL LOCATIONS">All Corridors (Lagos & Abuja)</option>
-                    <option value="Lekki Phase 2">Lekki Phase 2</option>
-                    <option value="Ajah">Ajah Axis</option>
-                    <option value="Epe">Epe Expressway</option>
-                    <option value="Victoria Island">Victoria Island</option>
-                    <option value="Guzape">Guzape Abuja</option>
+                    <option value="ALL LOCATIONS">All Corridors & Locations</option>
+                    <option value="Idera">Idera (Appleton Enclave)</option>
+                    <option value="Dangote Refinery">Dangote Refinery (Commercial & Res.)</option>
+                    <option value="Ibeju-Lekki">Ibeju-Lekki (Appleton Garden)</option>
+                    <option value="Victoria Island">Victoria Island (Appleton Haven)</option>
+                    <option value="Akachukwu Street">Akachukwu Street (Appleton Court)</option>
                   </select>
                 </div>
 
@@ -331,8 +322,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
 
           {/* Grid of Clean Property Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProperties.slice(0, 4).map((prop) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProperties.map((prop) => (
               <div
                 key={prop.id}
                 className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
@@ -373,36 +364,57 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
                       {/* Specs Ribbon */}
                       <div className="grid grid-cols-3 gap-2 py-3 mt-2 border-y border-[#E2E8F0] text-xs text-[#475569]">
-                        <div className="font-semibold text-[#000f22]">
-                          {prop.specs.beds ? `${prop.specs.beds} Beds` : prop.specs.landType || 'Commercial'}
-                        </div>
-                        <div className="font-semibold text-[#000f22]">
-                          {prop.specs.baths ? `${prop.specs.baths} Baths` : 'Serviced'}
-                        </div>
-                        <div className="font-semibold text-[#000f22]">
-                          {prop.specs.area || '3,549 sqft'}
-                        </div>
+                        {prop.propertyType === 'plots' ? (
+                          <>
+                            <div className="font-semibold text-[#000f22] truncate">{prop.specs.area}</div>
+                            <div className="font-semibold text-[#000f22] truncate">{prop.specs.landType || '100% Dry Land'}</div>
+                            <div className="font-semibold text-emerald-700 truncate">{prop.specs.titleType || 'Consent'}</div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="font-semibold text-[#000f22]">{prop.specs.beds} Beds</div>
+                            <div className="font-semibold text-[#000f22]">{prop.specs.baths || 5} Baths</div>
+                            <div className="font-semibold text-[#000f22]">{prop.specs.area}</div>
+                          </>
+                        )}
                       </div>
+
+                      {/* Available Plot Sizes / Unit Types */}
+                      {prop.unitsOrPlots && (
+                        <div className="flex flex-wrap items-center gap-1.5 mt-3">
+                          <span className="text-[10px] uppercase font-bold text-[#94A3B8]">
+                            {prop.propertyType === 'plots' ? 'Plots:' : 'Units:'}
+                          </span>
+                          {prop.unitsOrPlots.map((u) => (
+                            <span key={u.id} className="text-[10px] font-semibold text-[#000f22] bg-[#F1F5F9] px-2 py-0.5 rounded">
+                              {u.size || u.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
                       {/* Pricing Tag */}
                       <div className="mt-3">
                         <span className="text-[10px] text-[#94A3B8] uppercase font-bold tracking-wider block">
-                          Initial Deposit / Milestone
+                          Pricing
                         </span>
                         <div className="text-lg font-extrabold text-[#b7102a]">
                           {prop.priceDisplay}
                         </div>
+                        <span className="text-[11px] font-semibold text-emerald-700 block mt-0.5">
+                          {prop.priceSub || 'Direct Allocation'}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Card Action -> Routes to Dedicated Full Page (NO POP-UP!) */}
+                  {/* Card Action -> Routes to Dedicated Full Page */}
                   <div className="p-5 pt-0">
                     <button
                       onClick={() => onViewProject(prop)}
                       className="w-full py-2.5 rounded bg-[#F8FAFC] hover:bg-[#000f22] hover:text-white border border-[#E2E8F0] text-xs font-bold text-[#000f22] flex items-center justify-center gap-1 transition-all cursor-pointer"
                     >
-                      <span>View Details & Plan</span>
+                      <span>{prop.propertyType === 'plots' ? 'View Plots & Master Plan' : 'View Residence & Plans'}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -992,11 +1004,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 className="p-6 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex flex-col justify-between space-y-4"
               >
                 <div className="space-y-3">
-                  <div className="flex text-[#b7102a] gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Sparkles key={i} className="w-4 h-4 text-[#b7102a]" />
-                    ))}
-                  </div>
                   <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">
                     “{t.quote}”
                   </p>

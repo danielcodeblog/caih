@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Article, VideoDispatch } from '../types';
-import { ARTICLES, VIDEO_DISPATCHES } from '../data/mockData';
+import { ARTICLES } from '../data/articles';
+import { VIDEO_DISPATCHES } from '../data/mockData';
 import {
   Search,
   ArrowRight,
@@ -85,11 +86,11 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
   const blogVideos = [
     {
       id: 'tour-appleton',
-      title: 'Tour of Appleton Court Terraces',
+      title: 'Tour of Appleton Court Terraces (Akachukwu Street)',
       tag: 'INTERIOR WALKTHROUGH',
       duration: '04:18',
       thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAfK_XFMiv77ZI8nglGQHi5DqWgtce0IrHG9tEhVnCc9rAIbEVEQx4uaNw97HPlJFgeNxgtRUTF92qUpPmdgQ_b-fCigBU2xsrQvD_bm_CB1aCKjPVdAfbPD4-DmAy3I_soyG9ilc-Dm42X4kdYGav6UzETnjDRaESm_3GF5uh-NduAajGydqXZ2XCs5OdadJgMhVnsDWxxQhZOsu-2V4s0CsD_7EBt99gmREAAaKpwACWmdoNppvemsg',
-      description: 'Walk through finished living rooms and see the modern finishes.',
+      description: 'Walk through finished living rooms and see the modern finishes at Akachukwu Street.',
       speaker: 'Engr. Babatunde'
     },
     {

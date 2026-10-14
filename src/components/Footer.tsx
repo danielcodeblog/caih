@@ -31,11 +31,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
         {/* Brand Column */}
         <div>
-          <div className="bg-white p-3 rounded inline-block mb-5 shadow-sm">
+          <div className="bg-white/95 p-3 rounded-xl border border-slate-800 inline-block mb-5 shadow-sm">
             <img
-              src={BRAND_ASSETS.footerLogo}
+              src="/images/Caih-group.png"
               alt="Caih Group"
-              className="h-9 w-auto object-contain"
+              className="h-10 w-auto object-contain"
             />
           </div>
           <p className="text-sm text-slate-400 mb-6 leading-relaxed">
@@ -138,14 +138,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
             <li>
               <button
                 onClick={() => {
-                  if (onOpenContact) {
-                    onOpenContact();
-                  } else {
-                    onNavigate('projects');
-                    setTimeout(() => {
-                      document.getElementById('inspection-form-section')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  }
+                  onNavigate('contact');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 className="hover:text-white transition-colors cursor-pointer text-left"
               >
@@ -238,14 +232,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
           </button>
           <button
             onClick={() => {
-              if (onOpenContact) {
-                onOpenContact();
-              } else {
-                onNavigate('projects');
-                setTimeout(() => {
-                  document.getElementById('inspection-form-section')?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }
+              onNavigate('contact');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             className="hover:text-slate-400 transition-colors cursor-pointer"
           >

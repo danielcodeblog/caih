@@ -16,6 +16,7 @@ import {
 
 interface ProjectsScreenProps {
   onViewProject: (project: Project) => void;
+  onBookInspection?: (target: string) => void;
   selectedProjectForInspection?: string;
   initialFilter?: {
     keyword: string;
@@ -27,6 +28,7 @@ interface ProjectsScreenProps {
 
 export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
   onViewProject,
+  onBookInspection,
   selectedProjectForInspection,
   initialFilter
 }) => {
@@ -42,7 +44,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
   const [bedsFilter, setBedsFilter] = useState<string>(initialFilter?.beds || 'ANY');
   const [priceFilter, setPriceFilter] = useState<string>('all');
   const [bookingTarget, setBookingTarget] = useState<string>(
-    selectedProjectForInspection || 'Appleton Enclave Phase I & II (Lekki Phase 2)'
+    selectedProjectForInspection || 'Appleton Enclave (Idera)'
   );
 
   const flagship = PROJECTS[0];
@@ -67,9 +69,13 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
         const pCorridor = p.corridor.toLowerCase();
         const pLoc = p.location.toLowerCase();
         if (!pCorridor.includes(loc) && !pLoc.includes(loc)) {
-          if (loc.includes('lekki') && !pCorridor.includes('lekki')) return false;
-          if (loc.includes('epe') && !pCorridor.includes('epe')) return false;
-          if (loc.includes('victoria') && !pCorridor.includes('victoria')) return false;
+          if (loc.includes('idera') && !pLoc.includes('idera') && !pCorridor.includes('idera')) return false;
+          if (loc.includes('dangote') && !pLoc.includes('dangote') && !pCorridor.includes('dangote')) return false;
+          if (loc.includes('ibeju') && !pLoc.includes('ibeju') && !pCorridor.includes('ibeju')) return false;
+          if (loc.includes('victoria') && !pLoc.includes('victoria') && !pCorridor.includes('victoria')) return false;
+          if (loc.includes('akachukwu') && !pLoc.includes('akachukwu') && !pCorridor.includes('akachukwu')) return false;
+          if (loc.includes('lekki') && !pLoc.includes('lekki') && !pCorridor.includes('lekki')) return false;
+          if (loc.includes('epe') && !pLoc.includes('epe') && !pCorridor.includes('epe')) return false;
           if (loc.includes('guzape') && !pCorridor.includes('abuja')) return false;
           if (loc.includes('ajah') && !pCorridor.includes('ajah')) return false;
         }
@@ -92,7 +98,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
 
       // Price filter
       if (priceFilter !== 'all') {
-        if (priceFilter === 'deposit' && p.priceCategory !== 'deposit') return false;
         if (priceFilter === 'mid' && p.priceCategory !== 'mid') return false;
         if (priceFilter === 'high' && p.priceCategory !== 'high') return false;
       }
@@ -102,10 +107,14 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
   }, [activeStatus, locationFilter, typeFilter, bedsFilter, keywordFilter, priceFilter]);
 
   const scrollToBooking = (projectTitle: string) => {
-    setBookingTarget(projectTitle);
-    const el = document.getElementById('inspection-form-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+    if (onBookInspection) {
+      onBookInspection(projectTitle);
+    } else {
+      setBookingTarget(projectTitle);
+      const el = document.getElementById('inspection-form-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
@@ -167,11 +176,11 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                     className="bg-transparent text-[#000f22] font-bold text-xs focus:outline-none cursor-pointer mt-0.5"
                   >
                     <option value="all">All Locations</option>
-                    <option value="Lekki Phase 2">Lekki Phase 2</option>
-                    <option value="Ajah">Ajah</option>
-                    <option value="Epe Expressway">Epe Expressway</option>
-                    <option value="Victoria Island">Victoria Island</option>
-                    <option value="Guzape Abuja">Guzape Abuja</option>
+                    <option value="Idera">Idera (Appleton Enclave)</option>
+                    <option value="Dangote Refinery">Dangote Refinery Axis (Commercial)</option>
+                    <option value="Ibeju-Lekki">Ibeju-Lekki (Appleton Garden)</option>
+                    <option value="Victoria Island">Victoria Island (Appleton Haven)</option>
+                    <option value="Akachukwu Street">Akachukwu Street (Appleton Court)</option>
                   </select>
                 </div>
               </div>
@@ -197,12 +206,12 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                 </div>
               </div>
 
-              {/* Price / Deposit Range Select */}
+              {/* Budget Range Select */}
               <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs">
                 <CreditCard className="text-[#b7102a] w-4 h-4 shrink-0" />
                 <div className="flex flex-col flex-1">
                   <span className="text-[10px] uppercase font-bold text-[#94A3B8] tracking-wider">
-                    Price / Deposit Range
+                    Price Range
                   </span>
                   <select
                     value={priceFilter}
@@ -210,9 +219,8 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                     className="bg-transparent text-[#000f22] font-bold text-xs focus:outline-none cursor-pointer mt-0.5"
                   >
                     <option value="all">All Price Ranges</option>
-                    <option value="deposit">Deposit &lt; ₦5M Initial</option>
-                    <option value="mid">₦18M - ₦50M Plot / Unit</option>
-                    <option value="high">₦100M+ Prime Asset</option>
+                    <option value="mid">₦35M – ₦95M</option>
+                    <option value="high">₦100M+ Prime</option>
                   </select>
                 </div>
               </div>
@@ -247,7 +255,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
               Flagship Development Highlight
             </span>
             <span className="text-xs text-[#94A3B8] hidden sm:inline-block">
-              Eleganza Axis, Lekki Phase 2 Corridor
+              {flagship.location}
             </span>
           </div>
 
@@ -297,14 +305,24 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
 
                 <div className="grid grid-cols-2 gap-3 py-4 border-y border-[#E2E8F0] bg-[#F8FAFC]/60 rounded-xl px-4">
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase text-[#94A3B8] font-bold">Starting Deposit</span>
-                    <span className="text-2xl font-extrabold text-[#b7102a] mt-0.5">₦3,28B</span>
-                    <span className="text-[11px] text-[#475569]">Flexible 18-month plan</span>
+                    <span className="text-[10px] uppercase text-[#94A3B8] font-bold">Pricing</span>
+                    <span className="text-2xl font-extrabold text-[#b7102a] mt-0.5">{flagship.priceDisplay}</span>
+                    <span className="text-[11px] font-semibold text-emerald-700">Guaranteed Physical Allocation</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase text-[#94A3B8] font-bold">Property Config</span>
-                    <span className="text-xl font-bold text-[#000f22] mt-0.5">3–4 Beds | 4–5 Baths</span>
-                    <span className="text-[11px] text-[#475569]">3,549 Sq. Ft • Automated</span>
+                    <span className="text-[10px] uppercase text-[#94A3B8] font-bold">
+                      {flagship.propertyType === 'plots' ? 'Land Topography' : 'Property Config'}
+                    </span>
+                    <span className="text-xl font-bold text-[#000f22] mt-0.5">
+                      {flagship.propertyType === 'plots'
+                        ? (flagship.specs.landType || '100% Dry Table Land')
+                        : `${flagship.specs.beds || 3}–4 Beds | 4–5 Baths`}
+                    </span>
+                    <span className="text-[11px] text-[#475569]">
+                      {flagship.propertyType === 'plots'
+                        ? `${flagship.specs.area} • Sovereign Title`
+                        : `${flagship.specs.area} • Luxury Finished`}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -395,7 +413,15 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                       </p>
 
                       <div className="flex items-center gap-3 py-2 border-y border-[#E2E8F0] text-xs text-[#475569] mt-1">
-                        {project.specs.beds && (
+                        {project.propertyType === 'plots' ? (
+                          <>
+                            <span><strong className="text-[#000f22] font-bold">{project.specs.area}</strong></span>
+                            <span>•</span>
+                            <span><strong className="text-[#000f22] font-bold">{project.specs.landType || '100% Dry Table Land'}</strong></span>
+                            <span>•</span>
+                            <span><strong className="text-[#000f22] font-bold">{project.specs.titleType || 'Governor’s Consent'}</strong></span>
+                          </>
+                        ) : project.specs.beds ? (
                           <>
                             <span><strong className="text-[#000f22] font-bold">{project.specs.beds}</strong> Beds</span>
                             <span>•</span>
@@ -403,59 +429,44 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                             <span>•</span>
                             <span><strong className="text-[#000f22] font-bold">{project.specs.area}</strong></span>
                           </>
-                        )}
-                        {project.specs.landType && (
+                        ) : (
                           <>
-                            <span><strong className="text-[#000f22] font-bold">{project.specs.area}</strong></span>
+                            <span><strong className="text-[#000f22] font-bold">{project.specs.area || 'Development'}</strong></span>
                             <span>•</span>
-                            <span><strong className="text-[#000f22] font-bold">{project.specs.landType}</strong></span>
-                            <span>•</span>
-                            <span><strong className="text-[#000f22] font-bold">{project.specs.titleType}</strong></span>
-                          </>
-                        )}
-                        {project.specs.floors && (
-                          <>
-                            <span><strong className="text-[#000f22] font-bold">{project.specs.floors}</strong> Floors</span>
-                            <span>•</span>
-                            <span><strong className="text-[#000f22] font-bold">{project.specs.area}</strong></span>
-                            <span>•</span>
-                            <span><strong className="text-[#000f22] font-bold">Delivered</strong></span>
-                          </>
-                        )}
-                        {project.specs.yield && (
-                          <>
-                            <span><strong className="text-[#000f22] font-bold">{project.specs.units}</strong> Suites</span>
-                            <span>•</span>
-                            <span><strong className="text-[#b7102a] font-bold">{project.specs.yield}</strong></span>
-                            <span>•</span>
-                            <span><strong className="text-[#000f22] font-bold">100% Sold</strong></span>
-                          </>
-                        )}
-                        {project.specs.output && (
-                          <>
-                            <span><strong className="text-[#000f22] font-bold">{project.specs.output}</strong></span>
-                            <span>•</span>
-                            <span><strong className="text-[#000f22] font-bold">{project.specs.landType}</strong></span>
-                            <span>•</span>
-                            <span><strong className="text-[#000f22] font-bold">Active</strong></span>
+                            <span><strong className="text-[#000f22] font-bold">{project.specs.titleType || 'Certified Title'}</strong></span>
                           </>
                         )}
                       </div>
+                      {project.unitsOrPlots && (
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                          <span className="text-[10px] uppercase font-bold text-[#94A3B8]">
+                            {project.propertyType === 'plots' ? 'Plots:' : 'Units:'}
+                          </span>
+                          {project.unitsOrPlots.map((u) => (
+                            <span key={u.id} className="text-[10px] font-semibold text-[#000f22] bg-[#F1F5F9] px-2 py-0.5 rounded">
+                              {u.size || u.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="p-6 pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
                     <div>
-                      <span className="text-base sm:text-lg font-extrabold text-[#000f22]">
+                      <span className="text-base sm:text-lg font-extrabold text-[#b7102a] block">
                         {project.priceDisplay}
+                      </span>
+                      <span className="text-[11px] font-semibold text-emerald-700 block">
+                        Direct Allocation
                       </span>
                     </div>
 
                     <button
                       onClick={() => onViewProject(project)}
-                      className="px-4 py-2 rounded bg-[#F8FAFC] hover:bg-[#000f22] hover:text-white text-[#000f22] text-xs font-bold transition-all cursor-pointer"
+                      className="px-4 py-2 rounded bg-[#000f22] hover:bg-[#b7102a] text-white text-xs font-bold transition-all cursor-pointer"
                     >
-                      View Details
+                      {project.propertyType === 'plots' ? 'View Plots & Plans' : 'View Details & Plans'}
                     </button>
                   </div>
                 </article>

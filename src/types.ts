@@ -1,12 +1,29 @@
-export type PageId = 'home' | 'about-us' | 'projects' | 'blog' | 'project-detail' | 'video-detail' | 'realtor-registration';
+export type PageId = 'home' | 'about-us' | 'projects' | 'blog' | 'project-detail' | 'video-detail' | 'realtor-registration' | 'contact';
+
+export interface ProjectUnit {
+  id: string;
+  name: string;
+  size?: string;
+  priceDisplay: string;
+  priceSub?: string;
+  paymentType?: string;
+  deposit?: string;
+  beds?: number;
+  baths?: number;
+  landType?: string;
+  titleType?: string;
+  isPopular?: boolean;
+  features?: string[];
+  description?: string;
+}
 
 export interface Project {
   id: string;
   title: string;
   location: string;
-  corridor: 'Lekki Phase 2' | 'Ajah' | 'Epe Corridor' | 'Victoria Island' | 'Abuja FCT';
+  corridor: 'Idera' | 'Victoria Island' | 'Dangote Refinery Axis' | 'Ibeju-Lekki' | 'Akachukwu Street' | 'Lekki Phase 2' | 'Ajah' | 'Epe Corridor' | 'Victoria Island' | 'Abuja FCT' | string;
   propertyType: 'residential' | 'commercial' | 'plots' | 'industrial';
-  priceCategory: 'deposit' | 'mid' | 'high';
+  priceCategory: 'mid' | 'high';
   status: 'upcoming' | 'ongoing' | 'completed' | 'sites' | 'civil';
   statusLabel: string;
   badge?: string;
@@ -30,7 +47,10 @@ export interface Project {
   detailedDescription: string;
   keyFeatures: string[];
   handoverDate?: string;
+  paymentType?: string;
   startingDeposit?: string;
+  unitsOrPlots?: ProjectUnit[];
+  galleryImages?: string[];
 }
 
 export interface Article {

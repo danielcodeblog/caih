@@ -231,11 +231,13 @@ export const RealtorRegistrationScreen: React.FC<RealtorRegistrationScreenProps>
                       onChange={(e) => setFormData({ ...formData, corridor: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-[#000f22] focus:outline-none focus:border-[#b7102a]"
                     >
+                      <option value="Idera">Idera (Appleton Enclave)</option>
+                      <option value="Dangote Refinery Axis">Dangote Refinery Axis (Commercial)</option>
+                      <option value="Ibeju-Lekki">Ibeju-Lekki (Appleton Garden)</option>
+                      <option value="Victoria Island">Victoria Island (Appleton Haven)</option>
+                      <option value="Akachukwu Street">Akachukwu Street (Appleton Court)</option>
                       <option value="Lekki Phase 2">Lekki Phase 2</option>
-                      <option value="Ajah">Ajah</option>
                       <option value="Epe Corridor">Epe Corridor</option>
-                      <option value="Victoria Island">Victoria Island</option>
-                      <option value="Abuja FCT">Abuja FCT</option>
                     </select>
                   </div>
                 </div>
