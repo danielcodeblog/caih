@@ -13,7 +13,11 @@ import {
   ExternalLink,
   Star,
   MapPin,
-  BadgeCheck
+  BadgeCheck,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  X
 } from 'lucide-react';
 
 interface AboutScreenProps {
@@ -25,6 +29,27 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
   onContactDesk,
   onNavigateToProjects
 }) => {
+  const [testimonialSlideIndex, setTestimonialSlideIndex] = React.useState(0);
+  const [isTestimonialAutoPlaying, setIsTestimonialAutoPlaying] = React.useState(true);
+  const [lightboxImage, setLightboxImage] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let timer: any;
+    if (isTestimonialAutoPlaying) {
+      timer = setInterval(() => {
+        setTestimonialSlideIndex((prev) => (prev + 1) % TESTIMONIALS.length);
+      }, 5000);
+    }
+    return () => clearInterval(timer);
+  }, [isTestimonialAutoPlaying]);
+
+  const handlePrevTestimonial = () => {
+    setTestimonialSlideIndex((prev) => (prev === 0 ? TESTIMONIALS.length - 1 : prev - 1));
+  };
+
+  const handleNextTestimonial = () => {
+    setTestimonialSlideIndex((prev) => (prev + 1) % TESTIMONIALS.length);
+  };
   return (
     <div className="flex flex-col w-full bg-white">
       {/* 2. HERO SECTION */}
@@ -92,14 +117,9 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                         CAIH HEADQUARTERS
                       </span>
                       <span className="text-xs text-[#475569]">
-                        Lekki-Epe Axis, Lagos
+                        No. 5 Chief Ganiu Enitan Olugborangan layout, Eleganza Bus stop, Lagos
                       </span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 text-xs font-semibold">
-                    <span className="font-medium tracking-wide uppercase text-[10px]">
-                      Operational Site
-                    </span>
                   </div>
                 </div>
               </div>
@@ -253,75 +273,159 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
         </div>
       </section>
 
-      {/* 6. CLIENT & INSTITUTIONAL ENDORSEMENTS */}
-      <section className="py-20 lg:py-24 bg-[#F8FAFC] border-b border-[#E2E8F0]" id="client-endorsements">
+      {/* 6. CLIENT & INSTITUTIONAL ENDORSEMENTS (MATCHING HOME TESTIMONIALS CAROUSEL) */}
+      <section className="py-20 lg:py-28 bg-[#FAFAFA] border-b border-[#E2E8F0]" id="client-endorsements">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-2 text-[#b7102a] mb-2">
-                <span className="text-[11px] uppercase tracking-wider font-bold">
-                  Sovereign Reputation
-                </span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl text-[#000f22] font-extrabold tracking-tight">
-                What Clients Say About Caih Group
-              </h2>
-            </div>
-            <p className="text-sm text-[#475569] max-w-md leading-relaxed">
-              From UK diaspora plot owners to West African industrial logistics directors, our stakeholders attest to our certified legal titles, on-schedule milestones, and engineering precision.
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-xs uppercase tracking-widest font-bold text-[#b7102a] mb-2 block">
+              TESTIMONIALS
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#000f22] tracking-tight leading-tight">
+              Our Testimonial Gallery
+            </h2>
+            <p className="text-xs sm:text-sm text-[#64748B] mt-3">
+              Official key handover moments and milestone celebrations across our flagship developments.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.slice(0, 3).map((t, idx) => (
-              <div
-                key={idx}
-                className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="text-[10px] uppercase font-bold text-[#b7102a] bg-[#FFF1F2] px-2.5 py-1 rounded border border-[#FFE4E6]">
-                      {t.pillar}
-                    </span>
-                    <div className="flex items-center gap-0.5 text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-[#64748B] mb-2">
-                    <MapPin className="w-3.5 h-3.5 text-[#b7102a] shrink-0" />
-                    <span className="truncate">{t.projectOrSector}</span>
-                  </div>
-                  <h4 className="text-sm font-bold text-[#000f22] leading-snug mb-2">
-                    “{t.headline}”
-                  </h4>
-                  <p className="text-xs text-[#475569] leading-relaxed line-clamp-4">
-                    {t.quote}
-                  </p>
-                </div>
+          {/* Carousel Viewport Container */}
+          <div
+            className="relative max-w-4xl mx-auto"
+            onMouseEnter={() => setIsTestimonialAutoPlaying(false)}
+            onMouseLeave={() => setIsTestimonialAutoPlaying(true)}
+          >
+            {/* Main Stage Image Slide */}
+            <div className="relative overflow-hidden rounded-3xl bg-slate-950 aspect-[4/3] sm:aspect-[16/10] shadow-2xl border border-[#CBD5E1]">
+              {TESTIMONIALS.map((t, idx) => {
+                const isActive = idx === testimonialSlideIndex;
+                return (
+                  <div
+                    key={idx}
+                    className={`absolute inset-0 transition-all duration-700 ease-out flex items-center justify-center cursor-pointer ${
+                      isActive
+                        ? 'opacity-100 scale-100 z-10 pointer-events-auto'
+                        : 'opacity-0 scale-95 z-0 pointer-events-none'
+                    }`}
+                    onClick={() => setLightboxImage(t.avatar)}
+                  >
+                    <img
+                      src={t.avatar}
+                      alt={`Testimonial photo ${idx + 1}`}
+                      className="w-full h-full object-cover object-center"
+                    />
 
-                <div className="mt-5 pt-4 border-t border-[#F1F5F9] flex flex-col gap-2">
-                  <div className="flex items-center gap-3">
-                    <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-[#E2E8F0]" />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1">
-                        <h5 className="text-xs font-bold text-[#000f22] truncate">{t.name}</h5>
-                        <BadgeCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                      </div>
-                      <span className="text-[11px] text-[#64748B] block truncate">{t.role}</span>
-                    </div>
+                    {/* Enlarge icon button */}
+                    <button
+                      type="button"
+                      aria-label="Enlarge image"
+                      className="absolute bottom-5 right-5 p-2.5 rounded-full bg-black/60 hover:bg-black/85 text-white backdrop-blur-md transition-all shadow-lg"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLightboxImage(t.avatar);
+                      }}
+                    >
+                      <Maximize2 className="w-5 h-5" />
+                    </button>
                   </div>
-                  <div className="bg-[#F8FAFC] px-2.5 py-1 rounded-md border border-[#E2E8F0] text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                    <span>{t.verifiedBadge}</span>
-                  </div>
-                </div>
+                );
+              })}
+
+              {/* Prev / Next Arrows */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrevTestimonial();
+                }}
+                aria-label="Previous slide"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white text-[#000f22] backdrop-blur-md shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-slate-200 cursor-pointer"
+              >
+                <ChevronLeft className="w-6 h-6 text-[#000f22]" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNextTestimonial();
+                }}
+                aria-label="Next slide"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white text-[#000f22] backdrop-blur-md shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-slate-200 cursor-pointer"
+              >
+                <ChevronRight className="w-6 h-6 text-[#000f22]" />
+              </button>
+            </div>
+
+            {/* Navigation Bar: Dot Indicators & Thumbnail Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-1">
+              {/* Dot Indicators & Slide Count */}
+              <div className="flex items-center gap-2">
+                {TESTIMONIALS.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setTestimonialSlideIndex(idx)}
+                    aria-label={`Go to slide ${idx + 1}`}
+                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      idx === testimonialSlideIndex
+                        ? 'w-8 bg-[#b7102a]'
+                        : 'w-2.5 bg-slate-300 hover:bg-slate-400'
+                    }`}
+                  />
+                ))}
+                <span className="text-xs text-slate-500 font-medium ml-2">
+                  0{testimonialSlideIndex + 1} / 0{TESTIMONIALS.length}
+                </span>
               </div>
-            ))}
+
+              {/* Thumbnail Strip */}
+              <div className="flex items-center gap-3">
+                {TESTIMONIALS.map((t, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setTestimonialSlideIndex(idx)}
+                    aria-label={`View photo ${idx + 1}`}
+                    className={`relative rounded-xl overflow-hidden w-20 h-14 sm:w-24 sm:h-16 transition-all duration-300 border-2 cursor-pointer ${
+                      idx === testimonialSlideIndex
+                        ? 'border-[#b7102a] scale-105 shadow-md ring-2 ring-[#b7102a]/20'
+                        : 'border-transparent opacity-60 hover:opacity-100 hover:border-slate-300'
+                    }`}
+                  >
+                    <img
+                      src={t.avatar}
+                      alt={`Thumbnail ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Lightbox Modal for Full Image Preview */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+            aria-label="Close preview"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            src={lightboxImage}
+            alt="Testimonial photo preview"
+            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
 
       {/* 8. CORPORATE CALL TO ACTION BANNER */}
       <section className="py-20 bg-white" id="consultation">

@@ -8,7 +8,6 @@ import {
   MapPin,
   Building2,
   Calendar,
-  CheckCircle,
   Play,
   ArrowRight,
   ShieldCheck,
@@ -23,7 +22,11 @@ import {
   Video,
   Star,
   Quote,
-  BadgeCheck
+  BadgeCheck,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  X
 } from 'lucide-react';
 
 interface HomeScreenProps {
@@ -54,8 +57,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   // Dark Section Active Category Tab
   const [activeCategory, setActiveCategory] = useState<'apartment' | 'house' | 'office' | 'villa'>('apartment');
 
-  // Testimonials Conglomerate Pillar Filter
-  const [testimonialPillar, setTestimonialPillar] = useState<string>('ALL');
+  // Testimonials Carousel Gallery State
+  const [testimonialSlideIndex, setTestimonialSlideIndex] = useState(0);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [isTestimonialAutoPlaying, setIsTestimonialAutoPlaying] = useState(true);
+
+  useEffect(() => {
+    if (!isTestimonialAutoPlaying || TESTIMONIALS.length <= 1) return;
+    const interval = setInterval(() => {
+      setTestimonialSlideIndex((prev) => (prev + 1) % TESTIMONIALS.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [isTestimonialAutoPlaying]);
+
+  const handlePrevTestimonial = () => {
+    setTestimonialSlideIndex((prev) => (prev === 0 ? TESTIMONIALS.length - 1 : prev - 1));
+  };
+  const handleNextTestimonial = () => {
+    setTestimonialSlideIndex((prev) => (prev + 1) % TESTIMONIALS.length);
+  };
 
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -691,163 +711,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
       </section>
 
-      {/* =========================================================================
-          SECTION 4: THE THREE STRUCTURAL PILLARS (Properties, Construction, Resources)
-         ========================================================================= */}
-      <section className="w-full bg-[#F8FAFC] py-16 md:py-20 border-b border-[#E2E8F0]">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-[11px] uppercase tracking-wider font-bold text-[#b7102a]">
-                Conglomerate Synergy
-              </span>
-            </div>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#000f22] tracking-tight">
-              The Three Structural Pillars of Caih Group
-            </h2>
-            <p className="text-xs sm:text-sm text-[#475569] mt-2">
-              Integrating master-planned real estate, turnkey civil construction, and heavy industrial building resources into a unified sovereign powerhouse.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {/* Pillar 1 */}
-            <div className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between">
-              <div>
-                <div className="h-60 overflow-hidden relative">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpC47bcbE54rAaCiLNXn7XfkPu0Nipp9jOyIxTI5sQZ2I_JwWekuN-ThsRaiv3Cb1F7Q9-1CWxei5URI_nq5mJP_wNI8sI-3LcqSmvvnPoyxvpaUJzI4y7-6zoUtdBESR5ita26AJhkObPsB9vs1GSTHPIfD2yNNyzF4iOunfFnbXKgRs0Ue1k8lmTKAFWdD_obvPTxq8xnyRJM8Xcrhc5YlaVcQBABN9ZZcJU3j-01NmBmHBizgqwuw"
-                    alt="Caih Properties"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <span className="absolute top-3 left-3 bg-[#000f22] text-white px-3 py-1 rounded text-[10px] uppercase font-bold tracking-wider shadow-sm">
-                    01. Properties
-                  </span>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-[#000f22]">Caih Properties</h3>
-                  <p className="text-xs sm:text-sm text-[#475569] mt-2 leading-relaxed">
-                    Master-planned residential communities, serviced estates, and Appleton Enclave series across Lekki and Lagos corridors.
-                  </p>
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0F172A]">
-                      <CheckCircle className="w-4 h-4 text-[#b7102a]" />
-                      <span>Gated Master-Planned Estates</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0F172A]">
-                      <CheckCircle className="w-4 h-4 text-[#b7102a]" />
-                      <span>Flexible Milestone-Linked Payments</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0F172A]">
-                      <CheckCircle className="w-4 h-4 text-[#b7102a]" />
-                      <span>Governor's Consent & Pristine Titles</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="px-6 pb-6 pt-2">
-                <button
-                  onClick={() => onNavigate('projects')}
-                  className="inline-flex items-center gap-1.5 text-[#b7102a] text-xs font-bold group-hover:translate-x-1 transition-transform cursor-pointer"
-                >
-                  <span>View Housing Portfolio</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Pillar 2 */}
-            <div className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between">
-              <div>
-                <div className="h-60 overflow-hidden relative">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH98qz3hJJWxr6Cvud_k8b-BNisFlBDXwgOqw9ioesdnfBm5EtGgnDsDrerr5fv2fzJlz5PwSFijZGx5VzG28EeZAqYdc6SDAr5I4LZXt2mioYWWcSNC0EaNccQuJE7VECSLsGd8MUoKzBqGmRJwpxmZ-iMEwjYzZyL0rLcoCyxtJbGLzuUF_6sDY2QSdrxlmt6i6HtSFkF05rK7_0Zwtd6-o59CEPjWiGhD596zh4XauzNEln8VxVDA"
-                    alt="Caih Construction"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <span className="absolute top-3 left-3 bg-[#b7102a] text-white px-3 py-1 rounded text-[10px] uppercase font-bold tracking-wider shadow-sm">
-                    02. Construction
-                  </span>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-[#000f22]">Caih Construction</h3>
-                  <p className="text-xs sm:text-sm text-[#475569] mt-2 leading-relaxed">
-                    Turnkey civil engineering, architectural contracting, foundation piling, and custom precision metal fabrication to exact standards.
-                  </p>
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0F172A]">
-                      <CheckCircle className="w-4 h-4 text-[#b7102a]" />
-                      <span>Architectural Contracting & Steel Works</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0F172A]">
-                      <CheckCircle className="w-4 h-4 text-[#b7102a]" />
-                      <span>Subsurface Drainage & Deep Piling</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0F172A]">
-                      <CheckCircle className="w-4 h-4 text-[#b7102a]" />
-                      <span>Guaranteed On-Schedule Project Milestones</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="px-6 pb-6 pt-2">
-                <button
-                  onClick={() => onBookInspection()}
-                  className="inline-flex items-center gap-1.5 text-[#b7102a] text-xs font-bold group-hover:translate-x-1 transition-transform cursor-pointer"
-                >
-                  <span>Contracting Services</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Pillar 3 */}
-            <div className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between">
-              <div>
-                <div className="h-60 overflow-hidden relative">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzFRpyIeLl7ogQtifHFeUSAtsbvv_RPJ1yEeAbDuPtIHdJEGVW4stbhGuTxfe_8wiEOOdKSAkBSAAOy4Mqj7urOF1NMrlFr3WHW4xTdhW0o__vJDXiVW1x3rh1PBzr7hJZ5dHq3xJUg_-AF_oCNhsjh4YZnfVme_KSBZuTFKZ1wDWCChSx5x1OXG9Hm1rsYHY2TvmAMpL6LWA4GC9sF82dAOISCIHDZ2D0nEziCKCyeXyNV0j-M5qvPA"
-                    alt="Caih Resources"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <span className="absolute top-3 left-3 bg-[#001D66] text-white px-3 py-1 rounded text-[10px] uppercase font-bold tracking-wider shadow-sm">
-                    03. Resources
-                  </span>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-[#000f22]">Caih Resources</h3>
-                  <p className="text-xs sm:text-sm text-[#475569] mt-2 leading-relaxed">
-                    Strategic heavy equipment leasing, verified high-grade quarry aggregates supply, and rapid haulage logistics across West Africa.
-                  </p>
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0F172A]">
-                      <CheckCircle className="w-4 h-4 text-[#b7102a]" />
-                      <span>Heavy Excavator & Plant Fleet Leasing</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0F172A]">
-                      <CheckCircle className="w-4 h-4 text-[#b7102a]" />
-                      <span>Quarry Aggregates & Rebar Supply</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#0F172A]">
-                      <CheckCircle className="w-4 h-4 text-[#b7102a]" />
-                      <span>Dedicated Interstate Logistics Routing</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="px-6 pb-6 pt-2">
-                <a
-                  href={`tel:${BRAND_ASSETS.phoneClean}`}
-                  className="inline-flex items-center gap-1.5 text-[#b7102a] text-xs font-bold group-hover:translate-x-1 transition-transform cursor-pointer"
-                >
-                  <span>Fleet & Materials Supply</span>
-                  <ArrowRight className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
 
 
@@ -945,49 +808,127 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               TESTIMONIALS
             </span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#000f22] tracking-tight leading-tight">
-              Don't take our word for it!<br />
-              Hear it from our partners.
+              Our Testimonial Gallery
             </h2>
             <p className="text-xs sm:text-sm text-[#64748B] mt-3">
-              Real experiences from diaspora investors, commercial landowners, and engineering partners across Lagos.
+              Official key handover moments and milestone celebrations across our flagship developments.
             </p>
           </div>
 
 
 
-          {/* Testimonials Grid (Matching Reference Design UI) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {TESTIMONIALS.slice(0, 3)
-              .map((t, idx) => {
-                const isFeaturedVideoCard = idx === 1;
+          {/* Carousel Viewport Container */}
+          <div
+            className="relative max-w-4xl mx-auto"
+            onMouseEnter={() => setIsTestimonialAutoPlaying(false)}
+            onMouseLeave={() => setIsTestimonialAutoPlaying(true)}
+          >
+            {/* Main Stage Image Slide */}
+            <div className="relative overflow-hidden rounded-3xl bg-slate-950 aspect-[4/3] sm:aspect-[16/10] shadow-2xl border border-[#CBD5E1]">
+              {TESTIMONIALS.map((t, idx) => {
+                const isActive = idx === testimonialSlideIndex;
                 return (
                   <div
                     key={idx}
-                    className={`rounded-3xl p-8 flex flex-col justify-between group min-h-[460px] ${
-                      isFeaturedVideoCard
-                        ? 'relative overflow-hidden shadow-xl border border-neutral-800 bg-neutral-900 text-white'
-                        : 'bg-white border border-[#E2E8F0] shadow-xs hover:shadow-xl hover:border-[#CBD5E1] transition-all duration-300'
+                    className={`absolute inset-0 transition-all duration-700 ease-out flex items-center justify-center cursor-pointer ${
+                      isActive
+                        ? 'opacity-100 scale-100 z-10 pointer-events-auto'
+                        : 'opacity-0 scale-95 z-0 pointer-events-none'
                     }`}
+                    onClick={() => setLightboxImage(t.avatar)}
                   >
-                    {isFeaturedVideoCard && (
-                      <div className="absolute inset-0 z-0">
-                        <img
-                          src={t.avatar}
-                          alt={t.name}
-                          className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20" />
-                      </div>
-                    )}
-                    
-                    <div className="relative z-10">
-                      <p className={`text-sm leading-relaxed font-normal ${isFeaturedVideoCard ? 'text-white' : 'text-[#334155]'}`}>
-                        "{t.quote}"
-                      </p>
-                    </div>
+                    <img
+                      src={t.avatar}
+                      alt={`Testimonial photo ${idx + 1}`}
+                      className="w-full h-full object-cover object-center"
+                    />
+
+                    {/* Enlarge icon button */}
+                    <button
+                      type="button"
+                      aria-label="Enlarge image"
+                      className="absolute bottom-5 right-5 p-2.5 rounded-full bg-black/60 hover:bg-black/85 text-white backdrop-blur-md transition-all shadow-lg"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLightboxImage(t.avatar);
+                      }}
+                    >
+                      <Maximize2 className="w-5 h-5" />
+                    </button>
                   </div>
                 );
               })}
+
+              {/* Prev / Next Arrows */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrevTestimonial();
+                }}
+                aria-label="Previous slide"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white text-[#000f22] backdrop-blur-md shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-slate-200 cursor-pointer"
+              >
+                <ChevronLeft className="w-6 h-6 text-[#000f22]" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNextTestimonial();
+                }}
+                aria-label="Next slide"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white text-[#000f22] backdrop-blur-md shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-slate-200 cursor-pointer"
+              >
+                <ChevronRight className="w-6 h-6 text-[#000f22]" />
+              </button>
+            </div>
+
+            {/* Navigation Bar: Dot Indicators & Thumbnail Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-1">
+              {/* Dot Indicators & Slide Count */}
+              <div className="flex items-center gap-2">
+                {TESTIMONIALS.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setTestimonialSlideIndex(idx)}
+                    aria-label={`Go to slide ${idx + 1}`}
+                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      idx === testimonialSlideIndex
+                        ? 'w-8 bg-[#b7102a]'
+                        : 'w-2.5 bg-slate-300 hover:bg-slate-400'
+                    }`}
+                  />
+                ))}
+                <span className="text-xs text-slate-500 font-medium ml-2">
+                  0{testimonialSlideIndex + 1} / 0{TESTIMONIALS.length}
+                </span>
+              </div>
+
+              {/* Thumbnail Strip */}
+              <div className="flex items-center gap-3">
+                {TESTIMONIALS.map((t, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setTestimonialSlideIndex(idx)}
+                    aria-label={`View photo ${idx + 1}`}
+                    className={`relative rounded-xl overflow-hidden w-20 h-14 sm:w-24 sm:h-16 transition-all duration-300 border-2 cursor-pointer ${
+                      idx === testimonialSlideIndex
+                        ? 'border-[#b7102a] scale-105 shadow-md ring-2 ring-[#b7102a]/20'
+                        : 'border-transparent opacity-60 hover:opacity-100 hover:border-slate-300'
+                    }`}
+                  >
+                    <img
+                      src={t.avatar}
+                      alt={`Thumbnail ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1029,6 +970,29 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         </div>
       </section>
+
+      {/* Lightbox Modal for Full Image Preview */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+            aria-label="Close preview"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            src={lightboxImage}
+            alt="Testimonial photo preview"
+            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 };

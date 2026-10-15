@@ -9,9 +9,9 @@ export const ARTICLES: Article[] = [
     readTime: '6 min read',
     date: 'March 2025',
     author: {
-      name: 'Olumide Adeleke',
-      avatarInitials: 'OA',
-      role: 'Senior Real Estate Analyst'
+      name: 'Caih Group',
+      avatarInitials: 'CG',
+      role: 'Caih Group'
     },
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCaspKwS-9-lfkm8UrXHGs0LP0-yQHNTVOhS82m5hholmOgEnoA6tCljQbXGrDFnku0rxHqmgR-n85EN4St9AL0OQxquC714HDx4_1C_3EeSthYmjekcmXol8ZORImvnhHPVsMrFD55YRnGg0Rgu2pARRtSKgeJEpqwbXsEmQtp1XVUkWcp7E2i3btShJn-0IEiwkknUN3nlQph6c5fd1VuJg_PyaUl9cjn_mzBZ-AQInGpMDundR014g',
     excerpt: 'New dualized roads, serene gated communities, and favorable entry pricing make Lekki Phase 2 the top choice for families and diaspora investors seeking long-term value in Lagos.',
@@ -70,9 +70,9 @@ export const ARTICLES: Article[] = [
     readTime: '7 min read',
     date: 'Feb 24, 2025',
     author: {
-      name: 'Babatunde Adeyemi',
-      avatarInitials: 'BA',
-      role: 'Legal Title Consultant'
+      name: 'Caih Group',
+      avatarInitials: 'CG',
+      role: 'Caih Group'
     },
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCnCZB9i3w6wY-79yplV3BsnJQDGuaMW_2RVge11NiznHJ0gZBg2H0evgEFiVqefXkN_OIoHKsj7Q7JoznSh9aVpvOpBqiVcnO9XLSj4o5XPoTheHl7SwR9ut_ABTGZi6NNeVMCUkyHvtn7dFoOlBPRoqXujhCc3513EwGwSwvjmBvOzD1XS7KuATqeuoF4239gBuJXTm9V3RAO_cm0mdQz2AIGfEvOkp8oqzoqLeZ5solI12E7kxsbvg',
     excerpt: 'Step-by-step verification checklist every buyer must follow to avoid fraud, verify land titles, and secure their real estate in Lagos.',
@@ -137,9 +137,9 @@ export const ARTICLES: Article[] = [
     readTime: '5 min read',
     date: 'Feb 10, 2025',
     author: {
-      name: 'Engr. Kayode Olorunfemi',
-      avatarInitials: 'KO',
-      role: 'Managing Director & Chief Engineer'
+      name: 'Caih Group',
+      avatarInitials: 'CG',
+      role: 'Caih Group'
     },
     image: '/images/regenerated_image_1791992506306.png',
     excerpt: 'An insider look at structural engineering, foundation piling, luxury terrace finishes, and handover timelines at Appleton Enclave in Idera.',
@@ -197,9 +197,9 @@ export const ARTICLES: Article[] = [
     readTime: '5 min read',
     date: 'Jan 28, 2025',
     author: {
-      name: 'Folashade Balogun',
-      avatarInitials: 'FB',
-      role: 'Investment Advisor'
+      name: 'Caih Group',
+      avatarInitials: 'CG',
+      role: 'Caih Group'
     },
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCnCZB9i3w6wY-79yplV3BsnJQDGuaMW_2RVge11NiznHJ0gZBg2H0evgEFiVqefXkN_OIoHKsj7Q7JoznSh9aVpvOpBqiVcnO9XLSj4o5XPoTheHl7SwR9ut_ABTGZi6NNeVMCUkyHvtn7dFoOlBPRoqXujhCc3513EwGwSwvjmBvOzD1XS7KuATqeuoF4239gBuJXTm9V3RAO_cm0mdQz2AIGfEvOkp8oqzoqLeZ5solI12E7kxsbvg',
     excerpt: 'A practical, straightforward checklist on how Governor’s Consent, C of O, and survey plans protect your capital against property fraud.',
@@ -257,9 +257,9 @@ export const ARTICLES: Article[] = [
     readTime: '6 min read',
     date: 'Jan 15, 2025',
     author: {
-      name: 'Olumide Adeleke',
-      avatarInitials: 'OA',
-      role: 'Senior Real Estate Analyst'
+      name: 'Caih Group',
+      avatarInitials: 'CG',
+      role: 'Caih Group'
     },
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCpC47bcbE54rAaCiLNXn7XfkPu0Nipp9jOyIxTI5sQZ2I_JwWekuN-ThsRaiv3Cb1F7Q9-1CWxei5URI_nq5mJP_wNI8sI-3LcqSmvvnPoyxvpaUJzI4y7-6zoUtdBESR5ita26AJhkObPsB9vs1GSTHPIfD2yNNyzF4iOunfFnbXKgRs0Ue1k8lmTKAFWdD_obvPTxq8xnyRJM8Xcrhc5YlaVcQBABN9ZZcJU3j-01NmBmHBizgqwuw',
     excerpt: 'Comparing upfront acquisition costs, capital appreciation margins, and risk factors between off-plan developments and move-in-ready homes in Lagos.',
@@ -312,9 +312,9 @@ export const ARTICLES: Article[] = [
     readTime: '6 min read',
     date: 'Dec 18, 2024',
     author: {
-      name: 'Babatunde Adeyemi',
-      avatarInitials: 'BA',
-      role: 'Legal Title Consultant'
+      name: 'Caih Group',
+      avatarInitials: 'CG',
+      role: 'Caih Group'
     },
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCH98qz3hJJWxr6Cvud_k8b-BNisFlBDXwgOqw9ioesdnfBm5EtGgnDsDrerr5fv2fzJlz5PwSFijZGx5VzG28EeZAqYdc6SDAr5I4LZXt2mioYWWcSNC0EaNccQuJE7VECSLsGd8MUoKzBqGmRJwpxmZ-iMEwjYzZyL0rLcoCyxtJbGLzuUF_6sDY2QSdrxlmt6i6HtSFkF05rK7_0Zwtd6-o59CEPjWiGhD596zh4XauzNEln8VxVDA',
     excerpt: 'Demystifying the legal differences between a Certificate of Occupancy and Governor’s Consent under the Land Use Act of 1978.',
@@ -360,9 +360,9 @@ export const ARTICLES: Article[] = [
     readTime: '7 min read',
     date: 'Nov 30, 2024',
     author: {
-      name: 'Engr. Kayode Olorunfemi',
-      avatarInitials: 'KO',
-      role: 'Managing Director & Chief Engineer'
+      name: 'Caih Group',
+      avatarInitials: 'CG',
+      role: 'Caih Group'
     },
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDzFRpyIeLl7ogQtifHFeUSAtsbvv_RPJ1yEeAbDuPtIHdJEGVW4stbhGuTxfe_8wiEOOdKSAkBSAAOy4Mqj7urOF1NMrlFr3WHW4xTdhW0o__vJDXiVW1x3rh1PBzr7hJZ5dHq3xJUg_-AF_oCNhsjh4YZnfVme_KSBZuTFKZ1wDWCChSx5x1OXG9Hm1rsYHY2TvmAMpL6LWA4GC9sF82dAOISCIHDZ2D0nEziCKCyeXyNV0j-M5qvPA',
     excerpt: 'How the 700km federal coastal superhighway is unlocking multi-billion dollar capital appreciation for residential and commercial estates in Lagos.',

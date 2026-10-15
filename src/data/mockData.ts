@@ -6,7 +6,7 @@ export const BRAND_ASSETS = {
   phone: '+234 906 688 7444',
   phoneClean: '+2349066887444',
   email: 'info@caihgroup.com',
-  address: 'NO. 5 Chief Ganiu Enitan Olugborangan layout, Eleganza Bus stop, Lagos, Nigeria'
+  address: 'No. 5 Chief Ganiu Enitan Olugborangan layout, Eleganza Bus stop, Lagos, Nigeria'
 };
 
 export const PROJECTS: Project[] = [
@@ -394,75 +394,40 @@ export const EXECUTIVES: Executive[] = [
 
 export const TESTIMONIALS: Testimonial[] = [
   {
-    name: 'Dr. Nkemdilim Okonkwo',
-    role: 'Diaspora Investor & Tech Director • London, UK',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCFdzODji4ZKbu4_Cci9uzE_D4RyaVCiRdqHOiwQAv2nI9ftfSweVGp-FP4U6W2cXU66NN4RSBRWY7ZyGqZCzcbPGELbC-445rmmm0NwtIDfGBeK12XtZhWCUQudnpqb6GS9RuDvGHQb2i3HxSqKP3vP57xV9p-X5yHzLjcPUG3uOKzqI6eq3AIC6lae3jwv1coi21Bsjzdk988llFllmJgJbBl74jdsHRC79p4p34rirE8F_tjy6dRg',
-    pillar: 'Caih Properties',
-    projectOrSector: 'Appleton Enclave (Idera Scheme, Eleko)',
-    location: 'Idera Scheme, Eleko, Lagos',
-    verifiedBadge: 'Verified Landowner • 500 SQM Plot',
-    rating: 5,
-    headline: 'Zero Anxiety Diaspora Land Purchase with Immediate Physical Beacon Allocation',
-    quote: 'Purchasing serviced plots at Appleton Enclave while living in London was seamless. Caih Group provided verified cadastral coordinates, live site drone walkthroughs, and prompt Governor’s Consent execution. Walking my physical beacons in Eleko with zero omo-onile interference proved their sovereign integrity.'
-  },
-  {
-    name: 'Engr. Babajide Adeleke',
-    role: 'Managing Director • Trans-Atlantic Logistics & Haulage',
+    name: '',
+    role: '',
     avatar: '/images/IMG-20260919-WA0004 (1).jpg',
-    pillar: 'Caih Properties',
-    projectOrSector: 'Appleton Commercial & Residences',
-    location: 'Origanrigan by Free Trade Zone / Dangote Corridor',
-    verifiedBadge: 'Commercial Land Owner • 2,000 SQM',
+    pillar: '',
+    projectOrSector: '',
+    location: '',
+    verifiedBadge: '',
     rating: 5,
-    headline: 'Prime Industrial Road Frontage with Fully Authenticated C of O Title',
-    quote: 'For our regional bonded logistics depot near the Dangote Refinery corridor, dry ground and wide heavy-duty road access were non-negotiable. Caih Group delivered exactly on target. Their Certificate of Occupancy (C of O) cleared our legal team’s due diligence at the Lagos Lands Bureau without a single hurdle.'
+    headline: '',
+    quote: ''
   },
   {
-    name: 'Mrs. Chioma Adele-Vance',
-    role: 'Homeowner & Healthcare Executive • Lekki',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBv99vS-UWLjYv9FMokxKVOkk4I1NsMHJ70LxoQXrb3auHR1FaETG2lw_cL-HQ8ncVyqdovzdeoptev0iNlvJr8DkxIpJ145NuGyfp0thcfLAVY_h6-BMYxuxTI-koxCMGMOIQqDwrpbOFQiZExCMdiynEWdJa9FCjz12wZ_vbS84TDn8kR7H15L7rzosJbg2fCv53swcEVxfVTMITGXy_j9RJ7EnimH4NIkkquuKEL6Pex527HPwU8vw',
-    pillar: 'Caih Properties',
-    projectOrSector: 'Appleton Court Terraces',
-    location: 'Akachukwu Street, Lekki, Lagos',
-    verifiedBadge: '4-Bedroom Terrace Homeowner',
+    name: '',
+    role: '',
+    avatar: '/images/IMG-20260919-WA0005 (1).jpg',
+    pillar: '',
+    projectOrSector: '',
+    location: '',
+    verifiedBadge: '',
     rating: 5,
-    headline: 'Pristine Structural Concrete Work and Unmatched Architectural Delivery',
-    quote: 'We subscribed to Appleton Court on Akachukwu Street off-plan. While most building projects in Lagos experience delays, Caih Group stuck religiously to their milestone schedule. From high-tensile structural rebar reinforcement to Italian kitchen installations, the build quality exceeds expectation.'
+    headline: '',
+    quote: ''
   },
   {
-    name: 'Chief Femi Oshodi',
-    role: 'Chairman • Oshodi Civil Infrastructure Ltd',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCbzgcEVVeCtlWvZcmgNavHXtESSrbMtcrBOHRM4rg6wF9I23odahAPjtrEW6YfodVNbYsr-vhNw0aYjO7itufjZn8CQryyh5aEwZ9YnB2nPLUbN2GglwNytP5fKrCrTQDYIkNM1SMz-tjS-9oBn4j9u3BbaJi3HfwluRlJ8KRR1rsOhc9fMOH97hV_GhIfQCwT7EhoiBbFsIrR1V074eUPBFh1hJC_COAyy4PPLuuJEv2iIKSnAJt_OmCxNuG2XcNtLMM',
-    pillar: 'Caih Construction',
-    projectOrSector: 'Turnkey Civil Engineering & Foundation Piling',
-    location: 'Lekki-Epe Industrial Corridor',
-    verifiedBadge: 'EPC Contracting Client',
+    name: '',
+    role: '',
+    avatar: '/images/IMG-20260919-WA0006.jpg',
+    pillar: '',
+    projectOrSector: '',
+    location: '',
+    verifiedBadge: '',
     rating: 5,
-    headline: 'Engineering Excellence in Deep Foundation Piling & Highway Access',
-    quote: 'Caih Construction commands rare structural discipline. We partnered with their engineering directorate for deep foundation piling and internal estate storm drainage. Their plant equipment was modern, their soil tests were rigorous, and their milestone delivery was completely dependable.'
-  },
-  {
-    name: 'Folashade Balogun',
-    role: 'Principal Partner • Apex Haven Realty',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCIZX-GtV7PL9YNIuRnz8QSjetUCdIP53G0dDbYnRb4MJltVUEe0IlKCn6O8knvX-j7WdyYNtHnmo9rL6JeGelZEoCZ6jVXJVqVSZqzwgUgRV6zCI-hxU4_o52FvwzHZyW9jD9mOuyaMxhHNmCqEzDozV9AvTv9QAYnLcVQJl0fYzJ-vGrymxnsLVFy5EWJHS0Dly3nw9fHmVTKsWI3MuHoJk3BUNTuUzU04eqcf5pU6ME2gNgNnuv5Tw',
-    pillar: 'Caih Partners',
-    projectOrSector: 'Caih Certified Realtor Syndicate',
-    location: 'Lagos & Diaspora Investment Conduits',
-    verifiedBadge: 'Platinum Realtor Partner',
-    rating: 5,
-    headline: 'The Most Transparent Real Estate Conglomerate for Diaspora Clients',
-    quote: 'In our 12 years of real estate brokerage in Lagos, Caih Group is the firm we recommend with absolute peace of mind. When we introduce diaspora clients to Appleton Enclave, Appleton Court, or Appleton Haven, there is zero ambiguity: pristine titles, prompt physical allocation, and transparent escrow accounting.'
-  },
-  {
-    name: 'Tunde Bakare',
-    role: 'Procurement Director • Apex Logistics West Africa',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDHavURfztIrSqr_5BZcf8LwmuDqOP4S3ZCLWBKKm0FuVAjHRF1UAJnnMAo5NshjIZtRiVJj_QbT-IB8t0im85Gmvm1GrRHk0o3fzCck5RxxuO8_sxxCkD5VHTAGt8KR8iJMrMejF3f3XMRN9PtzlymfSbTfyAJQ_coDqZhkR1fnAQVUsTvlTsRt_cQGlORvxP0PBmYhmNSmsXeKED8QTkAqvBps38Q2cBo3mnSoewbs9gruaqJSizYNQ',
-    pillar: 'Caih Resources',
-    projectOrSector: 'Heavy Plant Leasing & Aggregate Logistics',
-    location: 'Epe Basin & Lekki Commercial Axis',
-    verifiedBadge: 'Industrial Fleet & Materials Client',
-    rating: 5,
-    headline: 'Uninterrupted Supply of Quarry Aggregates & Heavy Excavator Fleets',
-    quote: 'The machinery leasing and granite aggregates supplied by Caih Resources for our Lekki commercial warehouse infrastructure kept our engineering crews working without interruption. Their operational readiness and logistics capacity in Lagos are second to none.'
+    headline: '',
+    quote: ''
   }
 ];
+

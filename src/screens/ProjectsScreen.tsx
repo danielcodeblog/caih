@@ -301,8 +301,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                     <span className="flex items-center gap-1 font-semibold text-[#000f22]">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> C of O Titled
                     </span>
-                    <span>•</span>
-                    <span>Q4 2025 Handover</span>
                   </div>
                   <h2 className="text-2xl lg:text-3xl font-extrabold text-[#000f22] leading-snug tracking-tight">
                     {flagship.title}

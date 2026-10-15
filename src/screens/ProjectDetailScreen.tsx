@@ -1,28 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Project, PageId } from '../types';
-import { PROJECTS, BRAND_ASSETS, VIDEO_DISPATCHES } from '../data/mockData';
+import { PROJECTS, BRAND_ASSETS } from '../data/mockData';
 import {
   ArrowLeft,
   MapPin,
-  ShieldCheck,
-  CheckCircle,
   Calendar,
   Share2,
   Check,
   Phone,
   ArrowRight,
   Video,
-  Plus,
-  Trash2,
-  Edit3,
   X,
   Maximize2,
   ChevronLeft,
   ChevronRight,
   Play,
-  Pause,
-  Image as ImageIcon,
-  ExternalLink
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface ProjectDetailScreenProps {
@@ -108,13 +101,6 @@ const DEFAULT_PROJECT_VIDEOS: Record<
     description:
       'Strategic corridor inspection by Dangote Refinery Axis and Lekki Free Trade Zone, showing mega warehouse access, commercial road frontages, and infrastructure.'
   },
-  'appleton-haven': {
-    url: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
-    title: 'Appleton Haven: Victoria Island Luxury Virtual Tour',
-    duration: '03:48',
-    description:
-      'Architectural 3D walkthrough showcasing double-volume living spaces, acoustic private cinema suites, and premium VI finishes.'
-  },
   'appleton-court': {
     url: 'https://vimeo.com/1235839354?fl=ip&fe=ec',
     title: 'Appleton Court Terraces: Live Structural Framing Walkthrough',
@@ -138,8 +124,11 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [isFullScreenPhotoOpen, setIsFullScreenPhotoOpen] = useState(false);
   
+  const hasVideo = project.id !== 'appleton-haven';
+
   // Media tab switcher: 'photos' or 'video'
   const [activeMediaTab, setActiveMediaTab] = useState<'photos' | 'video'>(() => {
+    if (project.id === 'appleton-haven') return 'photos';
     if (typeof window !== 'undefined' && (window.location.search.includes('view=video') || window.location.hash === '#video-walkthrough')) {
       return 'video';
     }
@@ -147,14 +136,9 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
   });
 
   // Video management state
-  const storageKey = `caih_property_video_${project.id}`;
   const [customVideo, setCustomVideo] = useState<VideoEntry | null>(null);
-  const [isAddVideoModalOpen, setIsAddVideoModalOpen] = useState(false);
-  const [videoInputUrl, setVideoInputUrl] = useState('');
-  const [videoInputTitle, setVideoInputTitle] = useState('');
-  const [inputError, setInputError] = useState('');
 
-  // Load custom video from localStorage or default
+  // Load custom video from default
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setActivePhotoIndex(0);
@@ -163,30 +147,22 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
       setSelectedUnitId(project.unitsOrPlots[0].id);
     }
 
+    if (project.id === 'appleton-haven') {
+      setActiveMediaTab('photos');
+      setCustomVideo(null);
+      return;
+    }
+
     if (typeof window !== 'undefined' && (window.location.search.includes('view=video') || window.location.hash === '#video-walkthrough')) {
       setActiveMediaTab('video');
     }
 
-    try {
-      const saved = localStorage.getItem(storageKey);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed?.url) {
-          const entry = parseVideoUrl(parsed.url, parsed.title);
-          setCustomVideo(entry);
-          return;
-        }
-      }
-    } catch {
-      // ignore JSON errors
+    const defaultData = DEFAULT_PROJECT_VIDEOS[project.id];
+    if (defaultData) {
+      setCustomVideo(parseVideoUrl(defaultData.url, defaultData.title));
+    } else {
+      setCustomVideo(null);
     }
-
-    // Default if no custom video stored
-    const defaultData = DEFAULT_PROJECT_VIDEOS[project.id] || {
-      url: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
-      title: `${project.title} Virtual Tour`
-    };
-    setCustomVideo(parseVideoUrl(defaultData.url, defaultData.title));
   }, [project.id]);
 
   const currentUnit =
@@ -216,46 +192,6 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
       ? `${project.title} - ${unitName} (${project.location})`
       : `${project.title} (${project.location})`;
     onBookInspection(target);
-  };
-
-  const handleSaveVideo = (e: React.FormEvent) => {
-    e.preventDefault();
-    setInputError('');
-
-    if (!videoInputUrl.trim()) {
-      setInputError('Please enter a valid video link.');
-      return;
-    }
-
-    const parsed = parseVideoUrl(videoInputUrl, videoInputTitle || `${project.title} Video Tour`);
-    if (!parsed) {
-      setInputError('Please enter a valid YouTube, Vimeo, or MP4 link.');
-      return;
-    }
-
-    setCustomVideo(parsed);
-    try {
-      localStorage.setItem(storageKey, JSON.stringify({ url: parsed.url, title: parsed.title }));
-    } catch {
-      // storage unavailable
-    }
-
-    setIsAddVideoModalOpen(false);
-    setVideoInputUrl('');
-    setVideoInputTitle('');
-  };
-
-  const handleRemoveCustomVideo = () => {
-    try {
-      localStorage.removeItem(storageKey);
-    } catch {
-      // ignore
-    }
-    const defaultData = DEFAULT_PROJECT_VIDEOS[project.id] || {
-      url: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
-      title: `${project.title} Virtual Tour`
-    };
-    setCustomVideo(parseVideoUrl(defaultData.url, defaultData.title));
   };
 
   const otherProjects = PROJECTS.filter((p) => p.id !== project.id);
@@ -308,29 +244,37 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
             </p>
           </div>
 
-
+          <div className="text-left md:text-right shrink-0">
+            <span className="text-[11px] font-semibold text-[#64748B] uppercase tracking-wider block">
+              Investment Pricing
+            </span>
+            <span className="text-2xl sm:text-3xl font-extrabold text-[#b7102a] block">
+              {project.priceDisplay}
+            </span>
+            <span className="text-xs text-emerald-700 font-semibold block">
+              {project.priceSub || 'Guaranteed Direct Allocation'}
+            </span>
+          </div>
         </div>
 
-        {/* Media & Key Specs Grid (Simple, high visual impact) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
-          {/* Left: Media Viewport */}
-          <div className="lg:col-span-12 flex flex-col gap-3">
-            {/* Top Media Bar with Photo & Video Tabs */}
-            <div className="flex items-center justify-between pb-0.5">
-              <div className="flex items-center gap-1.5 bg-[#F1F5F9] p-1 rounded-xl">
-                <button
-                  type="button"
-                  onClick={() => setActiveMediaTab('photos')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    activeMediaTab === 'photos'
-                      ? 'bg-white text-[#000f22] shadow-xs'
-                      : 'text-[#64748B] hover:text-[#000f22]'
-                  }`}
-                >
-                  <ImageIcon className="w-3.5 h-3.5" />
-                  <span>Photo Gallery ({project.galleryImages?.length || 1})</span>
-                </button>
+        {/* Media Viewport (Increased height, reduced width & centered) */}
+        <div className="w-full max-w-4xl mx-auto flex flex-col gap-3">
+          {/* Top Media Bar with Photo & Video Tabs */}
+          <div className="flex items-center justify-between pb-0.5">
+            <div className="flex items-center gap-1.5 bg-[#F1F5F9] p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setActiveMediaTab('photos')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeMediaTab === 'photos'
+                    ? 'bg-white text-[#000f22] shadow-xs'
+                    : 'text-[#64748B] hover:text-[#000f22]'
+                }`}
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>Photo Gallery ({project.galleryImages?.length || 1})</span>
+              </button>
+              {hasVideo && (
                 <button
                   type="button"
                   onClick={() => setActiveMediaTab('video')}
@@ -344,53 +288,49 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                   <span>Video Tour</span>
                   <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
                 </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {activeMediaTab === 'video' ? (
-                  <button
-                    type="button"
-                    onClick={() => setIsAddVideoModalOpen(true)}
-                    className="text-[11px] font-semibold text-[#b7102a] hover:underline flex items-center gap-1 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-[#E2E8F0]"
-                  >
-                    <Edit3 className="w-3 h-3" />
-                    <span>Change Video</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setActiveMediaTab('video')}
-                    className="text-[11px] font-semibold text-[#b7102a] hover:underline flex items-center gap-1 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-[#E2E8F0]"
-                  >
-                    <Play className="w-3 h-3 fill-[#b7102a]" />
-                    <span>Watch Video Tour</span>
-                  </button>
-                )}
-              </div>
+              )}
             </div>
 
-            {activeMediaTab === 'photos' ? (
-              <>
-                <div
-                  className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden border border-[#E2E8F0] bg-slate-900 shadow-sm flex items-center justify-center group cursor-pointer"
-                  onClick={() => setIsFullScreenPhotoOpen(true)}
+            {hasVideo && activeMediaTab === 'photos' && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveMediaTab('video')}
+                  className="text-[11px] font-semibold text-[#b7102a] hover:underline flex items-center gap-1 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-[#E2E8F0]"
                 >
-                  <img
-                    src={project.galleryImages?.[activePhotoIndex] || project.image}
-                    alt={project.title}
-                    className={`w-full h-full transition-transform duration-500 group-hover:scale-102 ${
-                      (project.galleryImages?.[activePhotoIndex] || project.image).includes('commercial')
-                        ? 'object-contain'
-                        : 'object-cover'
-                    }`}
-                  />
-                  <div className="absolute top-3 left-3 flex gap-2">
-                    <span className="px-2.5 py-1 rounded bg-[#b7102a] text-white text-[10px] uppercase font-bold tracking-wider shadow">
-                      {project.statusLabel}
-                    </span>
-                  </div>
+                  <Play className="w-3 h-3 fill-[#b7102a]" />
+                  <span>Watch Video Tour</span>
+                </button>
+              </div>
+            )}
+          </div>
 
-                  {/* Switch to video prompt pill */}
+          {activeMediaTab === 'photos' ? (
+            <>
+              {/* Increased height & reduced width photo container */}
+              <div
+                className="relative w-full h-[380px] sm:h-[480px] md:h-[540px] rounded-2xl overflow-hidden border border-[#E2E8F0] bg-slate-900 shadow-sm flex items-center justify-center group cursor-pointer"
+                onClick={() => setIsFullScreenPhotoOpen(true)}
+              >
+                <img
+                  src={project.galleryImages?.[activePhotoIndex] || project.image}
+                  alt={project.title}
+                  loading="lazy"
+                  decoding="async"
+                  className={`w-full h-full transition-transform duration-500 group-hover:scale-102 ${
+                    (project.galleryImages?.[activePhotoIndex] || project.image).includes('commercial')
+                      ? 'object-contain'
+                      : 'object-cover'
+                  }`}
+                />
+                <div className="absolute top-3 left-3 flex gap-2">
+                  <span className="px-2.5 py-1 rounded bg-[#b7102a] text-white text-[10px] uppercase font-bold tracking-wider shadow">
+                    {project.statusLabel}
+                  </span>
+                </div>
+
+                {/* Switch to video prompt pill - hidden for Appleton Haven */}
+                {hasVideo && (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -402,109 +342,99 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                     <Play className="w-3 h-3 fill-white" />
                     <span>Watch Site Video</span>
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsFullScreenPhotoOpen(true);
-                    }}
-                    className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white px-3 py-1.5 rounded-xl backdrop-blur-md transition-all shadow-sm flex items-center gap-1.5 text-xs font-medium cursor-pointer z-10"
-                    title="View Full Screen Photo"
-                  >
-                    <Maximize2 className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">View Full</span>
-                  </button>
-                  <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center text-white text-xs">
-                    <span className="text-slate-300 text-[11px]">
-                      {activePhotoIndex + 1} / {project.galleryImages?.length || 1}
-                    </span>
-                  </div>
-                </div>
-
-                {project.galleryImages && project.galleryImages.length > 1 && project.id !== 'appleton-court' && (
-                  <div className="grid grid-cols-5 gap-2">
-                    {project.galleryImages.map((photoUrl, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setActivePhotoIndex(idx)}
-                        className={`relative aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                          activePhotoIndex === idx
-                            ? 'border-[#b7102a] ring-2 ring-[#b7102a]/20 shadow-xs'
-                            : 'border-[#E2E8F0] opacity-80 hover:opacity-100 hover:border-[#CBD5E1]'
-                        }`}
-                      >
-                        <img src={photoUrl} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
-                      </button>
-                    ))}
-                  </div>
                 )}
-              </>
-            ) : (
-              /* Video Tab View */
-              <div className="flex flex-col gap-2.5">
-                <div className="w-full relative bg-black flex flex-col justify-center rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-sm aspect-[4/3] sm:aspect-[16/10]">
-                  {customVideo ? (
-                    customVideo.sourceType === 'mp4' ? (
-                      <video
-                        src={customVideo.embedUrl}
-                        controls
-                        autoPlay
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <iframe
-                        src={customVideo.embedUrl}
-                        title={customVideo.title}
-                        className="w-full h-full border-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                      />
-                    )
-                  ) : (
-                    <div className="flex flex-col items-center justify-center text-center p-6 text-white gap-3">
-                      <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center">
-                        <Video className="w-7 h-7 text-[#ffb3b1]" />
-                      </div>
-                      <h4 className="text-base font-bold">No Video Added Yet</h4>
-                      <button
-                        onClick={() => setIsAddVideoModalOpen(true)}
-                        className="px-4 py-2 rounded-xl bg-[#b7102a] text-white text-xs font-bold"
-                      >
-                        Add Video Link
-                      </button>
-                    </div>
-                  )}
-                </div>
 
-                <div className="p-3.5 rounded-xl bg-white border border-[#E2E8F0] flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2 truncate">
-                    <Video className="w-4 h-4 text-[#b7102a] shrink-0" />
-                    <span className="font-bold text-[#000f22] truncate">
-                      {customVideo?.title || `${project.title} Video Tour`}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2.5 shrink-0">
-                    <button
-                      onClick={() => setIsAddVideoModalOpen(true)}
-                      className="text-xs text-[#b7102a] font-bold hover:underline"
-                    >
-                      Change
-                    </button>
-                    <span className="text-slate-300">•</span>
-                    <button
-                      onClick={() => setActiveMediaTab('photos')}
-                      className="text-xs text-[#64748B] hover:text-[#000f22]"
-                    >
-                      View Photos ({project.galleryImages?.length || 1})
-                    </button>
-                  </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsFullScreenPhotoOpen(true);
+                  }}
+                  className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white px-3 py-1.5 rounded-xl backdrop-blur-md transition-all shadow-sm flex items-center gap-1.5 text-xs font-medium cursor-pointer z-10"
+                  title="View Full Screen Photo"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">View Full</span>
+                </button>
+                <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center text-white text-xs">
+                  <span className="text-slate-300 text-[11px]">
+                    {activePhotoIndex + 1} / {project.galleryImages?.length || 1}
+                  </span>
                 </div>
               </div>
-            )}
-          </div>
 
+              {project.galleryImages && project.galleryImages.length > 1 && (
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5">
+                  {project.galleryImages.map((photoUrl, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActivePhotoIndex(idx)}
+                      className={`relative w-20 sm:w-24 aspect-[16/10] shrink-0 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                        activePhotoIndex === idx
+                          ? 'border-[#b7102a] ring-2 ring-[#b7102a]/20 shadow-xs'
+                          : 'border-[#E2E8F0] opacity-80 hover:opacity-100 hover:border-[#CBD5E1]'
+                      }`}
+                    >
+                      <img
+                        src={photoUrl}
+                        alt={`Thumbnail ${idx + 1}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            /* Video Tab View - Increased height & reduced width */
+            <div className="flex flex-col gap-2.5">
+              <div className="w-full relative bg-black flex flex-col justify-center rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-sm h-[380px] sm:h-[480px] md:h-[540px]">
+                {customVideo ? (
+                  customVideo.sourceType === 'mp4' ? (
+                    <video
+                      src={customVideo.embedUrl}
+                      controls
+                      autoPlay
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <iframe
+                      src={customVideo.embedUrl}
+                      title={customVideo.title}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  )
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center p-6 text-white gap-3">
+                    <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center">
+                      <Video className="w-7 h-7 text-[#ffb3b1]" />
+                    </div>
+                    <h4 className="text-base font-bold">Video Tour Coming Soon</h4>
+                  </div>
+                )}
+              </div>
 
+              <div className="p-3.5 rounded-xl bg-white border border-[#E2E8F0] flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 truncate">
+                  <Video className="w-4 h-4 text-[#b7102a] shrink-0" />
+                  <span className="font-bold text-[#000f22] truncate">
+                    {customVideo?.title || `${project.title} Video Tour`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2.5 shrink-0">
+                  <button
+                    onClick={() => setActiveMediaTab('photos')}
+                    className="text-xs text-[#64748B] hover:text-[#000f22] cursor-pointer"
+                  >
+                    View Photos ({project.galleryImages?.length || 1})
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
 
@@ -594,114 +524,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
 
       </main>
 
-      {/* MODAL: ADD / EMBED PROPERTY VIDEO */}
-      {isAddVideoModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-2xl max-w-lg w-full p-6 sm:p-7 relative">
-            <button
-              onClick={() => {
-                setIsAddVideoModalOpen(false);
-                setInputError('');
-              }}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-[#000f22] hover:bg-slate-100 transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
 
-            <div className="flex items-center gap-2 text-[#b7102a] mb-1">
-              <Video className="w-5 h-5" />
-              <span className="text-xs uppercase font-bold tracking-wider">Property Video Tour</span>
-            </div>
-
-            <h3 className="text-xl font-bold text-[#000f22]">
-              Add or Change Video
-            </h3>
-            <p className="text-xs text-[#64748B] mt-1 mb-5">
-              Paste a link from YouTube, Vimeo, or a direct MP4 file. It will embed directly into this property's video tour.
-            </p>
-
-            <form onSubmit={handleSaveVideo} className="flex flex-col gap-4">
-              <div>
-                <label className="block text-xs font-bold text-[#000f22] mb-1">
-                  Video URL *
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. https://www.youtube.com/watch?v=... or .mp4"
-                  value={videoInputUrl}
-                  onChange={(e) => {
-                    setVideoInputUrl(e.target.value);
-                    if (inputError) setInputError('');
-                  }}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-xs text-[#000f22] focus:outline-hidden focus:border-[#b7102a] focus:ring-1 focus:ring-[#b7102a]"
-                  autoFocus
-                />
-                {inputError && (
-                  <p className="text-xs text-rose-600 mt-1 font-medium">{inputError}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#000f22] mb-1">
-                  Video Title (Optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. On-Site Drone Walkthrough"
-                  value={videoInputTitle}
-                  onChange={(e) => setVideoInputTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-xs text-[#000f22] focus:outline-hidden focus:border-[#b7102a] focus:ring-1 focus:ring-[#b7102a]"
-                />
-              </div>
-
-              {/* Sample Quick Links */}
-              <div className="pt-2">
-                <span className="text-[11px] font-bold text-[#64748B] block mb-2">
-                  Or pick a sample site video:
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVideoInputUrl('https://www.youtube.com/watch?v=ScMzIvxBSi4');
-                      setVideoInputTitle(`${project.title} Drone Flyover`);
-                    }}
-                    className="px-2.5 py-1 rounded-md bg-[#F1F5F9] hover:bg-slate-200 text-[#000f22] text-[11px] font-medium transition-colors cursor-pointer"
-                  >
-                    Site Drone Tour
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVideoInputUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
-                      setVideoInputTitle(`${project.title} Architectural 3D Walkthrough`);
-                    }}
-                    className="px-2.5 py-1 rounded-md bg-[#F1F5F9] hover:bg-slate-200 text-[#000f22] text-[11px] font-medium transition-colors cursor-pointer"
-                  >
-                    3D Virtual Tour
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#F1F5F9] mt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddVideoModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#64748B] hover:text-[#000f22] hover:bg-slate-100 transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-                >
-                  Save & Play Video
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
       {/* Fullscreen Photo Lightbox Modal */}
       {isFullScreenPhotoOpen && (
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-6 animate-fadeIn">
