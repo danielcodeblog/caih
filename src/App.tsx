@@ -60,7 +60,7 @@ export default function App() {
     if (pathname.startsWith('/projects/')) return 'project-detail';
     if (pathname === '/projects') return 'projects';
     if (pathname.startsWith('/video/')) return 'video-detail';
-    if (pathname === '/blog') return 'blog';
+    if (pathname.startsWith('/blog')) return 'blog';
     if (pathname === '/about-us') return 'about-us';
     if (pathname === '/realtor-registration') return 'realtor-registration';
     if (pathname === '/contact') return 'contact';
@@ -133,7 +133,7 @@ export default function App() {
   };
 
   const handleViewArticle = (art: Article) => {
-    navigate('/blog');
+    navigate(`/blog/${art.id}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -196,10 +196,19 @@ export default function App() {
             path="/blog"
             element={
               <BlogScreen
-                selectedArticleId={null}
-                onSelectArticle={() => {}}
                 onViewVideo={handleViewVideo}
                 onNavigateToProjects={() => navigate('/projects')}
+                onBookInspection={handleOpenInspectionBooking}
+              />
+            }
+          />
+          <Route
+            path="/blog/:id"
+            element={
+              <BlogScreen
+                onViewVideo={handleViewVideo}
+                onNavigateToProjects={() => navigate('/projects')}
+                onBookInspection={handleOpenInspectionBooking}
               />
             }
           />

@@ -1,4 +1,4 @@
-import { Project, VideoDispatch, Executive } from '../types';
+import { Project, VideoDispatch, Executive, Testimonial } from '../types';
 
 export const BRAND_ASSETS = {
   headerLogo: 'https://lh3.googleusercontent.com/aida/AEtjO1Xu8Hi6gt4IGQJGtzMiiVOJsUwmZ-9RghSb-lHSvDpMG5D3t77bbzY0y9gAIJ6o78MlC6UABcvq9m0iKyLQwjI08lacfJPVOO8cr20_5kA_wzVeh90QGIhgw7zo26A_EdIQkJFpQsK3a4CjHn33AovZQIaCE0UikPrXE00tOzFoQtJv11D2H9wEllnI-NvPVCIVwoG3McT19e39q9STUSXiswdZ5VIEJbGzrNTRu3i-GtZu4Zlvztb2RF1E',
@@ -13,8 +13,8 @@ export const PROJECTS: Project[] = [
   {
     id: 'appleton-enclave',
     title: 'Appleton Enclave',
-    location: 'Idera Scheme, Eleko, Lagos',
-    corridor: 'Idera',
+    location: 'Idera Scheme, Ibeju-Lekki, Lagos',
+    corridor: 'Ibeju-Lekki',
     propertyType: 'plots',
     priceCategory: 'mid',
     status: 'ongoing',
@@ -83,90 +83,96 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'appleton-commercial-residential',
-    title: 'Appleton (Commercial & Residential)',
-    location: 'Dangote Refinery Corridor, Lagos',
-    corridor: 'Dangote Refinery Axis',
+    title: 'Appleton Commercial & Residences',
+    location: 'Origanrigan Area of Ibeju Lekki by the Free Trade Zone',
+    corridor: 'Free Trade Zone / Dangote Refinery Axis',
     propertyType: 'plots',
     priceCategory: 'high',
     status: 'upcoming',
     statusLabel: 'Available for Allocation',
-    badge: 'COMMERCIAL & RESIDENTIAL',
-    secondaryBadge: 'DANGOTE REFINERY AXIS',
-    image: '/images/regenerated_image_1791992702647.png',
-    galleryImages: ['/images/regenerated_image_1791992702647.png'],
-    priceDisplay: 'From ₦95m',
-    priceSub: '1,000 sqm – 3,000 sqm development parcels',
+    badge: 'COMMERCIAL & RESIDENCES',
+    secondaryBadge: 'FREE TRADE ZONE • C OF O',
+    image: '/images/commercial-e1770636774756.jpeg',
+    galleryImages: [
+      '/images/commercial-e1770636774756.jpeg',
+      '/images/regenerated_image_1791992702647.png'
+    ],
+    priceDisplay: 'From ₦70m',
+    priceSub: '1,000 SQM (₦70M) • 2,000 SQM (₦130M) • 5,000 SQM (₦300M)',
     paymentType: 'Direct Allocation',
     handoverDate: 'Immediate Physical Allocation',
     specs: {
-      area: '1,000 – 3,000 sqm',
+      area: '1,000 – 5,000 SQM',
       landType: 'Heavy-Duty Dry Ground',
-      titleType: 'Governor’s Consent'
+      titleType: 'Certificate of Occupancy (C of O)'
     },
-    summary: 'Strategic mixed-use development land parcels along the booming Dangote Refinery and Lekki Free Zone economic corridor.',
-    detailedDescription: 'Appleton Commercial & Residential offers unmatched strategic placement along the high-growth Dangote Refinery axis. Featuring high-load bearing dry land, certified Governor’s Consent titles, dual-access heavy duty roadways, and versatile zoning for commercial and residential developments.',
+    summary: 'Appleton Commercial & Residences in the Origanrigan Area of Ibeju Lekki by the Free Trade Zone. Prime C of O serviced parcels with central gas powered system, warehouses & storage, wide heavy-duty roads, and residential zoning.',
+    detailedDescription: 'Appleton Commercial & Residences is a signature master development by CAIH Group located in the strategic Origanrigan area of Ibeju Lekki, adjacent to the Lekki Free Trade Zone and Dangote Refinery corridor. Fully certified with a sovereign Certificate of Occupancy (C of O), the project offers 1,000 SQM, 2,000 SQM, and 5,000 SQM development parcels engineered with heavy-duty roadways, central gas-powered systems, 24/7 CCTV surveillance, perimeter fencing, integrated warehouse and storage facilities, and designated residential quarters.',
     keyFeatures: [
-      'Strategic Frontage on Dangote Refinery / Lekki Free Zone Corridor',
-      'Dual-Access Heavy-Duty Paved Roadways',
-      'High-Load Bearing 100% Dry Ground Topography',
-      'Certified Governor’s Consent Sovereign Title',
-      'Flexible Mixed-Use (Commercial & Residential) Zoning Approval',
-      'Immediate Physical Allocation & Beacon Inscription'
+      'Land Title: Certified Certificate of Occupancy (C of O)',
+      'Strategic Location: Origanrigan Area of Ibeju Lekki by Free Trade Zone',
+      'Central Gas Powered System Infrastructure',
+      '24/7 Surveillance Camera Security Coverage',
+      'Full Perimeter Fencing with Monitored Gate Access',
+      'Wide and Heavy-Duty Road Networks Engineered for Logistics',
+      'Integrated Warehouses and Storage Facilities',
+      'Master-Planned Dedicated Residential Area Partition',
+      'Immediate Physical Allocation & Cadastral Beacon Demarcation'
     ],
     unitsOrPlots: [
       {
         id: 'appleton-comm-res-1000',
-        name: '1,000 sqm Commercial / Residential Plot',
-        size: '1,000 sqm',
-        priceDisplay: '₦95m',
-        priceSub: '1,000 sqm Parcel',
+        name: '1,000 SQM Commercial & Residential Plot',
+        size: '1,000 SQM',
+        priceDisplay: '₦70m',
+        priceSub: '1,000 SQM Parcel',
         paymentType: 'Direct Allocation',
         landType: 'Heavy-Duty Dry Land',
-        titleType: 'Governor’s Consent',
+        titleType: 'Certificate of Occupancy (C of O)',
         isPopular: true,
         features: [
-          'Dual Mixed-Use Zoning',
-          'Direct Corridor Road Frontage',
-          '100% Dry Table Topography',
-          'Clear Governor’s Consent Title'
+          'Certificate of Occupancy (C of O)',
+          '1,000 SQM Heavy-Duty Ground',
+          'Direct Free Trade Zone Corridor Frontage',
+          'Access to Central Gas Powered Grid'
         ],
-        description: 'Strategically located development land parcel along the high-traffic commercial refinery corridor.'
+        description: 'Prime 1,000 SQM parcel in Origanrigan by the Free Trade Zone, optimal for high-yield commercial or residential developments.'
       },
       {
         id: 'appleton-comm-res-2000',
-        name: '2,000 sqm Strategic Development Parcel',
-        size: '2,000 sqm',
-        priceDisplay: '₦190m',
-        priceSub: '2,000 sqm Strategic Parcel',
+        name: '2,000 SQM Strategic Logistics & Enterprise Parcel',
+        size: '2,000 SQM',
+        priceDisplay: '₦130m',
+        priceSub: '2,000 SQM Strategic Parcel',
         paymentType: 'Direct Allocation',
         landType: 'Heavy-Duty Dry Land',
-        titleType: 'Governor’s Consent',
+        titleType: 'Certificate of Occupancy (C of O)',
         isPopular: false,
         features: [
-          'Dual-Frontage Corridor Access',
-          'Heavy-Load Bearing Soil',
-          'Central Drainage Reticulation',
-          'Immediate Survey Demarcation'
+          'Certificate of Occupancy (C of O)',
+          '2,000 SQM Dual-Frontage Access',
+          'Heavy-Load Bearing Foundation Ground',
+          'Central Gas & Warehouse Ready'
         ],
-        description: 'Substantial commercial land parcel with wide frontage and excellent access infrastructure.'
+        description: 'Substantial 2,000 SQM parcel with wide frontage and heavy-load capacity, tailored for distribution, commerce, or multi-family residences.'
       },
       {
-        id: 'appleton-comm-res-3000',
-        name: '3,000 sqm Landmark Commercial Parcel',
-        size: '3,000 sqm',
-        priceDisplay: '₦285m',
-        priceSub: '3,000 sqm Landmark Parcel',
+        id: 'appleton-comm-res-5000',
+        name: '5,000 SQM Mega Warehouse / Industrial & Commercial Hub',
+        size: '5,000 SQM',
+        priceDisplay: '₦300m',
+        priceSub: '5,000 SQM Mega Parcel',
         paymentType: 'Direct Allocation',
         landType: 'Heavy-Duty Dry Land',
-        titleType: 'Governor’s Consent',
+        titleType: 'Certificate of Occupancy (C of O)',
         isPopular: false,
         features: [
-          'Corner Landmark Visibility',
-          'Dedicated Power Substation Corridor',
-          'Maximum Frontage Geometry',
-          'Instant Deed of Assignment'
+          'Certificate of Occupancy (C of O)',
+          '5,000 SQM Landmark Industrial Footprint',
+          'Direct Logistics Heavy-Duty Roadway Access',
+          'Integrated Warehouse & Storage Infrastructure'
         ],
-        description: 'Expansive signature land parcel with prime positioning for high-capacity corporate and commercial undertakings.'
+        description: 'Expansive 5,000 SQM flagship commercial land parcel in Origanrigan by the Free Trade Zone, primed for industrial warehousing, corporate storage, or large-scale enterprise.'
       }
     ]
   },
@@ -181,13 +187,15 @@ export const PROJECTS: Project[] = [
     statusLabel: 'Under Construction',
     badge: 'APPLETON HAVEN',
     secondaryBadge: 'VICTORIA ISLAND LUXURY',
-    image: '/images/IMG_4380.JPG',
+    image: '/images/PHOTO-2025-01-14-10-40-55 (1) (1).jpg',
     galleryImages: [
-      '/images/IMG_4380.JPG',
-      '/images/IMG_4379.JPG',
-      '/images/IMG_4378.JPG',
-      '/images/IMG_4382.JPG',
-      '/images/IMG_4381.JPG'
+      '/images/PHOTO-2025-01-14-10-40-55 (1) (1).jpg',
+      '/images/PHOTO-2025-01-14-10-40-55 (2).jpg',
+      '/images/IMG_4380.jpg',
+      '/images/IMG_4379.jpg',
+      '/images/IMG_4378.jpg',
+      '/images/IMG_4382.jpg',
+      '/images/IMG_4381.jpg'
     ],
     priceDisplay: 'From ₦450m',
     priceSub: '2, 3 & 4-Bedroom Luxury Residences',
@@ -266,7 +274,16 @@ export const PROJECTS: Project[] = [
     badge: 'APPLETON COURT',
     secondaryBadge: 'AKACHUKWU STREET • TERRACES',
     image: '/images/Caih-Properties-Home.jpg',
-    galleryImages: ['/images/Caih-Properties-Home.jpg'],
+    galleryImages: [
+      '/images/IMG_3523.jpg',
+      '/images/IMG_3525.jpg',
+      '/images/IMG_3535 (1).jpg',
+      '/images/IMG_4378.jpg',
+      '/images/IMG_4379.jpg',
+      '/images/IMG_4380.jpg',
+      '/images/IMG_4381.jpg',
+      '/images/IMG_4382.jpg'
+    ],
     priceDisplay: 'From ₦280m',
     priceSub: '4-Bedroom Luxury Terraces',
     paymentType: 'Direct Allocation',
@@ -375,23 +392,77 @@ export const EXECUTIVES: Executive[] = [
   }
 ];
 
-export const TESTIMONIALS = [
+export const TESTIMONIALS: Testimonial[] = [
   {
-    name: 'Maria Analia',
-    role: 'Homeowner • Appleton Court, Akachukwu Street',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBv99vS-UWLjYv9FMokxKVOkk4I1NsMHJ70LxoQXrb3auHR1FaETG2lw_cL-HQ8ncVyqdovzdeoptev0iNlvJr8DkxIpJ145NuGyfp0thcfLAVY_h6-BMYxuxTI-koxCMGMOIQqDwrpbOFQiZExCMdiynEWdJa9FCjz12wZ_vbS84TDn8kR7H15L7rzosJbg2fCv53swcEVxfVTMITGXy_j9RJ7EnimH4NIkkquuKEL6Pex527HPwU8vw',
-    quote: 'Investing in Appleton Court off-plan was one of our best financial decisions in Lagos. Caih Group stuck religiously to their construction timeline and their structural finishing is pristine.'
+    name: 'Dr. Nkemdilim Okonkwo',
+    role: 'Diaspora Investor & Tech Director • London, UK',
+    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCFdzODji4ZKbu4_Cci9uzE_D4RyaVCiRdqHOiwQAv2nI9ftfSweVGp-FP4U6W2cXU66NN4RSBRWY7ZyGqZCzcbPGELbC-445rmmm0NwtIDfGBeK12XtZhWCUQudnpqb6GS9RuDvGHQb2i3HxSqKP3vP57xV9p-X5yHzLjcPUG3uOKzqI6eq3AIC6lae3jwv1coi21Bsjzdk988llFllmJgJbBl74jdsHRC79p4p34rirE8F_tjy6dRg',
+    pillar: 'Caih Properties',
+    projectOrSector: 'Appleton Enclave (Idera Scheme, Eleko)',
+    location: 'Idera Scheme, Eleko, Lagos',
+    verifiedBadge: 'Verified Landowner • 500 SQM Plot',
+    rating: 5,
+    headline: 'Zero Anxiety Diaspora Land Purchase with Immediate Physical Beacon Allocation',
+    quote: 'Purchasing serviced plots at Appleton Enclave while living in London was seamless. Caih Group provided verified cadastral coordinates, live site drone walkthroughs, and prompt Governor’s Consent execution. Walking my physical beacons in Eleko with zero omo-onile interference proved their sovereign integrity.'
   },
   {
-    name: 'Dr. Emmanuel Olugbenga',
-    role: 'Investor • UK Diaspora Syndicate',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCFdzODji4ZKbu4_Cci9uzE_D4RyaVCiRdqHOiwQAv2nI9ftfSweVGp-FP4U6W2cXU66NN4RSBRWY7ZyGqZCzcbPGELbC-445rmmm0NwtIDfGBeK12XtZhWCUQudnpqb6GS9RuDvGHQb2i3HxSqKP3vP57xV9p-X5yHzLjcPUG3uOKzqI6eq3AIC6lae3jwv1coi21Bsjzdk988llFllmJgJbBl74jdsHRC79p4p34rirE8F_tjy6dRg',
-    quote: 'As a diaspora buyer, trusting local building contractors was a major anxiety. Caih Construction delivered live video milestones and delivered on budget with zero unexpected additions.'
+    name: 'Engr. Babajide Adeleke',
+    role: 'Managing Director • Trans-Atlantic Logistics & Haulage',
+    avatar: '/images/IMG-20260919-WA0004 (1).jpg',
+    pillar: 'Caih Properties',
+    projectOrSector: 'Appleton Commercial & Residences',
+    location: 'Origanrigan by Free Trade Zone / Dangote Corridor',
+    verifiedBadge: 'Commercial Land Owner • 2,000 SQM',
+    rating: 5,
+    headline: 'Prime Industrial Road Frontage with Fully Authenticated C of O Title',
+    quote: 'For our regional bonded logistics depot near the Dangote Refinery corridor, dry ground and wide heavy-duty road access were non-negotiable. Caih Group delivered exactly on target. Their Certificate of Occupancy (C of O) cleared our legal team’s due diligence at the Lagos Lands Bureau without a single hurdle.'
+  },
+  {
+    name: 'Mrs. Chioma Adele-Vance',
+    role: 'Homeowner & Healthcare Executive • Lekki',
+    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBv99vS-UWLjYv9FMokxKVOkk4I1NsMHJ70LxoQXrb3auHR1FaETG2lw_cL-HQ8ncVyqdovzdeoptev0iNlvJr8DkxIpJ145NuGyfp0thcfLAVY_h6-BMYxuxTI-koxCMGMOIQqDwrpbOFQiZExCMdiynEWdJa9FCjz12wZ_vbS84TDn8kR7H15L7rzosJbg2fCv53swcEVxfVTMITGXy_j9RJ7EnimH4NIkkquuKEL6Pex527HPwU8vw',
+    pillar: 'Caih Properties',
+    projectOrSector: 'Appleton Court Terraces',
+    location: 'Akachukwu Street, Lekki, Lagos',
+    verifiedBadge: '4-Bedroom Terrace Homeowner',
+    rating: 5,
+    headline: 'Pristine Structural Concrete Work and Unmatched Architectural Delivery',
+    quote: 'We subscribed to Appleton Court on Akachukwu Street off-plan. While most building projects in Lagos experience delays, Caih Group stuck religiously to their milestone schedule. From high-tensile structural rebar reinforcement to Italian kitchen installations, the build quality exceeds expectation.'
+  },
+  {
+    name: 'Chief Femi Oshodi',
+    role: 'Chairman • Oshodi Civil Infrastructure Ltd',
+    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCbzgcEVVeCtlWvZcmgNavHXtESSrbMtcrBOHRM4rg6wF9I23odahAPjtrEW6YfodVNbYsr-vhNw0aYjO7itufjZn8CQryyh5aEwZ9YnB2nPLUbN2GglwNytP5fKrCrTQDYIkNM1SMz-tjS-9oBn4j9u3BbaJi3HfwluRlJ8KRR1rsOhc9fMOH97hV_GhIfQCwT7EhoiBbFsIrR1V074eUPBFh1hJC_COAyy4PPLuuJEv2iIKSnAJt_OmCxNuG2XcNtLMM',
+    pillar: 'Caih Construction',
+    projectOrSector: 'Turnkey Civil Engineering & Foundation Piling',
+    location: 'Lekki-Epe Industrial Corridor',
+    verifiedBadge: 'EPC Contracting Client',
+    rating: 5,
+    headline: 'Engineering Excellence in Deep Foundation Piling & Highway Access',
+    quote: 'Caih Construction commands rare structural discipline. We partnered with their engineering directorate for deep foundation piling and internal estate storm drainage. Their plant equipment was modern, their soil tests were rigorous, and their milestone delivery was completely dependable.'
+  },
+  {
+    name: 'Folashade Balogun',
+    role: 'Principal Partner • Apex Haven Realty',
+    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCIZX-GtV7PL9YNIuRnz8QSjetUCdIP53G0dDbYnRb4MJltVUEe0IlKCn6O8knvX-j7WdyYNtHnmo9rL6JeGelZEoCZ6jVXJVqVSZqzwgUgRV6zCI-hxU4_o52FvwzHZyW9jD9mOuyaMxhHNmCqEzDozV9AvTv9QAYnLcVQJl0fYzJ-vGrymxnsLVFy5EWJHS0Dly3nw9fHmVTKsWI3MuHoJk3BUNTuUzU04eqcf5pU6ME2gNgNnuv5Tw',
+    pillar: 'Caih Partners',
+    projectOrSector: 'Caih Certified Realtor Syndicate',
+    location: 'Lagos & Diaspora Investment Conduits',
+    verifiedBadge: 'Platinum Realtor Partner',
+    rating: 5,
+    headline: 'The Most Transparent Real Estate Conglomerate for Diaspora Clients',
+    quote: 'In our 12 years of real estate brokerage in Lagos, Caih Group is the firm we recommend with absolute peace of mind. When we introduce diaspora clients to Appleton Enclave, Appleton Court, or Appleton Haven, there is zero ambiguity: pristine titles, prompt physical allocation, and transparent escrow accounting.'
   },
   {
     name: 'Tunde Bakare',
-    role: 'Procurement Lead • Apex Logistics',
+    role: 'Procurement Director • Apex Logistics West Africa',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDHavURfztIrSqr_5BZcf8LwmuDqOP4S3ZCLWBKKm0FuVAjHRF1UAJnnMAo5NshjIZtRiVJj_QbT-IB8t0im85Gmvm1GrRHk0o3fzCck5RxxuO8_sxxCkD5VHTAGt8KR8iJMrMejF3f3XMRN9PtzlymfSbTfyAJQ_coDqZhkR1fnAQVUsTvlTsRt_cQGlORvxP0PBmYhmNSmsXeKED8QTkAqvBps38Q2cBo3mnSoewbs9gruaqJSizYNQ',
-    quote: 'The machinery and steel supplied by Caih Resources for our Lekki commercial warehouse project kept our engineers uninterrupted. Their logistical readiness in Lagos is unmatched.'
+    pillar: 'Caih Resources',
+    projectOrSector: 'Heavy Plant Leasing & Aggregate Logistics',
+    location: 'Epe Basin & Lekki Commercial Axis',
+    verifiedBadge: 'Industrial Fleet & Materials Client',
+    rating: 5,
+    headline: 'Uninterrupted Supply of Quarry Aggregates & Heavy Excavator Fleets',
+    quote: 'The machinery leasing and granite aggregates supplied by Caih Resources for our Lekki commercial warehouse infrastructure kept our engineering crews working without interruption. Their operational readiness and logistics capacity in Lagos are second to none.'
   }
 ];

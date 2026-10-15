@@ -1,5 +1,5 @@
 import React from 'react';
-import { EXECUTIVES, BRAND_ASSETS } from '../data/mockData';
+import { EXECUTIVES, BRAND_ASSETS, TESTIMONIALS } from '../data/mockData';
 import {
   ShieldCheck,
   Building2,
@@ -10,7 +10,10 @@ import {
   Award,
   Users,
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  Star,
+  MapPin,
+  BadgeCheck
 } from 'lucide-react';
 
 interface AboutScreenProps {
@@ -243,6 +246,76 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                   <span className="text-[11px] text-[#475569] mt-1 block">
                     {exec.credentials}
                   </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. CLIENT & INSTITUTIONAL ENDORSEMENTS */}
+      <section className="py-20 lg:py-24 bg-[#F8FAFC] border-b border-[#E2E8F0]" id="client-endorsements">
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-2 text-[#b7102a] mb-2">
+                <span className="text-[11px] uppercase tracking-wider font-bold">
+                  Sovereign Reputation
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl text-[#000f22] font-extrabold tracking-tight">
+                What Clients Say About Caih Group
+              </h2>
+            </div>
+            <p className="text-sm text-[#475569] max-w-md leading-relaxed">
+              From UK diaspora plot owners to West African industrial logistics directors, our stakeholders attest to our certified legal titles, on-schedule milestones, and engineering precision.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {TESTIMONIALS.slice(0, 3).map((t, idx) => (
+              <div
+                key={idx}
+                className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="text-[10px] uppercase font-bold text-[#b7102a] bg-[#FFF1F2] px-2.5 py-1 rounded border border-[#FFE4E6]">
+                      {t.pillar}
+                    </span>
+                    <div className="flex items-center gap-0.5 text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-[#64748B] mb-2">
+                    <MapPin className="w-3.5 h-3.5 text-[#b7102a] shrink-0" />
+                    <span className="truncate">{t.projectOrSector}</span>
+                  </div>
+                  <h4 className="text-sm font-bold text-[#000f22] leading-snug mb-2">
+                    “{t.headline}”
+                  </h4>
+                  <p className="text-xs text-[#475569] leading-relaxed line-clamp-4">
+                    {t.quote}
+                  </p>
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-[#F1F5F9] flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-[#E2E8F0]" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1">
+                        <h5 className="text-xs font-bold text-[#000f22] truncate">{t.name}</h5>
+                        <BadgeCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                      </div>
+                      <span className="text-[11px] text-[#64748B] block truncate">{t.role}</span>
+                    </div>
+                  </div>
+                  <div className="bg-[#F8FAFC] px-2.5 py-1 rounded-md border border-[#E2E8F0] text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                    <span>{t.verifiedBadge}</span>
+                  </div>
                 </div>
               </div>
             ))}

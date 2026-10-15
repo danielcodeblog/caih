@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Article, VideoDispatch } from '../types';
 import { ARTICLES } from '../data/articles';
-import { VIDEO_DISPATCHES } from '../data/mockData';
 import {
   Search,
   ArrowRight,
@@ -13,40 +13,64 @@ import {
   Share2,
   Building2,
   ShieldCheck,
-  Check
+  Check,
+  BookOpen,
+  PhoneCall
 } from 'lucide-react';
 
 interface BlogScreenProps {
-  selectedArticleId: string | null;
-  onSelectArticle: (articleId: string | null) => void;
+  selectedArticleId?: string | null;
+  onSelectArticle?: (articleId: string | null) => void;
   onViewVideo: (video: VideoDispatch) => void;
   onNavigateToProjects: () => void;
+  onBookInspection?: (target?: string) => void;
 }
 
 export const BlogScreen: React.FC<BlogScreenProps> = ({
-  selectedArticleId,
+  selectedArticleId = null,
   onSelectArticle,
   onViewVideo,
-  onNavigateToProjects
+  onNavigateToProjects,
+  onBookInspection
 }) => {
+  const { id: paramArticleId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
+
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
+  // Determine active article from route params, prop, or internal state
+  const activeArticleId = paramArticleId || selectedArticleId || internalSelectedId;
+
+  const currentArticle = useMemo(() => {
+    if (!activeArticleId) return null;
+    return ARTICLES.find((a) => a.id === activeArticleId) || null;
+  }, [activeArticleId]);
+
   // Scroll to top whenever viewing a specific article
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [selectedArticleId]);
+  }, [activeArticleId]);
+
+  const handleSelectArticle = (articleId: string | null) => {
+    if (articleId) {
+      navigate(`/blog/${articleId}`);
+    } else {
+      navigate('/blog');
+    }
+    setInternalSelectedId(articleId);
+    if (onSelectArticle) {
+      onSelectArticle(articleId);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const featuredStory = ARTICLES.find((a) => a.featured) || ARTICLES[0];
   const gridArticles = ARTICLES.filter((a) => a.id !== featuredStory.id);
-
-  const currentArticle = useMemo(() => {
-    if (!selectedArticleId) return null;
-    return ARTICLES.find((a) => a.id === selectedArticleId) || null;
-  }, [selectedArticleId]);
 
   const filteredArticles = useMemo(() => {
     return gridArticles.filter((article) => {
@@ -105,19 +129,18 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
   ];
 
   /* -------------------------------------------------------------
-   * IF AN ARTICLE IS SELECTED: NORMAL FULL-PAGE ARTICLE DISPLAY
-   * (NO POP-UP!)
+   * IF AN ARTICLE IS SELECTED: COMPLETE IN-DEPTH ARTICLE DISPLAY
    * ------------------------------------------------------------- */
   if (currentArticle) {
     const otherArticles = ARTICLES.filter((a) => a.id !== currentArticle.id);
 
     return (
       <div className="flex flex-col w-full bg-white animate-fadeIn">
-        {/* Breadcrumb / Top Bar */}
-        <div className="w-full bg-[#F8FAFC] border-b border-[#E2E8F0] pt-28 pb-5">
-          <div className="max-w-[1000px] mx-auto px-6 sm:px-8 flex items-center justify-between">
+        {/* Top Breadcrumb & Share Navigation Bar */}
+        <div className="w-full bg-[#F8FAFC] border-b border-[#E2E8F0] pt-24 sm:pt-28 pb-5">
+          <div className="max-w-[1040px] mx-auto px-6 sm:px-8 flex items-center justify-between">
             <button
-              onClick={() => onSelectArticle(null)}
+              onClick={() => handleSelectArticle(null)}
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#000f22] hover:text-[#b7102a] transition-colors cursor-pointer group"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
@@ -133,34 +156,36 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
                 className="inline-flex items-center gap-1.5 text-xs text-[#475569] hover:text-[#000f22] bg-white px-3 py-1 rounded border border-[#E2E8F0] transition-colors cursor-pointer"
               >
                 {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-                <span>{copiedLink ? 'Link Copied!' : 'Share'}</span>
+                <span>{copiedLink ? 'Link Copied!' : 'Share Article'}</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Normal Full Article Page Article Header */}
-        <article className="w-full max-w-[1000px] mx-auto px-6 sm:px-8 py-10 sm:py-14">
-          <div className="mb-6">
+        {/* Full Article Content */}
+        <article className="w-full max-w-[1040px] mx-auto px-6 sm:px-8 py-10 sm:py-14">
+          <header className="mb-8">
             <div className="flex items-center gap-2 text-xs text-[#94A3B8] mb-3">
               <span className="text-[#b7102a] font-bold uppercase tracking-wider text-[11px]">
                 {currentArticle.categoryLabel}
               </span>
               <span>•</span>
-              <span className="text-[#475569]">{currentArticle.date}</span>
+              <span className="text-[#475569] flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5" /> {currentArticle.date}
+              </span>
               <span>•</span>
               <span className="text-[#475569] flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" /> {currentArticle.readTime}
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-[44px] lg:leading-[1.18] font-extrabold text-[#000f22] tracking-tight mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-[42px] lg:leading-[1.18] font-extrabold text-[#000f22] tracking-tight mb-6">
               {currentArticle.title}
             </h1>
 
             {/* Author Byline */}
             <div className="flex items-center gap-3.5 pb-6 border-b border-[#E2E8F0]">
-              <div className="w-11 h-11 rounded-full bg-[#0a2540] text-white flex items-center justify-center font-bold text-sm shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-[#0a2540] text-white flex items-center justify-center font-bold text-sm shadow-sm">
                 {currentArticle.author.avatarInitials}
               </div>
               <div>
@@ -168,13 +193,13 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
                   {currentArticle.author.name}
                 </span>
                 <span className="text-xs text-[#64748B] block">
-                  {currentArticle.author.role || 'Caih Group Research & Engineering Desk'}
+                  {currentArticle.author.role || 'Caih Group Senior Real Estate Desk'}
                 </span>
               </div>
             </div>
-          </div>
+          </header>
 
-          {/* Hero Article Image Frame */}
+          {/* Hero Article Image */}
           <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-10 border border-[#E2E8F0] shadow-sm">
             <img
               src={currentArticle.image}
@@ -184,29 +209,125 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
           </div>
 
           {/* Editorial Content Prose */}
-          <div className="space-y-6 text-base sm:text-lg text-[#334155] leading-relaxed">
+          <div className="space-y-8 text-base sm:text-lg text-[#334155] leading-relaxed">
             {/* Standout Pullquote Box */}
-            <div className="border-l-4 border-[#b7102a] bg-[#F8FAFC] p-6 rounded-r-xl border border-y-[#E2E8F0] border-r-[#E2E8F0]">
-              <p className="font-semibold text-[#0F172A] text-lg sm:text-xl leading-snug italic">
+            <div className="border-l-4 border-[#b7102a] bg-[#F8FAFC] p-6 sm:p-7 rounded-r-xl border border-y-[#E2E8F0] border-r-[#E2E8F0]">
+              <p className="font-semibold text-[#0F172A] text-lg sm:text-xl leading-relaxed italic">
                 “{currentArticle.excerpt}”
               </p>
             </div>
 
-            {/* Paragraphs */}
-            {currentArticle.content.map((paragraph, idx) => (
-              <p key={idx} className="leading-relaxed">
-                {paragraph}
-              </p>
-            ))}
+            {/* Introductory Paragraphs */}
+            <div className="space-y-5">
+              {currentArticle.content.map((paragraph, idx) => (
+                <p key={idx} className="leading-relaxed">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
 
-            <div className="p-6 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] my-8">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-[#000f22] mb-2 flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-[#b7102a]" />
-                Institutional Takeaway for Investors
-              </h4>
-              <p className="text-sm text-[#475569] leading-relaxed">
-                Property transactions conducted through Caih Group guarantee verified Lagos State Governor’s Consent titles, independent structural engineer milestone certifications, and dedicated utility infrastructure.
-              </p>
+            {/* Subsections with Headings & Checklists */}
+            {currentArticle.sections && currentArticle.sections.length > 0 && (
+              <div className="mt-12 space-y-10 pt-4">
+                {currentArticle.sections.map((sec, sIdx) => (
+                  <div key={sIdx} className="space-y-4">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-[#000f22] tracking-tight pb-2 border-b border-[#E2E8F0] flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#b7102a] inline-block"></span>
+                      <span>{sec.heading}</span>
+                    </h2>
+
+                    <div className="space-y-4 text-base sm:text-lg text-[#334155]">
+                      {sec.paragraphs.map((p, pIdx) => (
+                        <p key={pIdx} className="leading-relaxed">
+                          {p}
+                        </p>
+                      ))}
+                    </div>
+
+                    {/* Key Checklist Points */}
+                    {sec.keyPoints && sec.keyPoints.length > 0 && (
+                      <div className="mt-4 p-5 sm:p-6 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-2.5">
+                        <span className="text-xs uppercase font-bold text-[#b7102a] tracking-wider block mb-2">
+                          Key Operational Checkpoints:
+                        </span>
+                        {sec.keyPoints.map((kp, kIdx) => (
+                          <div key={kIdx} className="flex items-start gap-3 text-sm sm:text-base text-[#1E293B]">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                            <span>{kp}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Key Takeaways Box */}
+            {currentArticle.keyTakeaways && currentArticle.keyTakeaways.length > 0 ? (
+              <div className="p-6 sm:p-8 rounded-2xl bg-[#000f22] text-white my-10 shadow-lg border border-slate-800">
+                <div className="flex items-center gap-2.5 mb-4 text-[#ffb3b1]">
+                  <ShieldCheck className="w-6 h-6 text-[#ffb3b1]" />
+                  <h3 className="text-lg sm:text-xl font-extrabold tracking-tight text-white uppercase">
+                    Institutional Takeaways for Investors & Buyers
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  {currentArticle.keyTakeaways.map((point, idx) => (
+                    <div key={idx} className="flex items-start gap-2.5 text-sm sm:text-base text-slate-200">
+                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-1" />
+                      <span>{point}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] my-8">
+                <h4 className="text-sm font-bold uppercase tracking-wider text-[#000f22] mb-2 flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-[#b7102a]" />
+                  Institutional Takeaway for Investors
+                </h4>
+                <p className="text-sm text-[#475569] leading-relaxed">
+                  Property transactions conducted through Caih Group guarantee verified Lagos State Governor’s Consent titles, independent structural engineer milestone certifications, and dedicated utility infrastructure.
+                </p>
+              </div>
+            )}
+
+            {/* Direct Inspection Action Banner inside Article */}
+            <div className="p-8 rounded-2xl bg-gradient-to-r from-[#F8FAFC] to-white border-2 border-[#E2E8F0] my-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+              <div className="max-w-xl">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-[#b7102a] block mb-1">
+                  Private Property Advisory
+                </span>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-[#000f22]">
+                  Interested in Exploring Caih Group Properties?
+                </h3>
+                <p className="text-xs sm:text-sm text-[#475569] mt-2 leading-relaxed">
+                  Schedule a private physical or virtual site inspection for Appleton Enclave (Idera) and Akachukwu Street terraces.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <button
+                  onClick={() => {
+                    if (onBookInspection) {
+                      onBookInspection('Appleton Enclave (Idera)');
+                    } else {
+                      navigate('/contact');
+                    }
+                  }}
+                  className="w-full sm:w-auto px-6 py-3 rounded-lg bg-[#b7102a] hover:bg-[#db313f] text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span>Schedule Site Inspection</span>
+                </button>
+                <button
+                  onClick={onNavigateToProjects}
+                  className="w-full sm:w-auto px-6 py-3 rounded-lg bg-[#000f22] hover:bg-[#0a2540] text-white text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Building2 className="w-4 h-4" />
+                  <span>View All Estates</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -232,14 +353,19 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
             </button>
           </div>
 
-          {/* More Articles to Read */}
+          {/* Related Articles to Read */}
           <div className="mt-16 pt-10 border-t border-[#E2E8F0]">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-bold text-[#000f22]">
-                More Helpful Guides & Research
-              </h3>
+              <div>
+                <h3 className="text-2xl font-bold text-[#000f22]">
+                  More Helpful Guides & Research
+                </h3>
+                <p className="text-xs text-[#475569] mt-1">
+                  Browse authoritative analyses from the Caih Group research desk.
+                </p>
+              </div>
               <button
-                onClick={() => onSelectArticle(null)}
+                onClick={() => handleSelectArticle(null)}
                 className="text-xs font-bold text-[#b7102a] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <span>View All Articles</span>
@@ -251,7 +377,7 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
               {otherArticles.slice(0, 3).map((art) => (
                 <div
                   key={art.id}
-                  onClick={() => onSelectArticle(art.id)}
+                  onClick={() => handleSelectArticle(art.id)}
                   className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-lg transition-all overflow-hidden flex flex-col justify-between cursor-pointer"
                 >
                   <div>
@@ -272,6 +398,9 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
                       <h4 className="text-sm font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors line-clamp-2 leading-snug">
                         {art.title}
                       </h4>
+                      <p className="text-xs text-[#475569] mt-2 line-clamp-2 leading-relaxed">
+                        {art.excerpt}
+                      </p>
                     </div>
                   </div>
                   <div className="p-5 pt-0">
@@ -287,7 +416,7 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
 
         {/* Weekly Updates Newsletter Banner */}
         <section className="w-full bg-[#0a2540] text-white py-14 px-6 sm:px-8 border-t border-slate-800">
-          <div className="max-w-[1000px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="max-w-[1040px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="max-w-md">
               <h3 className="text-2xl font-bold text-white mb-2">
                 Get Weekly Property Intelligence
@@ -326,7 +455,7 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
   }
 
   /* -------------------------------------------------------------
-   * DEFAULT VIEW: NORMAL BLOG INDEX PAGE (SCREEN 3)
+   * DEFAULT VIEW: NORMAL BLOG INDEX PAGE
    * ------------------------------------------------------------- */
   return (
     <div className="flex flex-col w-full bg-white animate-fadeIn">
@@ -334,21 +463,21 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
       <section className="w-full bg-[#F8FAFC] pt-28 sm:pt-32 pb-16 lg:pb-20 border-b border-[#E2E8F0]">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
           <div className="max-w-3xl mb-10">
-            <span className="text-[#b7102a] text-xs uppercase tracking-wider mb-2.5 inline-block">
-              Latest Updates
+            <span className="text-[#b7102a] text-xs uppercase tracking-wider mb-2.5 inline-block font-bold">
+              Latest Updates & Intelligence
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-[56px] text-[#000f22] tracking-tight mb-3">
+            <h1 className="text-4xl md:text-5xl lg:text-[56px] text-[#000f22] tracking-tight mb-3 font-extrabold">
               Latest News & Helpful Guides
             </h1>
             <p className="text-base md:text-lg text-[#475569] leading-relaxed">
-              Helpful guides, property tips, and building updates from our team.
+              In-depth property analysis, legal title checklists, and civil engineering updates from the Caih Group team.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
               {[
-                { id: 'all', label: 'All' },
+                { id: 'all', label: 'All Articles' },
                 { id: 'buying-tips', label: 'Buying Tips' },
                 { id: 'building-news', label: 'Building News' },
                 { id: 'property-market', label: 'Property Market' }
@@ -356,10 +485,10 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`px-4 py-2 rounded text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                  className={`px-4 py-2 rounded text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                     activeCategory === cat.id
                       ? 'bg-[#000f22] text-white shadow-sm'
-                      : 'text-[#475569] hover:bg-white'
+                      : 'bg-white border border-[#E2E8F0] text-[#475569] hover:bg-slate-100'
                   }`}
                 >
                   {cat.label}
@@ -367,13 +496,13 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
               ))}
             </div>
 
-            <div className="relative w-full sm:w-72">
+            <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8] w-4 h-4" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search articles..."
+                placeholder="Search articles and guides..."
                 className="w-full pl-10 pr-4 h-11 bg-white border border-[#E2E8F0] rounded text-[#000f22] text-xs placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#000f22]"
               />
             </div>
@@ -384,54 +513,65 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
       {/* Section 2: Featured Lead Analysis (Hero Editorial Bento, 2-Column Split) */}
       <section className="w-full bg-white py-12 lg:py-16 border-b border-[#E2E8F0]">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
-          <div className="group bg-[#F8FAFC] rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 border border-[#E2E8F0]">
-            <div className="lg:col-span-6 relative min-h-[320px] lg:min-h-[420px] overflow-hidden">
+          <div className="group bg-[#F8FAFC] rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 border border-[#E2E8F0]">
+            <div
+              onClick={() => handleSelectArticle(featuredStory.id)}
+              className="lg:col-span-6 relative min-h-[340px] lg:min-h-[440px] overflow-hidden cursor-pointer"
+            >
               <img
                 src={featuredStory.image}
                 alt={featuredStory.title}
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute top-4 left-4">
-                <span className="px-3 py-1 rounded bg-[#b7102a] text-white text-xs font-semibold shadow">
+                <span className="px-3.5 py-1.5 rounded bg-[#b7102a] text-white text-xs font-bold uppercase tracking-wider shadow">
                   Featured Story
                 </span>
               </div>
             </div>
 
-            <div className="lg:col-span-6 p-6 sm:p-8 lg:p-12 flex flex-col justify-between bg-white">
+            <div className="lg:col-span-6 p-8 sm:p-10 lg:p-14 flex flex-col justify-between bg-white border-t lg:border-t-0 lg:border-l border-[#E2E8F0]">
               <div>
-                <div className="flex items-center gap-2 text-xs text-[#94A3B8] mb-2">
-                  <span className="text-[#b7102a] font-semibold uppercase tracking-wider text-[11px]">
+                <div className="flex items-center gap-2 text-xs text-[#94A3B8] mb-3">
+                  <span className="text-[#b7102a] font-bold uppercase tracking-wider text-[11px]">
                     {featuredStory.categoryLabel}
                   </span>
                   <span>•</span>
                   <span>{featuredStory.readTime}</span>
                 </div>
 
-                <h2 className="text-2xl lg:text-3xl font-bold text-[#000f22] tracking-tight mb-3 group-hover:text-[#b7102a] transition-colors leading-snug">
+                <h2
+                  onClick={() => handleSelectArticle(featuredStory.id)}
+                  className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#000f22] tracking-tight mb-4 group-hover:text-[#b7102a] transition-colors leading-snug cursor-pointer"
+                >
                   {featuredStory.title}
                 </h2>
 
-                <p className="text-sm text-[#475569] leading-relaxed mb-6">
+                <p className="text-sm sm:text-base text-[#475569] leading-relaxed mb-8">
                   {featuredStory.excerpt}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-[#E2E8F0]">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-full bg-[#0a2540] text-white flex items-center justify-center font-bold text-xs">
+              <div className="flex items-center justify-between pt-6 border-t border-[#E2E8F0]">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#0a2540] text-white flex items-center justify-center font-bold text-sm">
                     {featuredStory.author.avatarInitials}
                   </div>
-                  <span className="text-xs font-semibold text-[#000f22]">
-                    {featuredStory.author.name}
-                  </span>
+                  <div>
+                    <span className="text-sm font-bold text-[#000f22] block">
+                      {featuredStory.author.name}
+                    </span>
+                    <span className="text-xs text-[#94A3B8]">
+                      {featuredStory.author.role}
+                    </span>
+                  </div>
                 </div>
 
                 <button
-                  onClick={() => onSelectArticle(featuredStory.id)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-[#000f22] text-white text-xs font-bold hover:bg-[#0a2540] transition-all cursor-pointer"
+                  onClick={() => handleSelectArticle(featuredStory.id)}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#b7102a] text-white text-sm font-bold hover:bg-[#db313f] transition-all cursor-pointer shadow-sm"
                 >
-                  <span>Read Story</span>
+                  <span>Read Full Story</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -445,56 +585,70 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-[#000f22]">
-                Helpful Articles & Guides
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#000f22]">
+                Helpful Articles & Guides ({filteredArticles.length})
               </h2>
-              <p className="text-xs text-[#475569] mt-1">
-                Clear, honest advice for home seekers and property owners.
+              <p className="text-xs sm:text-sm text-[#475569] mt-1">
+                Clear, verified advice for home buyers, diaspora investors, and property seekers.
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {filteredArticles.map((article) => (
               <article
                 key={article.id}
-                className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden border border-[#E2E8F0]"
+                className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all flex flex-col justify-between overflow-hidden border border-[#E2E8F0]"
               >
-                <div className="relative h-56 w-full overflow-hidden">
+                <div
+                  onClick={() => handleSelectArticle(article.id)}
+                  className="relative h-56 w-full overflow-hidden cursor-pointer"
+                >
                   <img
                     src={article.image}
                     alt={article.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-[#000f22] text-white text-[10px] font-semibold">
+                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#000f22] text-white text-[10px] font-bold uppercase tracking-wider">
                     {article.categoryLabel}
+                  </span>
+                  <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium">
+                    {article.readTime}
                   </span>
                 </div>
 
-                <div className="p-6 flex-1 flex flex-col justify-between">
+                <div className="p-7 flex-1 flex flex-col justify-between bg-white border-t border-[#E2E8F0]">
                   <div>
-                    <div className="text-[#94A3B8] text-xs mb-1.5 flex items-center gap-2">
-                      <span>{article.date}</span>
+                    <div className="text-[#94A3B8] text-xs mb-2 flex items-center gap-2">
+                      <span className="text-[#475569] font-medium">{article.date}</span>
                       <span>•</span>
-                      <span>{article.readTime}</span>
+                      <span className="text-[#b7102a] font-bold uppercase text-[10px]">{article.categoryLabel}</span>
                     </div>
 
-                    <h3 className="text-base font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors mb-2 leading-snug">
+                    <h3
+                      onClick={() => handleSelectArticle(article.id)}
+                      className="text-lg font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors mb-3 leading-snug cursor-pointer"
+                    >
                       {article.title}
                     </h3>
 
-                    <p className="text-xs text-[#475569] leading-relaxed mb-4 line-clamp-2">
+                    <p className="text-xs sm:text-sm text-[#475569] leading-relaxed mb-6 line-clamp-3">
                       {article.excerpt}
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => onSelectArticle(article.id)}
-                    className="text-[#000f22] group-hover:text-[#b7102a] text-xs font-bold flex items-center gap-1 pt-2 transition-colors cursor-pointer text-left"
-                  >
-                    <span>Read More</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between">
+                    <span className="text-xs text-[#94A3B8]">
+                      By {article.author.name}
+                    </span>
+                    <button
+                      onClick={() => handleSelectArticle(article.id)}
+                      className="text-[#b7102a] text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer text-left hover:underline"
+                    >
+                      <span>Read Guide</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
@@ -510,7 +664,7 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
               Video Tours & Walkthroughs
             </h2>
             <p className="text-xs text-[#475569] mt-1">
-              Watch our latest building progress and property tours.
+              Watch our latest building progress and property walkthroughs.
             </p>
           </div>
 
@@ -557,7 +711,7 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
           <div className="bg-[#0a2540] rounded-2xl p-8 lg:p-12 shadow-md text-white flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="max-w-xl">
               <h3 className="text-2xl font-bold text-white mb-2">
-                Get Our Weekly Updates
+                Get Weekly Property Intelligence
               </h3>
               <p className="text-sm text-slate-300 leading-relaxed">
                 Sign up with your email to get property tips, building updates, and new homes sent to your inbox.

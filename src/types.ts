@@ -68,6 +68,12 @@ export interface Article {
   image: string;
   excerpt: string;
   content: string[];
+  sections?: {
+    heading: string;
+    paragraphs: string[];
+    keyPoints?: string[];
+  }[];
+  keyTakeaways?: string[];
   featured?: boolean;
 }
 
@@ -95,4 +101,17 @@ export interface InspectionBooking {
   email: string;
   targetProject: string;
   preferredDate: string;
+}
+
+export interface Testimonial {
+  name: string;
+  role: string;
+  avatar: string;
+  pillar: string;
+  projectOrSector: string;
+  location: string;
+  verifiedBadge: string;
+  rating: number;
+  headline: string;
+  quote: string;
 }

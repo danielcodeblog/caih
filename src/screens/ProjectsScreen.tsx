@@ -11,7 +11,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Search,
-  Sparkles
+  Sparkles,
+  Video
 } from 'lucide-react';
 
 interface ProjectsScreenProps {
@@ -85,9 +86,18 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
       if (typeFilter && typeFilter !== 'all') {
         const t = typeFilter.toLowerCase();
         if (t.includes('residential') && p.propertyType !== 'residential') return false;
-        if (t.includes('commercial') && p.propertyType !== 'commercial') return false;
+        if (
+          t.includes('commercial') &&
+          p.propertyType !== 'commercial' &&
+          !p.title.toLowerCase().includes('commercial') &&
+          !p.badge?.toLowerCase().includes('commercial')
+        ) return false;
         if (t.includes('plots') && p.propertyType !== 'plots') return false;
-        if (t.includes('industrial') && p.propertyType !== 'industrial') return false;
+        if (
+          t.includes('industrial') &&
+          p.propertyType !== 'industrial' &&
+          !p.keyFeatures.some((k) => k.toLowerCase().includes('warehouse') || k.toLowerCase().includes('logistics'))
+        ) return false;
       }
 
       // Beds filter
@@ -177,7 +187,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                   >
                     <option value="all">All Locations</option>
                     <option value="Idera">Idera (Appleton Enclave)</option>
-                    <option value="Dangote Refinery">Dangote Refinery Axis (Commercial)</option>
+                    <option value="Free Trade Zone">Free Trade Zone / Origanrigan (Appleton Commercial)</option>
                     <option value="Ibeju-Lekki">Ibeju-Lekki (Appleton Garden)</option>
                     <option value="Victoria Island">Victoria Island (Appleton Haven)</option>
                     <option value="Akachukwu Street">Akachukwu Street (Appleton Court)</option>
@@ -387,7 +397,10 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                   className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between"
                 >
                   <div className="relative">
-                    <div className="h-60 overflow-hidden relative">
+                    <div
+                      onClick={() => onViewProject(project)}
+                      className="h-60 overflow-hidden relative cursor-pointer"
+                    >
                       <img
                         src={project.image}
                         alt={project.title}
@@ -396,6 +409,12 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                       <span className="absolute top-3 right-3 px-2.5 py-1 rounded bg-white/90 backdrop-blur-sm text-[#000f22] text-xs font-bold">
                         {project.corridor}
                       </span>
+                      {project.id !== 'appleton-haven' && (
+                        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">
+                          <Video className="w-3 h-3 text-[#ffb3b1]" />
+                          <span>Video Tour Available</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="p-6 flex flex-col gap-2.5">
@@ -404,7 +423,10 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                         <span>{project.location}</span>
                       </div>
 
-                      <h3 className="text-lg font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors">
+                      <h3
+                        onClick={() => onViewProject(project)}
+                        className="text-lg font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors cursor-pointer"
+                      >
                         {project.title}
                       </h3>
 
@@ -452,7 +474,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-6 pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
+                  <div className="p-6 pt-3 border-t border-[#E2E8F0] flex items-center justify-between gap-2">
                     <div>
                       <span className="text-base sm:text-lg font-extrabold text-[#b7102a] block">
                         {project.priceDisplay}
@@ -462,12 +484,27 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                       </span>
                     </div>
 
-                    <button
-                      onClick={() => onViewProject(project)}
-                      className="px-4 py-2 rounded bg-[#000f22] hover:bg-[#b7102a] text-white text-xs font-bold transition-all cursor-pointer"
-                    >
-                      {project.propertyType === 'plots' ? 'View Plots & Plans' : 'View Details & Plans'}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {project.id !== 'appleton-haven' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onViewProject(project);
+                          }}
+                          className="px-3 py-2 rounded bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border border-[#FFE4E6] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                          title="Watch Project Video Tour"
+                        >
+                          <Video className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Video Tour</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => onViewProject(project)}
+                        className="px-4 py-2 rounded bg-[#000f22] hover:bg-[#b7102a] text-white text-xs font-bold transition-all cursor-pointer"
+                      >
+                        {project.propertyType === 'plots' ? 'View Plots & Plans' : 'View Details & Plans'}
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))}

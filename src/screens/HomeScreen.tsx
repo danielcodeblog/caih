@@ -19,7 +19,11 @@ import {
   Zap,
   CreditCard,
   Shield,
-  Sun
+  Sun,
+  Video,
+  Star,
+  Quote,
+  BadgeCheck
 } from 'lucide-react';
 
 interface HomeScreenProps {
@@ -50,6 +54,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   // Dark Section Active Category Tab
   const [activeCategory, setActiveCategory] = useState<'apartment' | 'house' | 'office' | 'villa'>('apartment');
 
+  // Testimonials Conglomerate Pillar Filter
+  const [testimonialPillar, setTestimonialPillar] = useState<string>('ALL');
+
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,14 +84,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       // Type match from Hero
       if (selectedType !== 'ALL TYPES') {
         if (selectedType === 'RESIDENTIAL' && p.propertyType !== 'residential') return false;
-        if (selectedType === 'COMMERCIAL' && p.propertyType !== 'commercial') return false;
+        if (
+          selectedType === 'COMMERCIAL' &&
+          p.propertyType !== 'commercial' &&
+          !p.title.toLowerCase().includes('commercial') &&
+          !p.badge?.toLowerCase().includes('commercial')
+        ) return false;
         if (selectedType === 'PLOTS' && p.propertyType !== 'plots') return false;
-        if (selectedType === 'INDUSTRIAL' && p.propertyType !== 'industrial') return false;
+        if (
+          selectedType === 'INDUSTRIAL' &&
+          p.propertyType !== 'industrial' &&
+          !p.keyFeatures.some((k) => k.toLowerCase().includes('warehouse') || k.toLowerCase().includes('logistics'))
+        ) return false;
       }
 
       // Advanced filters
       if (selectedLocation !== 'ALL LOCATIONS') {
-        if (!p.location.toLowerCase().includes(selectedLocation.toLowerCase()) && !p.corridor.toLowerCase().includes(selectedLocation.toLowerCase())) {
+        const queryLoc = selectedLocation.toLowerCase();
+        if (
+          !p.location.toLowerCase().includes(queryLoc) &&
+          !p.corridor.toLowerCase().includes(queryLoc)
+        ) {
           return false;
         }
       }
@@ -251,7 +271,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   >
                     <option value="ALL LOCATIONS">All Corridors & Locations</option>
                     <option value="Idera">Idera (Appleton Enclave)</option>
-                    <option value="Dangote Refinery">Dangote Refinery (Commercial & Res.)</option>
+                    <option value="Free Trade Zone">Free Trade Zone / Origanrigan (Appleton Commercial)</option>
                     <option value="Ibeju-Lekki">Ibeju-Lekki (Appleton Garden)</option>
                     <option value="Victoria Island">Victoria Island (Appleton Haven)</option>
                     <option value="Akachukwu Street">Akachukwu Street (Appleton Court)</option>
@@ -330,7 +350,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               >
                 <div className="relative">
                   {/* Visual Frame */}
-                  <div className="h-60 overflow-hidden relative">
+                  <div
+                    onClick={() => onViewProject(prop)}
+                    className="h-60 overflow-hidden relative cursor-pointer"
+                  >
                     <img
                       src={prop.image}
                       alt={prop.title}
@@ -349,6 +372,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         </span>
                       )}
                     </div>
+
+                    {/* Video tour available pill */}
+                    {prop.id !== 'appleton-haven' && (
+                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">
+                        <Video className="w-3 h-3 text-[#ffb3b1]" />
+                        <span>Video Tour Available</span>
+                      </div>
+                    )}
                   </div>
 
                     {/* Metadata & Description */}
@@ -358,7 +389,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         <span>{prop.location}</span>
                       </div>
 
-                      <h3 className="text-base font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors line-clamp-1">
+                      <h3
+                        onClick={() => onViewProject(prop)}
+                        className="text-base font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors line-clamp-1 cursor-pointer"
+                      >
                         {prop.title}
                       </h3>
 
@@ -409,14 +443,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </div>
 
                   {/* Card Action -> Routes to Dedicated Full Page */}
-                  <div className="p-5 pt-0">
+                  <div className="p-5 pt-0 flex items-center gap-2">
                     <button
                       onClick={() => onViewProject(prop)}
-                      className="w-full py-2.5 rounded bg-[#F8FAFC] hover:bg-[#000f22] hover:text-white border border-[#E2E8F0] text-xs font-bold text-[#000f22] flex items-center justify-center gap-1 transition-all cursor-pointer"
+                      className="flex-1 py-2.5 rounded bg-[#F8FAFC] hover:bg-[#000f22] hover:text-white border border-[#E2E8F0] text-xs font-bold text-[#000f22] flex items-center justify-center gap-1 transition-all cursor-pointer"
                     >
                       <span>{prop.propertyType === 'plots' ? 'View Plots & Master Plan' : 'View Residence & Plans'}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
+                    {prop.id !== 'appleton-haven' && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onViewProject(prop);
+                        }}
+                        className="px-3 py-2.5 rounded bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border border-[#FFE4E6] text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                        title="Watch Project Video Tour"
+                      >
+                        <Video className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Video</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -802,61 +849,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
       </section>
 
-      {/* =========================================================================
-          SECTION 5: MULTIMEDIA & FIELD DISPATCHES (Routes to dedicated Video page!)
-         ========================================================================= */}
-      <section className="w-full bg-white py-16 md:py-20 border-b border-[#E2E8F0]">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[#b7102a]">
-              Multimedia & Field Dispatches
-            </span>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#000f22] tracking-tight mt-1">
-              See What Our Homeowners & Investors Are Saying
-            </h2>
-            <p className="text-xs sm:text-sm text-[#475569] mt-2">
-              Watch verified site inspections, construction walkthroughs, and client testimonial briefings from our active Lagos developments.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {VIDEO_DISPATCHES.map((vid) => (
-              <div
-                key={vid.id}
-                onClick={() => onViewVideo(vid)}
-                className="group bg-white rounded-xl overflow-hidden border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all cursor-pointer"
-              >
-                <div className="relative h-56 overflow-hidden">
-                  <img
-                    src={vid.thumbnail}
-                    alt={vid.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-[#000f22]/30 flex items-center justify-center transition-all group-hover:bg-[#000f22]/40">
-                    <div className="w-14 h-14 rounded-full bg-white/95 text-[#b7102a] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Play className="w-7 h-7 ml-1 fill-[#b7102a]" />
-                    </div>
-                  </div>
-                  <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded bg-black/70 text-white text-xs font-medium">
-                    {vid.duration}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <span className="text-[10px] uppercase text-[#b7102a] font-bold">
-                    {vid.tag}
-                  </span>
-                  <h4 className="text-sm sm:text-base font-bold text-[#000f22] mt-1 line-clamp-1 group-hover:text-[#b7102a] transition-colors">
-                    {vid.title}
-                  </h4>
-                  <p className="text-xs text-[#475569] mt-1 line-clamp-2">
-                    {vid.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* =========================================================================
           SECTION 6: LATEST NEWS & INSIGHTS (Routes to dedicated Blog article page!)
@@ -888,7 +881,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
               >
                 <div>
-                  <div className="relative h-56 overflow-hidden">
+                  <div
+                    onClick={() => onViewArticle(art)}
+                    className="relative h-56 overflow-hidden cursor-pointer"
+                  >
                     <img
                       src={art.image}
                       alt={art.title}
@@ -909,7 +905,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         Market Advisory & Research
                       </span>
                     </div>
-                    <h3 className="text-base sm:text-lg font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors leading-snug line-clamp-2">
+                    <h3
+                      onClick={() => onViewArticle(art)}
+                      className="text-base sm:text-lg font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors leading-snug line-clamp-2 cursor-pointer"
+                    >
                       {art.title}
                     </h3>
                     <p className="text-xs sm:text-sm text-[#475569] mt-2 leading-relaxed line-clamp-2">
@@ -936,91 +935,59 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </section>
 
       {/* =========================================================================
-          SECTION 7: TRUST PILLARS & INVESTOR TESTIMONIALS
+          SECTION 7: INVESTOR & PARTNER TESTIMONIALS (MATCHING REFERENCE UI)
          ========================================================================= */}
-      <section className="w-full bg-[#F8FAFC] py-16 md:py-20 border-b border-[#E2E8F0]">
+      <section className="w-full bg-[#FAFAFA] py-20 lg:py-28 border-b border-[#E2E8F0]">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-[11px] uppercase tracking-wider font-bold text-[#b7102a]">
-                The Caih Advantage
-              </span>
-            </div>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#000f22] tracking-tight">
-              Why Discerning Buyers Choose Caih Group
+          {/* Section Header */}
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-xs uppercase tracking-widest font-bold text-[#b7102a] mb-2 block">
+              TESTIMONIALS
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#000f22] tracking-tight leading-tight">
+              Don't take our word for it!<br />
+              Hear it from our partners.
             </h2>
-            <p className="text-xs sm:text-sm text-[#475569] mt-2">
-              Engineered excellence and rock-solid legal titles designed for long-term generational security.
+            <p className="text-xs sm:text-sm text-[#64748B] mt-3">
+              Real experiences from diaspora investors, commercial landowners, and engineering partners across Lagos.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            <div className="p-6 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex flex-col items-start">
-              <div className="w-12 h-12 rounded-lg bg-[#b7102a]/10 text-[#b7102a] flex items-center justify-center mb-4">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <h4 className="text-base font-bold text-[#000f22]">Verifiable C of O & Consent</h4>
-              <p className="text-xs text-[#475569] mt-2 leading-relaxed">
-                Pristine legal status certified with the Lagos State Lands Bureau and CAC Corporate Registry.
-              </p>
-            </div>
 
-            <div className="p-6 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex flex-col items-start">
-              <div className="w-12 h-12 rounded-lg bg-[#000f22]/10 text-[#000f22] flex items-center justify-center mb-4">
-                <Sun className="w-6 h-6" />
-              </div>
-              <h4 className="text-base font-bold text-[#000f22]">24/7 Security & Solar Grids</h4>
-              <p className="text-xs text-[#475569] mt-2 leading-relaxed">
-                Integrated perimeter sensors, dedicated security personnel, and uninterrupted clean power backup.
-              </p>
-            </div>
 
-            <div className="p-6 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex flex-col items-start">
-              <div className="w-12 h-12 rounded-lg bg-[#b7102a]/10 text-[#b7102a] flex items-center justify-center mb-4">
-                <CreditCard className="w-6 h-6" />
-              </div>
-              <h4 className="text-base font-bold text-[#000f22]">Milestone-Linked Payouts</h4>
-              <p className="text-xs text-[#475569] mt-2 leading-relaxed">
-                Pay progressively aligned with verifiable construction tranches certified by independent civil engineers.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex flex-col items-start">
-              <div className="w-12 h-12 rounded-lg bg-[#000f22]/10 text-[#000f22] flex items-center justify-center mb-4">
-                <Building2 className="w-6 h-6" />
-              </div>
-              <h4 className="text-base font-bold text-[#000f22]">Rapid Capital Appreciation</h4>
-              <p className="text-xs text-[#475569] mt-2 leading-relaxed">
-                Prime positions along the Lekki Phase 2 and coastal corridor yielding above-market 22.4% annual returns.
-              </p>
-            </div>
-          </div>
-
-          {/* Real Investor Testimonials */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, idx) => (
-              <div
-                key={idx}
-                className="p-6 rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex flex-col justify-between space-y-4"
-              >
-                <div className="space-y-3">
-                  <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">
-                    “{t.quote}”
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 pt-3 border-t border-[#E2E8F0]">
-                  <img
-                    src={t.avatar}
-                    alt={t.name}
-                    className="w-12 h-12 rounded-full object-cover shrink-0"
-                  />
-                  <div>
-                    <h5 className="text-xs sm:text-sm font-bold text-[#000f22]">{t.name}</h5>
-                    <span className="text-[11px] text-[#94A3B8]">{t.role}</span>
+          {/* Testimonials Grid (Matching Reference Design UI) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {TESTIMONIALS.slice(0, 3)
+              .map((t, idx) => {
+                const isFeaturedVideoCard = idx === 1;
+                return (
+                  <div
+                    key={idx}
+                    className={`rounded-3xl p-8 flex flex-col justify-between group min-h-[460px] ${
+                      isFeaturedVideoCard
+                        ? 'relative overflow-hidden shadow-xl border border-neutral-800 bg-neutral-900 text-white'
+                        : 'bg-white border border-[#E2E8F0] shadow-xs hover:shadow-xl hover:border-[#CBD5E1] transition-all duration-300'
+                    }`}
+                  >
+                    {isFeaturedVideoCard && (
+                      <div className="absolute inset-0 z-0">
+                        <img
+                          src={t.avatar}
+                          alt={t.name}
+                          className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20" />
+                      </div>
+                    )}
+                    
+                    <div className="relative z-10">
+                      <p className={`text-sm leading-relaxed font-normal ${isFeaturedVideoCard ? 'text-white' : 'text-[#334155]'}`}>
+                        "{t.quote}"
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                );
+              })}
           </div>
         </div>
       </section>
