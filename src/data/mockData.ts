@@ -277,12 +277,7 @@ export const PROJECTS: Project[] = [
     galleryImages: [
       '/images/IMG_3523.jpg',
       '/images/IMG_3525.jpg',
-      '/images/IMG_3535 (1).jpg',
-      '/images/IMG_4378.jpg',
-      '/images/IMG_4379.jpg',
-      '/images/IMG_4380.jpg',
-      '/images/IMG_4381.jpg',
-      '/images/IMG_4382.jpg'
+      '/images/IMG_3535 (1).jpg'
     ],
     priceDisplay: 'From ₦280m',
     priceSub: '4-Bedroom Luxury Terraces',

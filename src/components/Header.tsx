@@ -77,41 +77,16 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
 
-          {/* Properties with Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => handleNavClick('projects')}
-              onMouseEnter={() => setPropertyDropdownOpen(true)}
-              className={`text-sm font-semibold transition-colors cursor-pointer relative py-2 flex items-center gap-1 ${
-                currentPage === 'projects' || currentPage === 'project-detail' || currentPage === 'realtor-registration'
-                  ? 'text-[#000f22] font-bold after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[2.5px] after:bg-[#000f22]'
-                  : 'text-[#475569] hover:text-[#000f22]'
-              }`}
-            >
-              <span>Property</span>
-              <ChevronDown className="w-4 h-4 text-[#94A3B8]" />
-            </button>
-
-            {propertyDropdownOpen && (
-              <div
-                onMouseLeave={() => setPropertyDropdownOpen(false)}
-                className="absolute top-full left-0 mt-1 w-56 bg-white border border-[#E2E8F0] rounded-xl shadow-lg py-2 flex flex-col z-50 animate-fadeIn"
-              >
-                <button
-                  onClick={() => handleNavClick('projects')}
-                  className="px-4 py-2 text-left text-xs font-semibold text-[#000f22] hover:bg-[#F8FAFC]"
-                >
-                  All Properties & Inventory
-                </button>
-                <button
-                  onClick={() => handleNavClick('realtor-registration')}
-                  className="px-4 py-2 text-left text-xs font-semibold text-[#b7102a] hover:bg-[#F8FAFC] flex items-center justify-between"
-                >
-                  <span>Realtor Registration</span>
-                </button>
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => handleNavClick('projects')}
+            className={`text-sm font-semibold transition-colors cursor-pointer relative py-2 ${
+              currentPage === 'projects' || currentPage === 'project-detail' || currentPage === 'realtor-registration'
+                ? 'text-[#000f22] font-bold after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[2.5px] after:bg-[#000f22]'
+                : 'text-[#475569] hover:text-[#000f22]'
+            }`}
+          >
+            Property
+          </button>
 
           <button
             onClick={() => handleNavClick('blog')}
@@ -171,26 +146,15 @@ export const Header: React.FC<HeaderProps> = ({
             Home
           </button>
 
-          <div className="text-xs font-bold text-[#b7102a] uppercase tracking-wider mt-3 mb-1 px-3">Property</div>
           <button
             onClick={() => handleNavClick('projects')}
             className={`text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors ${
-              currentPage === 'projects' || currentPage === 'project-detail'
+              currentPage === 'projects' || currentPage === 'project-detail' || currentPage === 'realtor-registration'
                 ? 'bg-[#F1F5F9] text-[#b7102a]'
                 : 'text-[#475569] hover:bg-[#F8FAFC]'
             }`}
           >
-            All Properties & Inventory
-          </button>
-          <button
-            onClick={() => handleNavClick('realtor-registration')}
-            className={`text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors ${
-              currentPage === 'realtor-registration'
-                ? 'bg-[#F1F5F9] text-[#b7102a]'
-                : 'text-[#475569] hover:bg-[#F8FAFC]'
-            }`}
-          >
-            Realtor Registration
+            Property
           </button>
 
           <button
