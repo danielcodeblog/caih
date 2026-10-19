@@ -16,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [propertyDropdownOpen, setPropertyDropdownOpen] = useState(false);
+  const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
 
   const handleNavClick = (page: PageId) => {
     onNavigate(page);
@@ -109,11 +110,57 @@ export const Header: React.FC<HeaderProps> = ({
           >
             Contact
           </button>
+          {/* Admin Dropdown with Login & Signup */}
+          <div className="relative">
+            <button
+              onClick={() => setAdminDropdownOpen(!adminDropdownOpen)}
+              className={`text-sm font-semibold transition-colors cursor-pointer relative py-2 flex items-center gap-1.5 ${
+                currentPage === 'admin'
+                  ? 'text-[#b7102a] font-bold after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[2.5px] after:bg-[#b7102a]'
+                  : 'text-[#64748B] hover:text-[#000f22]'
+              }`}
+            >
+              <span>Admin</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${adminDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {adminDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-[#E2E8F0] py-2 z-50 animate-fadeIn">
+                <button
+                  onClick={() => {
+                    onNavigate('admin');
+                    setAdminDropdownOpen(false);
+                    window.location.href = '/admin';
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-xs font-bold text-[#000f22] hover:bg-[#F8FAFC] transition-colors flex items-center gap-2"
+                >
+                  <span>Admin Dashboard</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setAdminDropdownOpen(false);
+                    window.location.href = '/admin?mode=login';
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-xs font-bold text-[#b7102a] hover:bg-[#FFF1F2] transition-colors flex items-center gap-2"
+                >
+                  <span>Admin Login</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setAdminDropdownOpen(false);
+                    window.location.href = '/admin?mode=signup';
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-xs font-bold text-emerald-700 hover:bg-emerald-50 transition-colors flex items-center gap-2"
+                >
+                  <span>Admin Signup</span>
+                </button>
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* Right Section: Book Visit CTA */}
         <div className="flex items-center gap-4">
-
           {onOpenInspection && (
             <button
               onClick={onOpenInspection}
@@ -163,7 +210,7 @@ export const Header: React.FC<HeaderProps> = ({
               currentPage === 'blog' ? 'bg-[#F1F5F9] text-[#b7102a]' : 'text-[#475569] hover:bg-[#F8FAFC]'
             }`}
           >
-            Blog
+            Blog & Insights
           </button>
 
           <button
@@ -182,6 +229,15 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             Contact & Inspection Desk
+          </button>
+
+          <button
+            onClick={() => handleNavClick('admin')}
+            className={`text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors ${
+              currentPage === 'admin' ? 'bg-[#F1F5F9] text-[#b7102a]' : 'text-[#475569] hover:bg-[#F8FAFC]'
+            }`}
+          >
+            Admin Management Portal
           </button>
 
           <div className="pt-3 border-t border-[#E2E8F0] flex flex-col gap-2">

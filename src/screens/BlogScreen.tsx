@@ -1,7 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Article, VideoDispatch } from '../types';
-import { ARTICLES } from '../data/articles';
+import { getStoredArticles } from '../utils/articlesStore';
+import { TESTIMONIALS } from '../data/mockData';
+import { subscribeClient, EmailUpdate, Subscriber } from '../services/newsletterService';
+import { NewsletterBroadcastModal } from '../components/NewsletterBroadcastModal';
 import {
   Search,
   ArrowRight,
@@ -15,7 +18,16 @@ import {
   ShieldCheck,
   Check,
   BookOpen,
-  PhoneCall
+  PhoneCall,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Quote,
+  Star,
+  Send,
+  Mail,
+  X,
+  Users
 } from 'lucide-react';
 
 interface BlogScreenProps {
@@ -33,14 +45,27 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
   onNavigateToProjects,
   onBookInspection
 }) => {
+  const ARTICLES = getStoredArticles();
   const { id: paramArticleId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
 
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Newsletter State
   const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [subscriberName, setSubscriberName] = useState('');
+  const [subscriberInterest, setSubscriberInterest] = useState<Subscriber['interest']>('all');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+  const [welcomeEmailPreview, setWelcomeEmailPreview] = useState<EmailUpdate | null>(null);
+  const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
+  const [broadcastModalTab, setBroadcastModalTab] = useState<'compose' | 'subscribers' | 'history'>('compose');
+
+  // Testimonials Gallery State
+  const [testimonialSlideIndex, setTestimonialSlideIndex] = useState(0);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Determine active article from route params, prop, or internal state
@@ -85,12 +110,15 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newsletterEmail) return;
+    if (!newsletterEmail.trim()) return;
+    const res = subscribeClient(newsletterEmail, subscriberName, subscriberInterest, 'blog');
     setNewsletterSubscribed(true);
+    setWelcomeEmailPreview(res.welcomeEmail);
     setTimeout(() => {
       setNewsletterEmail('');
+      setSubscriberName('');
       setNewsletterSubscribed(false);
-    }, 5000);
+    }, 6000);
   };
 
   const handleShareArticle = () => {
@@ -656,99 +684,363 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
         </div>
       </section>
 
-      {/* Section 4: Signature Multimedia & Field Dispatches (Video Walkthrough Gallery) */}
-      <section className="w-full bg-white py-12 lg:py-16 border-b border-[#E2E8F0]">
+      {/* =========================================================================
+          SECTION 4: TESTIMONIALS & CLIENT VERIFICATION GALLERY
+         ========================================================================= */}
+      <section className="w-full bg-[#FAFAFA] py-16 lg:py-24 border-b border-[#E2E8F0]" id="blog-testimonials">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#000f22]">
-              Video Tours & Walkthroughs
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <span className="text-xs uppercase tracking-widest font-bold text-[#b7102a] mb-2 block">
+              CLIENT EXPERIENCES & VERIFICATIONS
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#000f22] tracking-tight">
+              Our Homeowners & Investors in Their Own Words
             </h2>
-            <p className="text-xs text-[#475569] mt-1">
-              Watch our latest building progress and property walkthroughs.
+            <p className="text-xs sm:text-sm text-[#64748B] mt-2.5 leading-relaxed">
+              Real key handover moments, diaspora remote acquisitions, and documented title deliveries across Caih Group estates.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {blogVideos.map((vid) => (
-              <div
-                key={vid.id}
-                onClick={() => onViewVideo(vid)}
-                className="group bg-[#F8FAFC] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-[#E2E8F0] cursor-pointer"
-              >
-                <div className="relative h-60 w-full overflow-hidden bg-black">
-                  <img
-                    src={vid.thumbnail}
-                    alt={vid.title}
-                    className="w-full h-full object-cover opacity-90 group-hover:scale-105 group-hover:opacity-75 transition-all duration-500"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-[#b7102a] text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Play className="w-6 h-6 ml-1 fill-white" />
-                    </div>
-                  </div>
-                  <div className="absolute bottom-3 right-3 px-2 py-1 rounded bg-black/80 text-white text-xs flex items-center gap-1 backdrop-blur-sm">
-                    <span>{vid.duration}</span>
-                  </div>
-                </div>
+          {/* Testimonial Photo Carousel & Lightbox */}
+          <div className="relative max-w-4xl mx-auto mb-14">
+            <div className="relative overflow-hidden rounded-3xl bg-slate-950 aspect-[4/3] sm:aspect-[16/10] shadow-2xl border border-[#CBD5E1]">
+              {TESTIMONIALS.map((t, idx) => {
+                const isActive = idx === testimonialSlideIndex;
+                return (
+                  <div
+                    key={idx}
+                    className={`absolute inset-0 transition-all duration-700 ease-out flex items-center justify-center cursor-pointer ${
+                      isActive
+                        ? 'opacity-100 scale-100 z-10 pointer-events-auto'
+                        : 'opacity-0 scale-95 z-0 pointer-events-none'
+                    }`}
+                    onClick={() => setLightboxImage(t.avatar)}
+                  >
+                    <img
+                      src={t.avatar}
+                      alt={`Handover Celebration ${idx + 1}`}
+                      className="w-full h-full object-cover object-center"
+                    />
 
-                <div className="p-5">
-                  <h3 className="text-base font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors mb-1">
-                    {vid.title}
-                  </h3>
-                  <p className="text-xs text-[#475569]">
-                    {vid.description}
-                  </p>
-                </div>
+                    {/* Enlarge button */}
+                    <button
+                      type="button"
+                      aria-label="Enlarge photo"
+                      className="absolute bottom-5 right-5 p-2.5 rounded-full bg-black/60 hover:bg-black/85 text-white backdrop-blur-md transition-all shadow-lg cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLightboxImage(t.avatar);
+                      }}
+                    >
+                      <Maximize2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                );
+              })}
+
+              {/* Prev / Next controls */}
+              <button
+                type="button"
+                onClick={() => setTestimonialSlideIndex((prev) => (prev === 0 ? TESTIMONIALS.length - 1 : prev - 1))}
+                aria-label="Previous photo"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white text-[#000f22] backdrop-blur-md shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-slate-200 cursor-pointer"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setTestimonialSlideIndex((prev) => (prev === TESTIMONIALS.length - 1 ? 0 : prev + 1))}
+                aria-label="Next photo"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white text-[#000f22] backdrop-blur-md shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-slate-200 cursor-pointer"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Thumbnail Strip & Dots */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-1">
+              <div className="flex items-center gap-2">
+                {TESTIMONIALS.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setTestimonialSlideIndex(idx)}
+                    aria-label={`Slide ${idx + 1}`}
+                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      idx === testimonialSlideIndex
+                        ? 'w-8 bg-[#b7102a]'
+                        : 'w-2.5 bg-slate-300 hover:bg-slate-400'
+                    }`}
+                  />
+                ))}
+                <span className="text-xs text-slate-500 font-medium ml-2">
+                  0{testimonialSlideIndex + 1} / 0{TESTIMONIALS.length}
+                </span>
               </div>
-            ))}
+
+              <div className="flex items-center gap-3">
+                {TESTIMONIALS.map((t, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setTestimonialSlideIndex(idx)}
+                    aria-label={`Thumbnail ${idx + 1}`}
+                    className={`relative rounded-xl overflow-hidden w-20 h-14 sm:w-24 sm:h-16 transition-all duration-300 border-2 cursor-pointer ${
+                      idx === testimonialSlideIndex
+                        ? 'border-[#b7102a] scale-105 shadow-md ring-2 ring-[#b7102a]/20'
+                        : 'border-transparent opacity-60 hover:opacity-100 hover:border-slate-300'
+                    }`}
+                  >
+                    <img
+                      src={t.avatar}
+                      alt={`Thumbnail ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Genuine Client Feedback Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-[#E2E8F0] shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center gap-1 text-amber-500">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <Quote className="w-8 h-8 text-[#b7102a]/20" />
+                <p className="text-xs sm:text-sm text-[#334155] leading-relaxed italic">
+                  “Securing my 2 plots at Appleton Enclave while residing in London was remarkably smooth. The C of O was verified directly with the Lagos Lands Bureau, and my deed arrived by courier without delay.”
+                </p>
+              </div>
+              <div className="pt-5 border-t border-[#E2E8F0] mt-4 flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#000f22]">Dr. Babatunde Adeyemi</h4>
+                  <span className="text-[11px] text-[#64748B]">Diaspora Investor • London, UK</span>
+                </div>
+                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+                  Verified Owner
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-[#E2E8F0] shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center gap-1 text-amber-500">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <Quote className="w-8 h-8 text-[#b7102a]/20" />
+                <p className="text-xs sm:text-sm text-[#334155] leading-relaxed italic">
+                  “Caih Group delivered on structural integrity and building specs for our terrace at Appleton Court. Zero hidden development levies. They provided weekly drone videos throughout construction.”
+                </p>
+              </div>
+              <div className="pt-5 border-t border-[#E2E8F0] mt-4 flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#000f22]">Mrs. Chinwe Okonkwo</h4>
+                  <span className="text-[11px] text-[#64748B]">Homeowner • Houston, TX</span>
+                </div>
+                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+                  Allocated & Handed Over
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-[#E2E8F0] shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center gap-1 text-amber-500">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <Quote className="w-8 h-8 text-[#b7102a]/20" />
+                <p className="text-xs sm:text-sm text-[#334155] leading-relaxed italic">
+                  “As an engineer myself, I inspect foundation reinforcement and drainage lines closely. Caih Group’s civil standards along the Lekki-Epe corridor are benchmark grade. You sleep soundly with your investment.”
+                </p>
+              </div>
+              <div className="pt-5 border-t border-[#E2E8F0] mt-4 flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#000f22]">Engr. Olumide Lawal</h4>
+                  <span className="text-[11px] text-[#64748B]">Civil Engineer & Commercial Investor</span>
+                </div>
+                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+                  2,000 SQM Allocated
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Section 5: Advisory & Research Newsletter Card (Deep Navy Architectural Block) */}
-      <section className="w-full bg-white py-12 lg:py-16">
+      {/* =========================================================================
+          SECTION 5: ADVISORY & RESEARCH NEWSLETTER (EMAIL UPDATES DISPATCH & COLLECTION)
+         ========================================================================= */}
+      <section className="w-full bg-white py-14 lg:py-20">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
-          <div className="bg-[#0a2540] rounded-2xl p-8 lg:p-12 shadow-md text-white flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="bg-[#0a2540] rounded-3xl p-8 lg:p-14 shadow-xl text-white flex flex-col lg:flex-row items-center justify-between gap-10">
             <div className="max-w-xl">
-              <h3 className="text-2xl font-bold text-white mb-2">
-                Get Weekly Property Intelligence
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#ffb3b1] text-[11px] font-bold uppercase tracking-wider mb-4">
+                <Mail className="w-3.5 h-3.5" />
+                <span>Live Client Newsletter Updates</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight mb-3">
+                Get Verified Property Intelligence & Title Updates
               </h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                Sign up with your email to get property tips, building updates, and new homes sent to your inbox.
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+                Subscribe with your email to receive direct allocation releases, Governor's Consent verifications, Lekki infrastructure dispatches, and construction progress.
               </p>
+
+              {/* Management Modal Access Button */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBroadcastModalTab('compose');
+                    setIsBroadcastModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <Send className="w-4 h-4 text-[#ffb3b1]" />
+                  <span>Open Newsletter Broadcast Center</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBroadcastModalTab('subscribers');
+                    setIsBroadcastModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <Users className="w-4 h-4 text-emerald-400" />
+                  <span>View Subscriber Directory</span>
+                </button>
+              </div>
             </div>
 
-            <div className="w-full md:w-auto flex-1 max-w-md">
-              <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="email"
-                  required
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  className="flex-1 px-4 h-11 rounded bg-white text-[#000f22] placeholder:text-[#94A3B8] text-xs focus:outline-none focus:ring-2 focus:ring-[#b7102a]"
-                />
+            {/* Subscription Form */}
+            <div className="w-full lg:w-auto flex-1 max-w-lg bg-white/5 backdrop-blur-md p-6 sm:p-7 rounded-2xl border border-white/10">
+              <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                <div>
+                  <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                    Your Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    placeholder="Enter your active email (e.g., investor@gmail.com)"
+                    className="w-full px-4 h-11 rounded-lg bg-white text-[#000f22] placeholder:text-[#94A3B8] text-xs focus:outline-none focus:ring-2 focus:ring-[#b7102a]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                      Full Name (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={subscriberName}
+                      onChange={(e) => setSubscriberName(e.target.value)}
+                      placeholder="e.g., Dr. Babatunde"
+                      className="w-full px-3.5 h-10 rounded-lg bg-white text-[#000f22] placeholder:text-[#94A3B8] text-xs focus:outline-none focus:ring-2 focus:ring-[#b7102a]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                      Investment Interest
+                    </label>
+                    <select
+                      value={subscriberInterest}
+                      onChange={(e) => setSubscriberInterest(e.target.value as Subscriber['interest'])}
+                      className="w-full px-3 h-10 rounded-lg bg-white text-[#000f22] text-xs font-semibold focus:outline-none"
+                    >
+                      <option value="all">All Opportunities</option>
+                      <option value="diaspora">Diaspora Investment</option>
+                      <option value="plots">Land & Plot Parcels</option>
+                      <option value="residential">Luxury Residential</option>
+                      <option value="commercial">Commercial Hubs</option>
+                    </select>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
-                  className="px-6 h-11 rounded bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold flex items-center justify-center transition-colors whitespace-nowrap shadow-sm cursor-pointer"
+                  className="w-full h-11 rounded-lg bg-[#b7102a] hover:bg-[#db313f] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer mt-1"
                 >
-                  Subscribe
+                  <Send className="w-4 h-4" />
+                  <span>Subscribe for Email Updates</span>
                 </button>
               </form>
 
               {newsletterSubscribed && (
-                <p className="text-xs text-emerald-300 font-bold mt-2 flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" /> Thank you for subscribing! Weekly property digest active.
-                </p>
+                <div className="mt-4 p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs space-y-1.5 animate-fadeIn">
+                  <div className="flex items-center gap-2 font-bold text-emerald-300">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Subscription Confirmed & Active!</span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    A personalized welcome advisory has been automatically dispatched to your inbox with direct allocation details.
+                  </p>
+                  {welcomeEmailPreview && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBroadcastModalTab('history');
+                        setIsBroadcastModalOpen(true);
+                      }}
+                      className="text-xs font-bold text-white underline hover:text-emerald-300 pt-1 block cursor-pointer"
+                    >
+                      📧 View Dispatched Welcome Email →
+                    </button>
+                  )}
+                </div>
               )}
 
-              <p className="text-[11px] text-slate-400 mt-2">
-                No spam. Unsubscribe anytime.
+              <p className="text-[11px] text-slate-400 mt-3 text-center">
+                Strict data privacy. No spam. You can unsubscribe anytime with one click.
               </p>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Lightbox Modal for Testimonial Images */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl">
+            <img
+              src={lightboxImage}
+              alt="Enlarged celebration photo"
+              className="w-full h-full object-contain max-h-[85vh]"
+            />
+            <button
+              onClick={() => setLightboxImage(null)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-black/70 hover:bg-black text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Newsletter Broadcast & Subscriber Center Modal */}
+      <NewsletterBroadcastModal
+        isOpen={isBroadcastModalOpen}
+        onClose={() => setIsBroadcastModalOpen(false)}
+        initialTab={broadcastModalTab}
+        onNavigateToProjects={onNavigateToProjects}
+      />
     </div>
   );
 };

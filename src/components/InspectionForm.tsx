@@ -194,7 +194,16 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                       Appleton Garden (Ibeju-Lekki Axis)
                     </option>
                     <option value="Appleton Haven (Victoria Island)">
-                      Appleton Haven (Victoria Island)
+                      Appleton Haven (Victoria Island, Lagos) – All Units
+                    </option>
+                    <option value="Appleton Haven - 2-Bedroom (₦450M)">
+                      Appleton Haven (VI) – 2-Bedroom Luxury Residence (₦450M)
+                    </option>
+                    <option value="Appleton Haven - 3-Bedroom (₦750M)">
+                      Appleton Haven (VI) – 3-Bedroom Residence + Cinema (₦750M)
+                    </option>
+                    <option value="Appleton Haven - 4-Bedroom (₦1.4B)">
+                      Appleton Haven (VI) – 4-Bedroom Maisonette (₦1.4B)
                     </option>
                   </select>
                 </div>

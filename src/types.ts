@@ -1,4 +1,4 @@
-export type PageId = 'home' | 'about-us' | 'projects' | 'blog' | 'project-detail' | 'video-detail' | 'realtor-registration' | 'contact';
+export type PageId = 'home' | 'about-us' | 'projects' | 'blog' | 'project-detail' | 'video-detail' | 'realtor-registration' | 'contact' | 'admin';
 
 export interface ProjectUnit {
   id: string;
@@ -51,6 +51,26 @@ export interface Project {
   startingDeposit?: string;
   unitsOrPlots?: ProjectUnit[];
   galleryImages?: string[];
+  faqPdfUrl?: string;
+  mapEmbedUrl?: string;
+  neighbourhood?: string[];
+  videoList?: { url: string; title: string; duration?: string; description?: string }[];
+  videoComingSoon?: boolean;
+  paymentTable?: {
+    plotSize: string;
+    initialDeposit: string;
+    threeMonths: string;
+    sixMonths: string;
+  }[];
+  bankingDetails?: {
+    accountName: string;
+    bankName: string;
+    accountNumber: string;
+  };
+  faqs?: {
+    question: string;
+    answer: string;
+  }[];
 }
 
 export interface Article {
@@ -85,6 +105,7 @@ export interface VideoDispatch {
   thumbnail: string;
   description: string;
   speaker: string;
+  embedUrl?: string;
 }
 
 export interface Executive {

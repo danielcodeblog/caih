@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { PageId } from '../types';
 import { BRAND_ASSETS } from '../data/mockData';
-import { MapPin, Phone, Mail, Globe, Share2, Newspaper, Check, Info } from 'lucide-react';
+import { MapPin, Phone, Mail, Globe, Share2, Newspaper, Check, Info, Send } from 'lucide-react';
+import { subscribeClient } from '../services/newsletterService';
 
 interface FooterProps {
   onNavigate: (page: PageId) => void;
@@ -10,12 +11,26 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => {
   const [footerNotice, setFooterNotice] = useState<string | null>(null);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   const showNotice = (msg: string) => {
     setFooterNotice(msg);
     setTimeout(() => {
       setFooterNotice(null);
     }, 4000);
+  };
+
+  const handleFooterSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    const res = subscribeClient(newsletterEmail, '', 'all', 'footer');
+    setIsSubscribed(true);
+    showNotice(res.message);
+    setTimeout(() => {
+      setNewsletterEmail('');
+      setIsSubscribed(false);
+    }, 5000);
   };
 
   return (
@@ -27,6 +42,42 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
           <span className="flex-1">{footerNotice}</span>
         </div>
       )}
+
+      {/* Newsletter Subscription Strip */}
+      <div className="max-w-[1440px] mx-auto mb-14 p-6 sm:p-8 rounded-2xl bg-white/5 border border-white/10 flex flex-col lg:flex-row items-center justify-between gap-6">
+        <div className="max-w-xl">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#ffb3b1] mb-1">
+            <Mail className="w-4 h-4" />
+            <span>CAIH GROUP CLIENT NEWSLETTER</span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+            Receive Property Intelligence & Title Dispatches
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Stay informed with verified C of O updates, off-plan releases, and infrastructure milestones.
+          </p>
+        </div>
+
+        <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-md">
+          <form onSubmit={handleFooterSubscribe} className="flex-1 flex gap-2">
+            <input
+              type="email"
+              required
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
+              placeholder="Enter your email address"
+              className="flex-1 px-4 h-11 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 text-xs focus:outline-none focus:border-[#b7102a]"
+            />
+            <button
+              type="submit"
+              className="px-5 h-11 rounded-lg bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-sm"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Subscribe</span>
+            </button>
+          </form>
+        </div>
+      </div>
 
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
         {/* Brand Column */}

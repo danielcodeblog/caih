@@ -115,42 +115,48 @@ export const VideoDetailScreen: React.FC<VideoDetailScreenProps> = ({
         <div className="max-w-[1200px] mx-auto px-6 sm:px-8">
           {/* Simulated Video Player */}
           <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl bg-black border border-slate-800 flex flex-col justify-between group">
-            {/* Backdrop / Video Image */}
-            <img
-              src={video.thumbnail}
-              alt={video.title}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-                isPlaying ? 'opacity-85' : 'opacity-70 group-hover:opacity-80'
-              }`}
-            />
+            {video.embedUrl && isPlaying ? (
+              <iframe
+                src={`${video.embedUrl}${video.embedUrl.includes('?') ? '&' : '?'}autoplay=1`}
+                title={video.title}
+                className="w-full h-full border-0 absolute inset-0 z-20"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            ) : (
+              <>
+                {/* Backdrop / Video Image */}
+                <img
+                  src={video.thumbnail}
+                  alt={video.title}
+                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-75 group-hover:opacity-85"
+                />
 
-            {/* Top Video Overlay Bar */}
-            <div className="relative z-10 p-4 sm:p-6 bg-gradient-to-b from-black/80 via-black/30 to-transparent flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
-                  Caih Field Walkthrough Stream
-                </span>
-              </div>
-              <span className="px-2.5 py-1 rounded bg-black/60 backdrop-blur-sm text-xs font-semibold text-slate-300">
-                1080p HD • Verified Audio
-              </span>
-            </div>
+                {/* Top Video Overlay Bar */}
+                <div className="relative z-10 p-4 sm:p-6 bg-gradient-to-b from-black/80 via-black/30 to-transparent flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
+                      Caih Field Walkthrough Stream
+                    </span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded bg-black/60 backdrop-blur-sm text-xs font-semibold text-slate-300">
+                    1080p HD • Verified Audio
+                  </span>
+                </div>
 
-            {/* Center Big Play/Pause Toggle */}
-            <div className="relative z-10 flex items-center justify-center">
-              <button
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="w-20 h-20 rounded-full bg-[#b7102a] hover:bg-[#db313f] text-white flex items-center justify-center shadow-2xl transition-transform hover:scale-110 cursor-pointer"
-                aria-label={isPlaying ? 'Pause video' : 'Play video'}
-              >
-                {isPlaying ? (
-                  <Pause className="w-8 h-8 fill-white" />
-                ) : (
-                  <Play className="w-8 h-8 ml-1 fill-white" />
-                )}
-              </button>
-            </div>
+                {/* Center Big Play/Pause Toggle */}
+                <div className="relative z-10 flex items-center justify-center">
+                  <button
+                    onClick={() => setIsPlaying(true)}
+                    className="w-20 h-20 rounded-full bg-[#b7102a] hover:bg-[#db313f] text-white flex items-center justify-center shadow-2xl transition-transform hover:scale-110 cursor-pointer"
+                    aria-label="Play video"
+                  >
+                    <Play className="w-8 h-8 ml-1 fill-white" />
+                  </button>
+                </div>
+              </>
+            )}
 
             {/* Bottom Controls Bar */}
             <div className="relative z-10 p-4 sm:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex flex-col gap-2">

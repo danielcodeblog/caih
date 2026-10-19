@@ -1,83 +1,550 @@
 import { Project, VideoDispatch, Executive, Testimonial } from '../types';
 
 export const BRAND_ASSETS = {
-  headerLogo: 'https://lh3.googleusercontent.com/aida/AEtjO1Xu8Hi6gt4IGQJGtzMiiVOJsUwmZ-9RghSb-lHSvDpMG5D3t77bbzY0y9gAIJ6o78MlC6UABcvq9m0iKyLQwjI08lacfJPVOO8cr20_5kA_wzVeh90QGIhgw7zo26A_EdIQkJFpQsK3a4CjHn33AovZQIaCE0UikPrXE00tOzFoQtJv11D2H9wEllnI-NvPVCIVwoG3McT19e39q9STUSXiswdZ5VIEJbGzrNTRu3i-GtZu4Zlvztb2RF1E',
-  footerLogo: 'https://lh3.googleusercontent.com/aida/AEtjO1Xh7m1LVYBaw0lDCpWR888j1OvjzL1foSTe-mC7AybTvqOBn5DivVAS3bxyvR5tIJc6Is4XMWVXygCD3jotXUI589-ZNT8Tfv42OMK5U4IMB_FhbUcshWuri51y29ehddrVC0ZYjpE-oMQkpUvBLT54uVxFCzDcm7DfvRPqPSgK3R7PCIlItsMhxFmYClqITTx8gfnV1O-gMaNkUy-JK3OmD_P-M8_lbIfI90ruOvxHANX1u-l-aisgOBSU',
-  phone: '+234 906 688 7444',
+  headerLogo: 'https://caihgroup.com/wp-content/uploads/2024/10/Caih-group.png',
+  footerLogo: 'https://caihgroup.com/wp-content/uploads/2024/10/Caih-group.png',
+  phone: '0906 688 7444',
   phoneClean: '+2349066887444',
   email: 'info@caihgroup.com',
-  address: 'No. 5 Chief Ganiu Enitan Olugborangan layout, Eleganza Bus stop, Lagos, Nigeria'
+  address: 'No. 5 Chief Ganiu Enitan Olugborangan Layout, Eleganza Bus Stop, Lagos, Nigeria'
 };
 
 export const PROJECTS: Project[] = [
   {
+    id: 'appleton-court',
+    title: 'Appleton Court',
+    location: 'Emmanuel Akachukwu St, Aja, Lagos (Ajiwe, Abraham Adesanya, Ajah)',
+    corridor: 'Ajah / Lekki Corridor',
+    propertyType: 'plots',
+    priceCategory: 'mid',
+    status: 'completed',
+    statusLabel: 'Sold Out',
+    badge: 'APPLETON COURT',
+    secondaryBadge: 'SOLD OUT • EMMANUEL AKACHUKWU ST',
+    image: '/images/appleton_court_aerial_clean.jpg',
+    galleryImages: [
+      '/images/appleton_court_aerial_clean.jpg',
+      '/images/appleton_court_exterior_real.jpg',
+      '/images/appleton_court_interior_living.jpg',
+      '/images/appleton_court_interior_stairs.jpg',
+      '/images/IMG-20260919-WA0004 (1).jpg',
+      '/images/IMG-20260919-WA0005 (1).jpg',
+      '/images/IMG-20260919-WA0006.jpg'
+    ],
+    priceDisplay: 'From ₦22M',
+    priceSub: '300sqm (₦22M) • 500sqm (₦35M) • 1000sqm (₦70M)',
+    paymentType: 'Direct Allocation',
+    handoverDate: 'Completed & Allocated',
+    specs: {
+      area: '300 sqm – 1,000 sqm',
+      landType: '100% Dry Table Land',
+      titleType: 'Governor’s Consent'
+    },
+    summary: 'Appleton Court is a carefully designed estate to provide homes and not just houses to our esteemed subscribers. It is a gated estate within a serene environment and in one of the safest neighbourhood in the Lekki corridor.',
+    detailedDescription: 'Appleton Court is a carefully designed estate to provide homes and not just houses to our esteemed subscribers. It is a gated estate within a serene environment and in one of the safest neighbourhood in the Lekki corridor. This estate comes with a 24/7 power supply, portable water, armed security personnel, green areas, gym, skylight roofs, internet ready homes, massive rooms with walk in closets, high luxury doors and lavish windows, fitted kitchen, stylish staircase, ample front and rear terrace sit outs and lots more. It is a fully serviced estate.',
+    keyFeatures: [
+      'Portable Water & 24/7 Power Supply',
+      'Internet Ready & Fully Serviced Estate',
+      'Armed Security Personnel & Perimeter Fencing',
+      'Gymnasium & Green Areas',
+      'Skylight Roofs & Walk-in Closets',
+      'High Luxury Doors & Lavish Windows',
+      'Fitted Kitchen & Stylish Staircase',
+      'Ample Front and Rear Terrace Sit-outs'
+    ],
+    neighbourhood: [
+      'Abraham Adesanya Estate',
+      'Mother & Child Healthcare Center',
+      'Lekki Pride 1',
+      'Royal Garden, Ajah',
+      'Ajiwe Police Station',
+      'Lagos Business School'
+    ],
+    faqPdfUrl: 'https://caihgroup.com/wp-content/uploads/2024/11/APPLETON-FORM-FAQ.pdf',
+    mapEmbedUrl: 'https://maps.google.com/maps?q=Appleton%20Court%2C%20Emmanuel%20Achukwu%20St%2C%20Aja%2C%20Lagos%20106104%2C%20Lagos&t=m&z=14&output=embed&iwloc=near',
+    videoList: [
+      {
+        url: 'https://www.youtube.com/embed/qa550kq6gc8',
+        title: 'Welcome to Appleton Court',
+        duration: '03:15',
+        description: 'Official estate tour of Appleton Court on Emmanuel Akachukwu St, Ajah, by Caih Properties.'
+      }
+    ],
+    unitsOrPlots: [
+      {
+        id: 'appleton-court-300',
+        name: '300sqm Serviced Plot',
+        size: '300 sqm',
+        priceDisplay: '₦22M',
+        priceSub: '₦3M deposit, ₦22M total',
+        deposit: '₦3,000,000',
+        paymentType: 'Direct Allocation',
+        landType: '100% Dry Land',
+        titleType: 'Governor’s Consent',
+        isPopular: true,
+        features: ['₦3M Initial Deposit', 'Fully Serviced Infrastructure', 'Governor’s Consent', 'Armed Security'],
+        description: 'Prime 300sqm plot with ₦3M deposit and ₦22M total price.'
+      },
+      {
+        id: 'appleton-court-500',
+        name: '500sqm Serviced Plot',
+        size: '500 sqm',
+        priceDisplay: '₦35M',
+        priceSub: '₦5M deposit, ₦35M total',
+        deposit: '₦5,000,000',
+        paymentType: 'Direct Allocation',
+        landType: '100% Dry Land',
+        titleType: 'Governor’s Consent',
+        isPopular: false,
+        features: ['₦5M Initial Deposit', 'Fully Serviced Infrastructure', 'Governor’s Consent', 'Armed Security'],
+        description: 'Standard 500sqm plot with ₦5M deposit and ₦35M total price.'
+      },
+      {
+        id: 'appleton-court-1000',
+        name: '1000sqm Commercial / Residential Parcel',
+        size: '1,000 sqm',
+        priceDisplay: '₦70M',
+        priceSub: '₦10M deposit, ₦70M total',
+        deposit: '₦10,000,000',
+        paymentType: 'Direct Allocation',
+        landType: '100% Dry Land',
+        titleType: 'Governor’s Consent',
+        isPopular: false,
+        features: ['₦10M Initial Deposit', 'Prime Road Frontage', 'Governor’s Consent', 'Armed Security'],
+        description: 'Large 1000sqm parcel with ₦10M deposit and ₦70M total price.'
+      }
+    ]
+  },
+  {
+    id: 'appleton-haven',
+    title: 'Appleton Haven',
+    location: 'Balarabe Musa Crescent, Victoria Island, Lagos',
+    corridor: 'Victoria Island',
+    propertyType: 'residential',
+    priceCategory: 'high',
+    status: 'ongoing',
+    statusLabel: 'Luxury Residential',
+    badge: 'APPLETON HAVEN',
+    secondaryBadge: 'VICTORIA ISLAND • LUXURY RESIDENCES',
+    image: 'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.10-1-e1770664687158.jpg',
+    galleryImages: [
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.10-1-e1770664687158.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.14.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.14-1.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.14-2.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.14-3.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.13.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12-4.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12-3.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12-2.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12-5.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.10.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.11-3.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12.jpg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12-1.jpg'
+    ],
+    priceDisplay: 'From ₦450M',
+    priceSub: '2-Bed: ₦450M • 3-Bed: ₦750M • 4-Bed Maisonette: ₦1.4B',
+    paymentType: 'Direct Allocation',
+    handoverDate: 'Q3 2026',
+    specs: {
+      beds: 2,
+      baths: 3,
+      area: '180 – 480 Sq. M',
+      titleType: 'Governor’s Consent'
+    },
+    summary: 'An ultra-luxury residential development on Balarabe Musa Crescent, Victoria Island, featuring expansive living areas, lush greenery, 24/7 power, swimming pool, concierge, and elevator.',
+    detailedDescription: 'Appleton Haven offers 2-bedroom apartments with BQ (₦450M), 3-bedroom apartments with BQ (₦750M), and 4-bedroom maisonettes with cinema and BQ (₦1.4B) in Victoria Island, Lagos.',
+    keyFeatures: [
+      'Expansive Living Area & Lush Greenery',
+      '24/7 Redundant Power & Security',
+      'Swimming Pool & Concierge Services',
+      'High-Speed Private Elevator',
+      'Private Cinema & Maid’s BQ (in Maisonette)'
+    ],
+    unitsOrPlots: [
+      {
+        id: 'appleton-haven-2bed',
+        name: '2-Bedroom Apartment with BQ',
+        size: '180 Sq. M',
+        priceDisplay: '₦450M',
+        priceSub: '2-Bed with BQ',
+        paymentType: 'Direct Allocation',
+        beds: 2,
+        baths: 3,
+        titleType: 'Governor’s Consent',
+        isPopular: true,
+        features: ['En-suite Bedrooms', 'Maid’s BQ', 'Expansive Living Area', 'Concierge Access'],
+        description: '2-bedroom luxury apartment with BQ in Victoria Island.'
+      },
+      {
+        id: 'appleton-haven-3bed',
+        name: '3-Bedroom Apartment with BQ',
+        size: '320 Sq. M',
+        priceDisplay: '₦750M',
+        priceSub: '3-Bed with BQ',
+        paymentType: 'Direct Allocation',
+        beds: 3,
+        baths: 4,
+        titleType: 'Governor’s Consent',
+        isPopular: false,
+        features: ['En-suite Bedrooms', 'Maid’s BQ', 'Swimming Pool Access', 'Private Elevator'],
+        description: '3-bedroom luxury apartment with BQ in Victoria Island.'
+      },
+      {
+        id: 'appleton-haven-4bed',
+        name: '4-Bedroom Maisonette with Cinema and BQ',
+        size: '480 Sq. M',
+        priceDisplay: '₦1.4B',
+        priceSub: '4-Bed Maisonette with Cinema',
+        paymentType: 'Direct Allocation',
+        beds: 4,
+        baths: 5,
+        titleType: 'Governor’s Consent',
+        isPopular: false,
+        features: ['Private Cinema Suite', 'Maid’s BQ', 'Double-Volume Ceilings', 'Rooftop Terrace'],
+        description: '4-bedroom maisonette with private cinema suite and BQ.'
+      }
+    ]
+  },
+  {
+    id: 'appleton-luxury-apartments',
+    title: 'Appleton Apartments & Maisonette',
+    location: 'Remi Olowude Street, Lekki Phase 1, Lagos',
+    corridor: 'Lekki Phase 1',
+    propertyType: 'residential',
+    priceCategory: 'high',
+    status: 'ongoing',
+    statusLabel: 'Luxury Apartments',
+    badge: 'LEKKI PHASE 1',
+    secondaryBadge: 'REMI OLOWUDE STREET',
+    image: 'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette3-1-e1770664790399.jpeg',
+    galleryImages: [
+      'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette3-1-e1770664790399.jpeg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette1.jpeg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette2.jpeg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette3.jpeg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette4.jpeg'
+    ],
+    priceDisplay: 'From ₦220M',
+    priceSub: '1-Bed: ₦220M • 2-Bed: ₦300M • 3-Bed: ₦450M',
+    paymentType: 'Direct Allocation',
+    handoverDate: 'Q4 2026',
+    specs: {
+      beds: 1,
+      baths: 2,
+      area: '120 – 320 Sq. M',
+      titleType: 'Governor’s Consent'
+    },
+    summary: 'Executive apartments & maisonettes on Remi Olowude Street, Lekki Phase 1, featuring rooftop pool, smart home technology, 24/7 power, and state-of-the-art gym.',
+    detailedDescription: 'Appleton Apartments & Maisonette on Remi Olowude Street, Lekki Phase 1 offers executive 1-bedroom maisonettes (₦220M), 2-bedroom ensuite apartments (₦300M), and 3-bedroom maisonettes (₦450M).',
+    keyFeatures: [
+      'Rooftop Swimming Pool & Lounge',
+      'Smart Home Technology Integration',
+      '24/7 Power Supply & Security',
+      'State-of-the-Art Gymnasium'
+    ],
+    unitsOrPlots: [
+      {
+        id: 'appleton-apt-1bed',
+        name: '1-Bedroom Executive Maisonette',
+        size: '120 Sq. M',
+        priceDisplay: '₦220M',
+        priceSub: '1-Bed Executive',
+        paymentType: 'Direct Allocation',
+        beds: 1,
+        baths: 2,
+        titleType: 'Governor’s Consent',
+        isPopular: true,
+        features: ['Smart Home Tech', 'Rooftop Pool Access', 'Fitted Kitchen'],
+        description: 'Executive 1-bedroom maisonette in Lekki Phase 1.'
+      },
+      {
+        id: 'appleton-apt-2bed',
+        name: '2-Bedroom Ensuite Apartment',
+        size: '200 Sq. M',
+        priceDisplay: '₦300M',
+        priceSub: '2-Bed Ensuite',
+        paymentType: 'Direct Allocation',
+        beds: 2,
+        baths: 3,
+        titleType: 'Governor’s Consent',
+        isPopular: false,
+        features: ['All Ensuite Bedrooms', 'Smart Automation', 'Gym Access'],
+        description: '2-bedroom ensuite apartment in Lekki Phase 1.'
+      },
+      {
+        id: 'appleton-apt-3bed',
+        name: '3-Bedroom Maisonette',
+        size: '320 Sq. M',
+        priceDisplay: '₦450M',
+        priceSub: '3-Bed Maisonette',
+        paymentType: 'Direct Allocation',
+        beds: 3,
+        baths: 4,
+        titleType: 'Governor’s Consent',
+        isPopular: false,
+        features: ['Spacious Living Area', 'Smart Home Tech', 'Rooftop Pool & Parking'],
+        description: '3-bedroom luxury maisonette in Lekki Phase 1.'
+      }
+    ]
+  },
+  {
+    id: 'appleton-terraces-and-apartments',
+    title: 'Appleton Terraces and Apartments',
+    location: 'Ogombo Road, near Charter House School, Eti-Osa, Lekki, Lagos',
+    corridor: 'Ogombo Road / Coastal Road Axis',
+    propertyType: 'residential',
+    priceCategory: 'mid',
+    status: 'ongoing',
+    statusLabel: 'Selling Fast',
+    badge: 'OGOMBO ROAD • LEKKI',
+    secondaryBadge: '96 UNITS • 3 & 4 BEDROOMS',
+    image: 'https://caihgroup.com/wp-content/uploads/2025/01/SL-070720-32260-33-scaled.jpg',
+    galleryImages: [
+      'https://caihgroup.com/wp-content/uploads/2025/01/SL-070720-32260-33-scaled.jpg'
+    ],
+    priceDisplay: 'From ₦90M',
+    priceSub: '3-Bed Duplex: ₦90M • 4-Bed Duplex: ₦110M',
+    paymentType: 'Direct Allocation',
+    videoComingSoon: true,
+    handoverDate: 'Q1 2027',
+    specs: {
+      beds: 3,
+      baths: 4,
+      area: '220 – 280 Sq. M',
+      titleType: 'Governor’s Consent'
+    },
+    summary: '96 units of 3- and 4-bedroom terrace duplexes on Ogombo Road, near Charter House School, close to the ongoing Lagos-Calabar coastal road.',
+    detailedDescription: 'Appleton Terraces and Apartments offers 96 units of 3-bedroom terrace duplexes (₦90M) and 4-bedroom terrace duplexes (₦110M) on Ogombo Road, Eti-Osa, Lekki, close to Charter House School and the Lagos-Calabar coastal highway.',
+    keyFeatures: [
+      '96 Units of 3 & 4-Bedroom Terrace Duplexes',
+      'Portable Water & Spacious Car Park',
+      '24/7 Power Supply & Gym',
+      '24/7 Security & CCTV Surveillance',
+      'Close to Charter House School & Coastal Road'
+    ],
+    unitsOrPlots: [
+      {
+        id: 'appleton-terraces-3bed',
+        name: '3-Bedroom Terrace Duplex',
+        size: '220 Sq. M',
+        priceDisplay: '₦90M',
+        priceSub: '3-Bedroom Duplex',
+        paymentType: 'Direct Allocation',
+        beds: 3,
+        baths: 4,
+        titleType: 'Governor’s Consent',
+        isPopular: true,
+        features: ['All En-suite Bedrooms', 'Spacious Car Park', '24/7 Power & Security'],
+        description: '3-bedroom terrace duplex on Ogombo Road, Lekki.'
+      },
+      {
+        id: 'appleton-terraces-4bed',
+        name: '4-Bedroom Terrace Duplex',
+        size: '280 Sq. M',
+        priceDisplay: '₦110M',
+        priceSub: '4-Bedroom Duplex',
+        paymentType: 'Direct Allocation',
+        beds: 4,
+        baths: 5,
+        titleType: 'Governor’s Consent',
+        isPopular: false,
+        features: ['4 En-suite Bedrooms', 'Maid’s Room Provision', 'Gym & CCTV Security'],
+        description: '4-bedroom terrace duplex on Ogombo Road, Lekki.'
+      }
+    ]
+  },
+  {
     id: 'appleton-enclave',
     title: 'Appleton Enclave',
-    location: 'Idera Scheme, Ibeju-Lekki, Lagos',
-    corridor: 'Ibeju-Lekki',
+    location: 'Olomowewe area, Free Trade Zone Corridor, Ibeju-Lekki, Lagos',
+    corridor: 'Free Trade Zone Axis',
     propertyType: 'plots',
     priceCategory: 'mid',
     status: 'ongoing',
     statusLabel: 'Selling Fast',
     badge: 'APPLETON ENCLAVE',
-    secondaryBadge: 'IDERA SCHEME',
+    secondaryBadge: 'FREE TRADE ZONE • C OF O',
     image: '/images/appleton_enclave_entrance.jpg',
-    galleryImages: ['/images/appleton_enclave_entrance.jpg'],
-    priceDisplay: 'From ₦35m',
-    priceSub: '300 sqm & 500 sqm serviced plots',
+    galleryImages: [
+      '/images/appleton_enclave_entrance.jpg',
+      '/images/yt_ihEzpBhqRjY.jpg'
+    ],
+    priceDisplay: 'From ₦16M',
+    priceSub: '300sqm (₦16M) • 500sqm (₦25M) • 1,000sqm (₦60M)',
     paymentType: 'Direct Allocation',
     handoverDate: 'Immediate Physical Allocation',
     specs: {
-      area: '300 sqm – 500 sqm',
+      area: '300 sqm – 1,000 sqm',
       landType: '100% Dry Table Land',
-      titleType: 'Governor’s Consent'
+      titleType: 'Certificate of Occupancy (C of O)'
     },
-    summary: 'Master-planned serviced residential land in the high-growth Idera Scheme, Eleko, featuring 100% dry topography, perimeter fencing, and verified Governor’s Consent.',
-    detailedDescription: 'Appleton Enclave offers premium serviced land within the planned Idera Scheme corridor. Featuring verified Governor’s Consent titles, 100% dry table topography requiring zero sand-filling, perimeter gatehouse security, paved internal access networks, and instant survey beacon pegging upon plot allocation.',
+    summary: 'Appleton Enclave is located in the Olomowewe area of the Free Trade Zone, with close proximity to the Dangote Refinery, Lekki Deep Sea Port, and other notable developments. A serene location with beautiful residential ambience.',
+    detailedDescription: 'Appleton Enclave is located at Olomowewe area of the Free Trade Zone, in close proximity to the Dangote Refinery, Deep Sea Port, and other notable mega-developments. It is a very serene location with beautiful residential ambience, featuring Certificate of Occupancy (C of O) title, 100% dry table land, well-paved road network, constant electricity, portable water, armed security personnel, children play area, and lavish greenery.',
     keyFeatures: [
-      '100% Dry Table Land Topography (Zero Sand-Filling Required)',
-      'Direct Certified Governor’s Consent Title',
-      'Gated Perimeter Fencing with 24/7 Monitored Access Gate',
-      'Paved Internal Access Roads & Central Storm Drainage',
-      'Solar Street Lighting & Central Utility Right-of-Way',
-      'Instant Physical Allocation & Cadastral Beacon Demarcation'
+      'Certificate of Occupancy (C of O) Sovereign Title',
+      'Close proximity to Dangote Refinery & Lekki Deep Sea Port',
+      'Well-Paved Internal Road Network',
+      'Constant Electricity & Portable Water',
+      'Armed Security Personnel & Monitored Access Gate',
+      'Children Play Area & Lavish Greenery',
+      '100% Dry Table Land (Zero Sand-Filling Required)',
+      'Immediate Physical Allocation & Beacon Demarcation'
+    ],
+    faqPdfUrl: 'https://caihgroup.com/wp-content/uploads/2024/11/APPLETON-FORM-FAQ.pdf',
+    videoList: [
+      {
+        url: 'https://www.youtube.com/embed/ihEzpBhqRjY',
+        title: 'Premium Living at Appleton Enclave: Prime Plots in Ibeju Lekki',
+        duration: '03:45',
+        description: 'Official site video tour of Appleton Enclave in the Free Trade Zone corridor.'
+      }
+    ],
+    paymentTable: [
+      {
+        plotSize: '300 sqm',
+        initialDeposit: '₦3,000,000',
+        threeMonths: '₦16,000,000',
+        sixMonths: '₦18,000,000'
+      },
+      {
+        plotSize: '500 sqm',
+        initialDeposit: '₦4,000,000',
+        threeMonths: '₦25,000,000',
+        sixMonths: '₦27,000,000'
+      },
+      {
+        plotSize: '1,000 sqm',
+        initialDeposit: '₦10,000,000',
+        threeMonths: '₦60,000,000',
+        sixMonths: '₦65,000,000'
+      }
+    ],
+    bankingDetails: {
+      accountName: 'CAIH RESOURCES LIMITED',
+      bankName: 'TAJ BANK',
+      accountNumber: '0008343786'
+    },
+    faqs: [
+      {
+        question: 'Where is APPLETON ENCLAVE located?',
+        answer: 'APPLETON ENCLAVE is located at Olomowewe area of the Free Trade Zone, with close proximity to the Dangote Refinery, Deep Sea port, and other notable developments. A very serene location with beautiful residential ambience.'
+      },
+      {
+        question: 'Who is the developer of APPLETON ENCLAVE?',
+        answer: 'CAIH Group (Caih Resources Limited).'
+      },
+      {
+        question: 'What is the title on APPLETON ENCLAVE?',
+        answer: 'Certificate of Occupancy (C of O).'
+      },
+      {
+        question: 'What plot sizes are available?',
+        answer: '300sqm, 500sqm, and 1,000sqm respectively.'
+      },
+      {
+        question: 'What facilities will be available in the estate?',
+        answer: 'Well-paved road network, constant electricity, portable water, armed security personnel, children play area, and lavish greenery amongst others.'
+      },
+      {
+        question: 'What is the transaction process?',
+        answer: '1. Pay the initial deposit. 2. Collect Receipt and Contract of Sale. 3. Collect Deed of Assignment and Survey Plan on completion of payment. 4. Collect Allocation Letter and Physical Allocation. 5. Commence your building.'
+      },
+      {
+        question: 'Are there any encumbrances on the land?',
+        answer: 'No, the land is free from every known government acquisition or interest and adverse claims.'
+      },
+      {
+        question: 'Can I pay cash to your consultants?',
+        answer: 'No! All payments for APPLETON ENCLAVE should be made directly to CAIH GROUP’S designated bank account: Caih Resources Limited, TAJ Bank, Account Number: 0008343786.'
+      },
+      {
+        question: 'How do I pay my balance after initial deposit?',
+        answer: 'Balance will be paid based on an agreed fixed monthly installment across the 0-3 months or 4-6 months duration.'
+      },
+      {
+        question: 'Is the price subject to change?',
+        answer: 'Yes.'
+      },
+      {
+        question: 'What documents will I get after initial deposit?',
+        answer: 'Receipt of payment and Contract of Sales.'
+      },
+      {
+        question: 'Can I resell my plot(s)?',
+        answer: 'Yes, plot(s) FULLY paid for can be resold, but with the company’s consent.'
+      },
+      {
+        question: 'When will work begin on the estate?',
+        answer: 'Infrastructure development work is currently ongoing.'
+      },
+      {
+        question: 'Can I start building immediately after payment?',
+        answer: 'Yes, construction can commence after full payment and after obtaining all Government Permits.'
+      },
+      {
+        question: 'Is the road leading to the estate motorable?',
+        answer: 'Yes, there is a good motorable road leading to the estate.'
+      }
     ],
     unitsOrPlots: [
       {
         id: 'appleton-enclave-300',
         name: '300 sqm Serviced Residential Plot',
         size: '300 sqm',
-        priceDisplay: '₦35m',
-        priceSub: '300 sqm Serviced Plot',
+        priceDisplay: '₦16M',
+        priceSub: '₦3M Deposit • 0-3 mos: ₦16M / 4-6 mos: ₦18M',
+        deposit: '₦3,000,000',
         paymentType: 'Direct Allocation',
         landType: '100% Dry Table Land',
-        titleType: 'Governor’s Consent',
+        titleType: 'Certificate of Occupancy (C of O)',
         isPopular: true,
         features: [
           '100% Dry Table Ground',
+          'Certificate of Occupancy Title',
           'Direct Paved Road Frontage',
-          'Instant Survey Beacon Pegging',
-          'Governor’s Consent Title'
+          'Instant Survey Beacon Demarcation'
         ],
-        description: 'Prime dry residential land plot with clear boundary coordinates and instant deed of assignment execution.'
+        description: 'Prime dry residential land plot with C of O title, close to Dangote Refinery and Lekki Deep Sea Port.'
       },
       {
         id: 'appleton-enclave-500',
         name: '500 sqm Standard Serviced Plot',
         size: '500 sqm',
-        priceDisplay: '₦55m',
-        priceSub: '500 sqm Standard Plot',
+        priceDisplay: '₦25M',
+        priceSub: '₦4M Deposit • 0-3 mos: ₦25M / 4-6 mos: ₦27M',
+        deposit: '₦4,000,000',
         paymentType: 'Direct Allocation',
         landType: '100% Dry Table Land',
-        titleType: 'Governor’s Consent',
+        titleType: 'Certificate of Occupancy (C of O)',
         isPopular: false,
         features: [
           'Expansive 500 sqm Dry Topography',
-          'Corner Plot Coordinates Available',
-          'Perimeter Fenced Estate Boundary',
+          'Certificate of Occupancy Title',
+          'Direct Paved Access & Constant Power',
           'Immediate Physical Demarcation'
         ],
-        description: 'Generously proportioned standard serviced plot with maximum road frontage and verified sovereign title.'
+        description: 'Standard serviced plot with maximum road frontage in the high-yield Free Trade Zone corridor.'
+      },
+      {
+        id: 'appleton-enclave-1000',
+        name: '1,000 sqm Commercial / Double Plot',
+        size: '1,000 sqm',
+        priceDisplay: '₦60M',
+        priceSub: '₦10M Deposit • 0-3 mos: ₦60M / 4-6 mos: ₦65M',
+        deposit: '₦10,000,000',
+        paymentType: 'Direct Allocation',
+        landType: '100% Dry Table Land',
+        titleType: 'Certificate of Occupancy (C of O)',
+        isPopular: false,
+        features: [
+          'Massive 1,000 sqm Estate Parcel',
+          'Certificate of Occupancy Title',
+          'Suitable for Luxury Villa or Multi-unit',
+          'Immediate Physical Allocation'
+        ],
+        description: 'Large-scale 1,000 sqm prime parcel suited for expansive residential developments or family compounds.'
       }
     ]
   },
@@ -92,9 +559,9 @@ export const PROJECTS: Project[] = [
     statusLabel: 'Available for Allocation',
     badge: 'COMMERCIAL & RESIDENCES',
     secondaryBadge: 'FREE TRADE ZONE • C OF O',
-    image: '/images/commercial-e1770636774756.jpeg',
+    image: 'https://caihgroup.com/wp-content/uploads/2026/02/commercial-e1770636774756.jpeg',
     galleryImages: [
-      '/images/commercial-e1770636774756.jpeg',
+      'https://caihgroup.com/wp-content/uploads/2026/02/commercial-e1770636774756.jpeg',
       '/images/regenerated_image_1791992702647.png'
     ],
     priceDisplay: 'From ₦70m',
@@ -175,191 +642,39 @@ export const PROJECTS: Project[] = [
         description: 'Expansive 5,000 SQM flagship commercial land parcel in Origanrigan by the Free Trade Zone, primed for industrial warehousing, corporate storage, or large-scale enterprise.'
       }
     ]
-  },
-  {
-    id: 'appleton-haven',
-    title: 'Appleton Haven',
-    location: 'Victoria Island (VI), Lagos',
-    corridor: 'Victoria Island',
-    propertyType: 'residential',
-    priceCategory: 'high',
-    status: 'ongoing',
-    statusLabel: 'Under Construction',
-    badge: 'APPLETON HAVEN',
-    secondaryBadge: 'VICTORIA ISLAND LUXURY',
-    image: '/images/PHOTO-2025-01-14-10-40-55 (1) (1).jpg',
-    galleryImages: [
-      '/images/PHOTO-2025-01-14-10-40-55 (1) (1).jpg',
-      '/images/PHOTO-2025-01-14-10-40-55 (2).jpg',
-      '/images/IMG_4380.jpg',
-      '/images/IMG_4379.jpg',
-      '/images/IMG_4378.jpg',
-      '/images/IMG_4382.jpg',
-      '/images/IMG_4381.jpg'
-    ],
-    priceDisplay: 'From ₦450m',
-    priceSub: '2, 3 & 4-Bedroom Luxury Residences',
-    paymentType: 'Direct Allocation',
-    handoverDate: 'Q3 2026',
-    specs: {
-      beds: 2,
-      baths: 3,
-      area: '180 – 480 Sq. M',
-      titleType: 'Governor’s Consent'
-    },
-    summary: 'Ultra-luxurious residential tower and maisonettes in Victoria Island, featuring private cinema suites, biometric access, and panoramic views.',
-    detailedDescription: 'Appleton Haven defines prime metropolitan living in Victoria Island (VI), Lagos. Handcrafted with bespoke Italian kitchens, soaring ceilings, acoustic cinema spaces, and full hotel-grade concierge amenities.',
-    keyFeatures: [
-      'Prime Victoria Island (VI) Waterfront / Cityscape Views',
-      'Private In-Home Acoustic Cinema & En-Suite BQ',
-      'Full Smart Home Automation & Biometric Security',
-      'Infinity Pool, Fully Equipped Gym & Private Resident Lounge',
-      '24/7 Redundant Power & Solar Hybrid System',
-      'Guaranteed Allocation with Certified Title Deed'
-    ],
-    unitsOrPlots: [
-      {
-        id: 'appleton-haven-2bed',
-        name: '2-Bedroom Luxury Residence',
-        size: '180 Sq. M',
-        priceDisplay: '₦450m',
-        priceSub: '180 Sq. M Luxury Residence',
-        paymentType: 'Direct Allocation',
-        beds: 2,
-        baths: 3,
-        titleType: 'Governor’s Consent',
-        isPopular: true,
-        features: ['All En-Suite Bedrooms', 'Fitted Designer Kitchen', 'Balcony with VI Views', 'Smart Automation'],
-        description: 'Sophisticated 2-bedroom apartment with open living, custom fixtures, and smart home automation.'
-      },
-      {
-        id: 'appleton-haven-3bed',
-        name: '3-Bedroom Residence + BQ & Private Cinema',
-        size: '320 Sq. M',
-        priceDisplay: '₦750m',
-        priceSub: '320 Sq. M + Private Cinema',
-        paymentType: 'Direct Allocation',
-        beds: 3,
-        baths: 4,
-        titleType: 'Governor’s Consent',
-        isPopular: false,
-        features: ['Private Acoustic Cinema Room', 'Dedicated Maid’s BQ', 'Dual Parking Bays', 'Italian Fitted Kitchen'],
-        description: 'Opulent residence complete with sound-insulated cinema, large terrace, and separate staff quarters.'
-      },
-      {
-        id: 'appleton-haven-4bed',
-        name: '4-Bedroom Multi-Level Maisonette + BQ',
-        size: '480 Sq. M',
-        priceDisplay: '₦1.4bn',
-        priceSub: '480 Sq. M Multi-Level Maisonette',
-        paymentType: 'Direct Allocation',
-        beds: 4,
-        baths: 5,
-        titleType: 'Governor’s Consent',
-        isPopular: false,
-        features: ['Double-Volume Soaring Ceilings', 'Private Elevator Access Option', 'Rooftop Terrace', 'Panoramic Skyline Views'],
-        description: 'The pinnacle of architectural grandeur with panoramic Lagos skyline views and private elevator.'
-      }
-    ]
-  },
-  {
-    id: 'appleton-court',
-    title: 'Appleton Court Terraces',
-    location: 'Akachukwu Street, Lekki, Lagos',
-    corridor: 'Akachukwu Street',
-    propertyType: 'residential',
-    priceCategory: 'high',
-    status: 'ongoing',
-    statusLabel: 'Under Construction',
-    badge: 'APPLETON COURT',
-    secondaryBadge: 'AKACHUKWU STREET • TERRACES',
-    image: '/images/Caih-Properties-Home.jpg',
-    galleryImages: [
-      '/images/IMG_3523.jpg',
-      '/images/IMG_3525.jpg',
-      '/images/IMG_3535 (1).jpg'
-    ],
-    priceDisplay: 'From ₦280m',
-    priceSub: '4-Bedroom Luxury Terraces',
-    paymentType: 'Direct Allocation',
-    handoverDate: 'Q2 2026',
-    specs: {
-      beds: 4,
-      baths: 5,
-      area: '240 – 280 Sq. M',
-      titleType: 'Governor’s Consent'
-    },
-    summary: 'Contemporary 4-bedroom luxury terraces with maid’s room, private study, and rooftop patio on quiet Akachukwu Street.',
-    detailedDescription: 'Appleton Court Terraces on Akachukwu Street offers modern architectural elegance in an established Lekki neighborhood. Built with high-spec structural engineering, private backyards, and dedicated parking.',
-    keyFeatures: [
-      'Serene Residential Pocket on Akachukwu Street, Lekki',
-      'All 4 Bedrooms En-Suite with Maid’s Quarters (BQ)',
-      'Custom Kitchen with High-end Integrated Appliances',
-      '24/7 Monitored Estate Security & Dedicated Transformer',
-      'Governor’s Consent Title with Verified Survey',
-      'Prompt Allocation with Title Deed Execution'
-    ],
-    unitsOrPlots: [
-      {
-        id: 'appleton-court-4bed-std',
-        name: '4-Bedroom Standard Luxury Terrace + BQ',
-        size: '240 Sq. M',
-        priceDisplay: '₦280m',
-        priceSub: '240 Sq. M Terrace',
-        paymentType: 'Direct Allocation',
-        beds: 4,
-        baths: 5,
-        titleType: 'Governor’s Consent',
-        isPopular: true,
-        features: ['All 4 Bedrooms En-suite', 'Maid’s Quarters (BQ)', '2 Dedicated Parking Bays', 'Private Backyard'],
-        description: 'Generously proportioned multi-level terrace home with master suite and private backyard.'
-      },
-      {
-        id: 'appleton-court-4bed-corner',
-        name: '4-Bedroom Corner Terrace + BQ & Extended Garden',
-        size: '280 Sq. M',
-        priceDisplay: '₦310m',
-        priceSub: '280 Sq. M Corner Terrace',
-        paymentType: 'Direct Allocation',
-        beds: 4,
-        baths: 5,
-        titleType: 'Governor’s Consent',
-        isPopular: false,
-        features: ['Extended Corner Garden', 'Extra Natural Sunlight', '3 Dedicated Parking Bays', 'En-suite BQ'],
-        description: 'Corner unit terrace providing extra privacy, large landscaped side lawn, and extra parking.'
-      }
-    ]
   }
 ];
-
 
 export const VIDEO_DISPATCHES: VideoDispatch[] = [
   {
     id: 'vid-1',
-    title: 'Appleton Court Terraces: Structural Framing Progress (Akachukwu Street)',
+    title: 'Appleton Haven: Luxury Penthouse & Maisonette Tour (Victoria Island)',
     tag: 'ON-SITE WALKTHROUGH',
     duration: '04:18',
-    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB-TtZKs-Lllm8g6mv2-yEl_ctQvGvdiG9YNnUjabjGVJj90WF-Mnlm_hauqg31WmikIHOjUuDwEhWtQC8FugSfEULm6nf9ZLE3153GSjQ-DnObvPpXuO7DlV9EMLQfwImZ7DVSBNfkc1fTXqkYxEt3PX5wUBIE9DE0XXA8dZMrfom9X6hOYFIioIO9pbhHHFf4MZ8yDj2VWQS5W-3MugQztiWlI3t2xjBk9Fdj6U1tpdbyM-iqL_XvLQ',
-    description: 'Engr. Babatunde leads a live walkthrough of concrete curing, high-tensile rebar ties, and subsurface drainage at Appleton Court, Akachukwu Street.',
-    speaker: 'Engr. Babatunde (Project Lead)'
+    thumbnail: 'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.10-1-e1770664687158.jpg',
+    description: 'Exclusive tour of Appleton Haven in Victoria Island, showcasing bespoke Italian kitchens, soaring ceilings, and panoramic skyline views.',
+    speaker: 'Caih Group Architectural Directorate',
+    embedUrl: 'https://player.vimeo.com/video/1051104651'
   },
   {
     id: 'vid-2',
-    title: '"Why I Confidently Sell Caih Properties to Diaspora Clients"',
-    tag: 'PARTNER TESTIMONIAL',
-    duration: '02:45',
-    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCIZX-GtV7PL9YNIuRnz8QSjetUCdIP53G0dDbYnRb4MJltVUEe0IlKCn6O8knvX-j7WdyYNtHnmo9rL6JeGelZEoCZ6jVXJVqVSZqzwgUgRV6zCI-hxU4_o52FvwzHZyW9jD9mOuyaMxhHNmCqEzDozV9AvTv9QAYnLcVQJl0fYzJ-vGrymxnsLVFy5EWJHS0Dly3nw9fHmVTKsWI3MuHoJk3BUNTuUzU04eqcf5pU6ME2gNgNnuv5Tw',
-    description: 'Folashade Balogun, Apex Haven Realty, breaks down documentation transparency, escrow security, and prompt title issuance.',
-    speaker: 'Folashade Balogun (Apex Haven Realty)'
+    title: 'Welcome to Appleton Court (Ajah)',
+    tag: 'COMPLETED PROJECT',
+    duration: '03:15',
+    thumbnail: 'https://i.ytimg.com/vi/qa550kq6gc8/hqdefault.jpg',
+    description: 'Official estate tour and walkthrough of Appleton Court on Emmanuel Akachukwu Street, Ajah by Caih Properties.',
+    speaker: 'Caih Properties',
+    embedUrl: 'https://www.youtube.com/embed/qa550kq6gc8'
   },
   {
     id: 'vid-3',
-    title: 'Epe Gateway: Industrial Infrastructure Growth Blueprint',
-    tag: 'MACRO LOGISTICS',
-    duration: '06:12',
-    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAFJybpPgCwmC70060FAOx6W8gasmkdrtMlwxj2PGoJw7oxrNmTxqup3kCg2nXnmllOfCIpuGGN_8nSNZpWsjs8OrTydYtvflVMimCEadK6mo882bNthi8-MfQycz4eUJW21YqveTfyuklLXHUUO0z7sgTTrWWf_QUdwWiMf3IQ3zR7wGfd4ibZtjtQkPl-jF9mjbKBLjdSnCXnBZPszZ1nERtE_IeX1ux3tf9716sqUbNHySvrvsPVbA',
-    description: 'Evaluating dual carriageway connectivity, dry logistics opportunities, and deep sea port proximity along the Epe economic corridor.',
-    speaker: 'Caih Group Logistics Directorate'
+    title: 'Appleton Apartments & Maisonette: Lekki Phase 1 Rooftop & Interiors',
+    tag: 'LEKKI PHASE 1',
+    duration: '05:12',
+    thumbnail: 'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette3-1-e1770664790399.jpeg',
+    description: 'Exploring smart home features, executive maisonettes, and rooftop pool on Remi Olowude Street, Lekki Phase 1.',
+    speaker: 'Caih Group Real Estate Advisory',
+    embedUrl: 'https://player.vimeo.com/video/1051104651'
   }
 ];
 
@@ -368,7 +683,7 @@ export const EXECUTIVES: Executive[] = [
     name: 'Engr. Kayode Olorunfemi',
     role: 'Managing Director & CEO',
     credentials: 'B.Eng, MSc, PMP, MNSE, COREN',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCbzgcEVVeCtlWvZcmgNavHXtESSrbMtcrBOHRM4rg6wF9I23odahAPjtrEW6YfodVNbYsr-vhNw0aYjO7itufjZn8CQryyh5aEwZ9YnB2nPLUbN2GglwNytP5fKrCrTQDYIkNM1SMz-tjS-9oBn4j9u3BbaJi3HfwluRlJ8KRR1rsOhc9fMOH97hV_GhIfQCwT7EhoiBbFsIrR1V074eUPBFh1hJC_COAyy4PPLuuJEv2iIKSnAJt_OmCxNuG2XcNtLMM',
+    image: '/images/D2B631C2-32BE-4212-91E9-3268045FD781.png',
     bio: 'Pioneering structural integrity across commercial and residential developments in Nigeria for over two decades. Accredited with the Nigerian Society of Engineers (NSE) and Council for the Regulation of Engineering in Nigeria (COREN).'
   },
   {
@@ -389,40 +704,39 @@ export const EXECUTIVES: Executive[] = [
 
 export const TESTIMONIALS: Testimonial[] = [
   {
-    name: '',
-    role: '',
+    name: 'Dr. Babatunde Adeyemi',
+    role: 'Diaspora Investor',
     avatar: '/images/IMG-20260919-WA0004 (1).jpg',
-    pillar: '',
-    projectOrSector: '',
-    location: '',
-    verifiedBadge: '',
+    pillar: 'Title Security',
+    projectOrSector: 'Appleton Court & Haven',
+    location: 'London, UK',
+    verifiedBadge: 'Verified Owner',
     rating: 5,
-    headline: '',
-    quote: ''
+    headline: 'Seamless remote acquisition with absolute transparency',
+    quote: 'Securing my property while residing in London was remarkably smooth. The titles were verified directly with the Lagos Lands Bureau, and deeds arrived without delay.'
   },
   {
-    name: '',
-    role: '',
+    name: 'Mrs. Chinwe Okonkwo',
+    role: 'Homeowner',
     avatar: '/images/IMG-20260919-WA0005 (1).jpg',
-    pillar: '',
-    projectOrSector: '',
-    location: '',
-    verifiedBadge: '',
+    pillar: 'Structural Integrity',
+    projectOrSector: 'Appleton Terraces',
+    location: 'Houston, TX',
+    verifiedBadge: 'Allocated & Handed Over',
     rating: 5,
-    headline: '',
-    quote: ''
+    headline: 'Uncompromising construction standards',
+    quote: 'Caih Group delivered on structural integrity and building specs. Zero hidden development levies, with weekly drone videos throughout construction.'
   },
   {
-    name: '',
-    role: '',
+    name: 'Engr. Olumide Lawal',
+    role: 'Civil Engineer & Investor',
     avatar: '/images/IMG-20260919-WA0006.jpg',
-    pillar: '',
-    projectOrSector: '',
-    location: '',
-    verifiedBadge: '',
+    pillar: 'Engineering & Drainage',
+    projectOrSector: 'Appleton Estates',
+    location: 'Lagos, Nigeria',
+    verifiedBadge: 'Verified Investor',
     rating: 5,
-    headline: '',
-    quote: ''
+    headline: 'Benchmark engineering grade along the corridor',
+    quote: 'As an engineer myself, I inspect foundation reinforcement and drainage lines closely. Caih Group’s civil standards along Lekki-Epe are benchmark grade.'
   }
 ];
-

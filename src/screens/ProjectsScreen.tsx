@@ -361,13 +361,17 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                         )}
                       </div>
                       {project.unitsOrPlots && (
-                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                           <span className="text-[10px] uppercase font-bold text-[#94A3B8]">
-                            {project.propertyType === 'plots' ? 'Plots:' : 'Units:'}
+                            {project.propertyType === 'plots' ? 'SQM Prices:' : 'Units:'}
                           </span>
                           {project.unitsOrPlots.map((u) => (
-                            <span key={u.id} className="text-[10px] font-semibold text-[#000f22] bg-[#F1F5F9] px-2 py-0.5 rounded">
-                              {u.size || u.name}
+                            <span
+                              key={u.id}
+                              className="text-[10px] font-bold text-[#000f22] bg-[#F8FAFC] border border-[#E2E8F0] px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs"
+                            >
+                              <span className="font-semibold text-[#475569]">{u.size || u.name}:</span>
+                              <span className="font-extrabold text-[#b7102a]">{u.priceDisplay}</span>
                             </span>
                           ))}
                         </div>
@@ -392,11 +396,15 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                             e.stopPropagation();
                             onViewProject(project);
                           }}
-                          className="px-3 py-2 rounded bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border border-[#FFE4E6] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
-                          title="Watch Project Video Tour"
+                          className={`px-3 py-2 rounded border text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                            project.videoComingSoon
+                              ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
+                              : 'bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border-[#FFE4E6]'
+                          }`}
+                          title={project.videoComingSoon ? 'Video Walkthrough Coming Soon' : 'Watch Project Video Tour'}
                         >
                           <Video className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Video Tour</span>
+                          <span className="hidden sm:inline">{project.videoComingSoon ? 'Video (Soon)' : 'Video Tour'}</span>
                         </button>
                       )}
                       <button

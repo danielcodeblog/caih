@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Project, Article, VideoDispatch, PageId } from '../types';
 import { PROJECTS, VIDEO_DISPATCHES, TESTIMONIALS, BRAND_ASSETS } from '../data/mockData';
-import { ARTICLES } from '../data/articles';
+import { getStoredArticles } from '../utils/articlesStore';
 import gsap from 'gsap';
 import {
   Search,
@@ -46,6 +46,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onBookInspection,
   onSearchSubmit
 }) => {
+  const ARTICLES = getStoredArticles();
   // Hero Search Dock State
   const [selectedType, setSelectedType] = useState('ALL TYPES');
   const [keyword, setKeyword] = useState('');
@@ -362,8 +363,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
 
           {/* Grid of Clean Property Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProperties.map((prop) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredProperties.slice(0, 4).map((prop) => (
               <div
                 key={prop.id}
                 className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
@@ -433,19 +434,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         )}
                       </div>
 
-                      {/* Available Plot Sizes / Unit Types */}
-                      {prop.unitsOrPlots && (
-                        <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                          <span className="text-[10px] uppercase font-bold text-[#94A3B8]">
-                            {prop.propertyType === 'plots' ? 'Plots:' : 'Units:'}
-                          </span>
-                          {prop.unitsOrPlots.map((u) => (
-                            <span key={u.id} className="text-[10px] font-semibold text-[#000f22] bg-[#F1F5F9] px-2 py-0.5 rounded">
-                              {u.size || u.name}
-                            </span>
-                          ))}
-                        </div>
-                      )}
 
                       {/* Pricing Tag */}
                       <div className="mt-3">
@@ -477,11 +465,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                           e.stopPropagation();
                           onViewProject(prop);
                         }}
-                        className="px-3 py-2.5 rounded bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border border-[#FFE4E6] text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                        title="Watch Project Video Tour"
+                        className={`px-3 py-2.5 rounded border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                          prop.videoComingSoon
+                            ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
+                            : 'bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border-[#FFE4E6]'
+                        }`}
+                        title={prop.videoComingSoon ? 'Video Walkthrough Coming Soon' : 'Watch Project Video Tour'}
                       >
                         <Video className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Video</span>
+                        <span className="hidden sm:inline">{prop.videoComingSoon ? 'Video (Soon)' : 'Video'}</span>
                       </button>
                     )}
                   </div>

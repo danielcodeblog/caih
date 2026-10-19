@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router
 import { PageId, Project, Article, VideoDispatch } from './types';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { SeoManager } from './components/SeoManager';
 import { HomeScreen } from './screens/HomeScreen';
 import { ProjectsScreen } from './screens/ProjectsScreen';
 import { BlogScreen } from './screens/BlogScreen';
@@ -11,6 +12,7 @@ import { ProjectDetailScreen } from './screens/ProjectDetailScreen';
 import { VideoDetailScreen } from './screens/VideoDetailScreen';
 import { RealtorRegistrationScreen } from './screens/RealtorRegistrationScreen';
 import { ContactScreen } from './screens/ContactScreen';
+import { AdminScreen } from './screens/AdminScreen';
 import { PROJECTS, VIDEO_DISPATCHES } from './data/mockData';
 
 function ProjectDetailWrapper({ onNavigate, onBookInspection }: { onNavigate: (page: PageId) => void; onBookInspection: (target?: string) => void }) {
@@ -64,6 +66,7 @@ export default function App() {
     if (pathname === '/about-us') return 'about-us';
     if (pathname === '/realtor-registration') return 'realtor-registration';
     if (pathname === '/contact') return 'contact';
+    if (pathname === '/admin') return 'admin';
     return 'home';
   };
 
@@ -105,6 +108,9 @@ export default function App() {
       case 'contact':
         navigate('/contact');
         break;
+      case 'admin':
+        navigate('/admin');
+        break;
       default:
         navigate('/');
         break;
@@ -139,6 +145,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#0F172A] selection:bg-[#b7102a] selection:text-white">
+      <SeoManager />
       {/* Sticky Clean Header */}
       <Header
         currentPage={currentPage}
@@ -236,6 +243,15 @@ export default function App() {
               <ContactScreen
                 initialProject={inspectionTargetProject}
                 onNavigateToProjects={() => navigate('/projects')}
+              />
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <AdminScreen
+                onViewProject={handleViewProject}
+                onNavigate={handleNavigate}
               />
             }
           />
