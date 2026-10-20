@@ -27,7 +27,7 @@ import {
   ChevronRight,
   Maximize2,
   X,
-  Sparkles
+  Star
 } from 'lucide-react';
 
 interface HomeScreenProps {
@@ -436,7 +436,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredProperties.slice(0, 8).map((prop) => (
+              {filteredProperties.slice(0, 4).map((prop) => (
                 <div
                   key={prop.id}
                   className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
@@ -827,7 +827,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                       </span>
                       {art.featured && (
                         <span className="px-2.5 py-1 rounded bg-amber-500 text-white text-[10px] uppercase font-bold tracking-wider shadow-sm flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" />
+                          <Star className="w-3 h-3" />
                           <span>Featured</span>
                         </span>
                       )}

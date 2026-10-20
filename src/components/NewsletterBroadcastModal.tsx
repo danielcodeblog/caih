@@ -25,7 +25,7 @@ import {
   Building,
   ShieldCheck,
   AlertCircle,
-  Sparkles,
+  Star,
   ArrowRight,
   ExternalLink,
   Filter
@@ -287,7 +287,7 @@ export const NewsletterBroadcastModal: React.FC<NewsletterBroadcastModalProps> =
                     >
                       <div className="font-bold text-[#000f22] group-hover:text-[#b7102a] flex items-center justify-between">
                         <span>{tmpl.label}</span>
-                        <Sparkles className="w-3.5 h-3.5 text-[#b7102a] opacity-70" />
+                        <Star className="w-3.5 h-3.5 text-[#b7102a] opacity-70" />
                       </div>
                       <p className="text-[11px] text-[#64748B] line-clamp-1 mt-1">
                         {tmpl.subject}

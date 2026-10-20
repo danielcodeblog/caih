@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PageId } from '../types';
 import { BRAND_ASSETS } from '../data/mockData';
-import { Phone, Menu, X } from 'lucide-react';
+import { Phone, Menu, X, Mail } from 'lucide-react';
 
 interface HeaderProps {
   currentPage: PageId;
@@ -98,13 +98,14 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => handleNavClick('contact')}
-            className={`text-sm font-semibold transition-colors cursor-pointer relative py-2 ${
+            className={`text-sm font-semibold transition-colors cursor-pointer relative py-2 flex items-center gap-1.5 ${
               currentPage === 'contact'
                 ? 'text-[#000f22] font-bold after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[2.5px] after:bg-[#000f22]'
                 : 'text-[#475569] hover:text-[#000f22]'
             }`}
           >
-            Contact
+            <Mail className="w-4 h-4 text-[#b7102a]" />
+            <span>Contact</span>
           </button>
         </nav>
 

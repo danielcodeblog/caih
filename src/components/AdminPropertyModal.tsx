@@ -8,7 +8,7 @@ import {
   Layers,
   Image as ImageIcon,
   Film,
-  Sparkles,
+  Star,
   Check,
   Plus,
   Trash2,
@@ -275,7 +275,7 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                 </span>
                 {isFeaturedOnHome && (
                   <span className="px-2 py-0.5 rounded-full bg-amber-500 text-black text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />
+                    <Star className="w-3 h-3" />
                     <span>Home Featured</span>
                   </span>
                 )}
@@ -312,7 +312,7 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
             { id: 'pricing', label: '2. Pricing & Terms', icon: DollarSign },
             { id: 'specs', label: '3. Architecture & Specs', icon: Layers },
             { id: 'media', label: '4. Photos & Video Tour', icon: ImageIcon },
-            { id: 'features', label: '5. Amenities & Narrative', icon: Sparkles },
+            { id: 'features', label: '5. Amenities & Narrative', icon: Star },
             { id: 'units', label: '6. SQM Pricing Breakdown', icon: Layers }
           ].map(tab => {
             const Icon = tab.icon;

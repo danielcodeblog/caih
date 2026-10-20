@@ -35,7 +35,7 @@ import {
   UserCheck,
   KeyRound,
   UserPlus,
-  Sparkles,
+  Star,
   Layers,
   Video,
   MapPin,
@@ -1101,9 +1101,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
               <img src="/images/Caih-group.png" alt="Caih Group" className="h-9 w-auto object-contain" />
             </div>
             <div>
-              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-white/10 text-[#ffb3b1] text-[10px] font-bold tracking-widest uppercase mb-1">
-                <span>Executive Management Console</span>
-              </div>
               <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
                 Caih Group Admin Portal
               </h1>

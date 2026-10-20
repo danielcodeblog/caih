@@ -5,7 +5,7 @@ import {
   FileText,
   Clock,
   Calendar,
-  Sparkles,
+  Star,
   Check,
   Plus,
   Trash2,
@@ -137,7 +137,7 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
                 </span>
                 {formData.featured && (
                   <span className="px-2 py-0.5 rounded-full bg-amber-500 text-black text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />
+                    <Star className="w-3 h-3" />
                     <span>Home Featured</span>
                   </span>
                 )}
@@ -530,7 +530,7 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
                         </span>
                         {formData.featured && (
                           <span className="px-2.5 py-1 rounded bg-amber-500 text-white text-[10px] uppercase font-bold tracking-wider shadow-sm flex items-center gap-1">
-                            <Sparkles className="w-3 h-3" />
+                            <Star className="w-3 h-3" />
                             <span>Featured</span>
                           </span>
                         )}

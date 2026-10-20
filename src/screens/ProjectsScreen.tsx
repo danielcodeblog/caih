@@ -13,7 +13,7 @@ import {
   ArrowRight,
   ShieldCheck,
   Search,
-  Sparkles,
+  Star,
   Video
 } from 'lucide-react';
 
