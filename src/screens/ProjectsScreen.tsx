@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Project } from '../types';
-import { PROJECTS } from '../data/mockData';
 import { InspectionForm } from '../components/InspectionForm';
+import { fetchPropertiesFromSupabase, isSupabaseConfigured } from '../lib/supabase';
+import { PROJECTS } from '../data/mockData';
 import {
   MapPin,
   Building,
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 
 interface ProjectsScreenProps {
+  projects: Project[];
   onViewProject: (project: Project) => void;
   onBookInspection?: (target: string) => void;
   selectedProjectForInspection?: string;
@@ -28,11 +30,30 @@ interface ProjectsScreenProps {
 }
 
 export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
+  projects: passedProjects,
   onViewProject,
   onBookInspection,
   selectedProjectForInspection,
   initialFilter
 }) => {
+  const [projects, setProjects] = useState<Project[]>(passedProjects || []);
+
+  useEffect(() => {
+    if (passedProjects && passedProjects.length > 0) {
+      setProjects(passedProjects);
+    }
+  }, [passedProjects]);
+
+  useEffect(() => {
+    const load = async () => {
+      if (isSupabaseConfigured() && (!passedProjects || passedProjects.length === 0)) {
+        const fetched = await fetchPropertiesFromSupabase();
+        if (fetched) setProjects(fetched);
+      }
+    };
+    load();
+  }, [passedProjects]);
+
   // Search & Filter State
   const [activeStatus, setActiveStatus] = useState<string>('all');
   const [keywordFilter, setKeywordFilter] = useState<string>(initialFilter?.keyword || '');
@@ -48,10 +69,10 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
     selectedProjectForInspection || 'Appleton Enclave (Idera)'
   );
 
-  const flagship = PROJECTS[0];
+  const flagship = projects[0];
 
   const filteredProjects = useMemo(() => {
-    return PROJECTS.filter((p) => {
+    return projects.filter((p) => {
       // Keyword match
       if (keywordFilter.trim()) {
         const query = keywordFilter.toLowerCase();
@@ -60,6 +81,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
         const matchesSummary = p.summary.toLowerCase().includes(query);
         if (!matchesTitle && !matchesLocation && !matchesSummary) return false;
       }
+
 
       // Status filter
       if (activeStatus !== 'all' && p.status !== activeStatus) return false;

@@ -72,6 +72,7 @@ export interface AdminUser {
 const DEFAULT_ADMIN_USERS: AdminUser[] = [];
 
 interface AdminScreenProps {
+  projects: Project[];
   onViewProject: (project: Project) => void;
   onNavigate: (page: any) => void;
   initialMode?: 'login' | 'signup';
@@ -95,6 +96,7 @@ interface Inquiry {
 }
 
 export const AdminScreen: React.FC<AdminScreenProps> = ({
+  projects: passedProjects,
   onViewProject,
   onNavigate,
   initialMode,
@@ -225,6 +227,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   const [currentPasswordInput, setCurrentPasswordInput] = useState('');
   const [newPasswordInput, setNewPasswordInput] = useState('');
   const [confirmNewPasswordInput, setConfirmNewPasswordInput] = useState('');
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,6 +262,18 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     setConfirmNewPasswordInput('');
     setShowChangePasswordModal(false);
     alert('Password updated successfully!');
+  };
+
+  const handleAddProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProject) return;
+    setProjectsList(prev => [editingProject, ...prev]);
+    if (isSupabaseConfigured()) {
+      await upsertPropertyToSupabase(editingProject, currentAdmin?.id);
+    }
+    setEditingProject(null);
+    setIsCreatingProject(false);
+    alert('Property added successfully!');
   };
 
   const handleAddDashboardAdmin = async (e: React.FormEvent) => {
@@ -1089,7 +1104,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">Total Properties</span>
                   <div className="text-3xl font-black text-[#000f22] mt-1">{projectsList.length}</div>
-                  <span className="text-[11px] text-emerald-700 font-semibold mt-1 inline-block">100% Active Listings</span>
                 </div>
                 <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
                   <Building2 className="w-6 h-6" />
@@ -1100,7 +1114,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">Subscribers</span>
                   <div className="text-3xl font-black text-[#000f22] mt-1">{subscribers.length}</div>
-                  <span className="text-[11px] text-emerald-700 font-semibold mt-1 inline-block">+4 this week</span>
                 </div>
                 <div className="w-12 h-12 rounded-xl bg-rose-50 text-[#b7102a] flex items-center justify-center">
                   <Mail className="w-6 h-6" />
@@ -1111,7 +1124,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">Bookings & Inquiries</span>
                   <div className="text-3xl font-black text-[#000f22] mt-1">{inquiries.length}</div>
-                  <span className="text-[11px] text-amber-700 font-semibold mt-1 inline-block">1 Pending Review</span>
                 </div>
                 <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
                   <Calendar className="w-6 h-6" />
@@ -1121,10 +1133,11 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
               <div className="bg-white p-6 rounded-2xl border border-[#CBD5E1] shadow-xs flex items-center justify-between">
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">System Status</span>
-                  <div className="text-3xl font-black text-emerald-700 mt-1">Live</div>
-                  <span className="text-[11px] text-slate-500 font-semibold mt-1 inline-block">Secured & Synced</span>
+                  <div className={`text-3xl font-black mt-1 ${isSupabaseConfigured() ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    {isSupabaseConfigured() ? 'Live' : 'Demo Mode'}
+                  </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isSupabaseConfigured() ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
               </div>
@@ -1195,8 +1208,36 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 <h3 className="text-xl font-extrabold text-[#000f22]">Property Content Catalog</h3>
                 <p className="text-xs text-[#64748B] mt-0.5">Edit prices, titles, status badges, and descriptions for any estate or building.</p>
               </div>
-              <div className="text-xs font-bold text-[#b7102a] bg-[#FFF1F2] px-3 py-1.5 rounded-lg border border-[#FFE4E6]">
-                Total Listings: {projectsList.length}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    setEditingProject({
+                      id: 'prop_' + Date.now(),
+                      title: '',
+                      location: '',
+                      corridor: 'Ibeju-Lekki',
+                      propertyType: 'residential',
+                      priceCategory: 'mid',
+                      status: 'upcoming',
+                      statusLabel: 'Available',
+                      image: '',
+                      priceDisplay: '',
+                      priceSub: '',
+                      specs: {},
+                      summary: '',
+                      detailedDescription: '',
+                      keyFeatures: []
+                    });
+                    setIsCreatingProject(true);
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add New Property</span>
+                </button>
+                <div className="text-xs font-bold text-[#b7102a] bg-[#FFF1F2] px-3 py-2.5 rounded-xl border border-[#FFE4E6]">
+                  Total Listings: {projectsList.length}
+                </div>
               </div>
             </div>
 
@@ -1786,16 +1827,21 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
             <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] mb-6">
-              <h3 className="text-xl font-black text-[#000f22]">Edit Property: {editingProject.title}</h3>
+              <h3 className="text-xl font-black text-[#000f22]">
+                {isCreatingProject ? 'Add New Property' : `Edit Property: ${editingProject.title}`}
+              </h3>
               <button
-                onClick={() => setEditingProject(null)}
+                onClick={() => {
+                  setEditingProject(null);
+                  setIsCreatingProject(false);
+                }}
                 className="p-2 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveProjectEdit} className="space-y-4">
+            <form onSubmit={isCreatingProject ? handleAddProject : handleSaveProjectEdit} className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Project Title</label>
                 <input
@@ -1835,6 +1881,43 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                     className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Property Image (Upload)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // In a real app, you would upload this to Supabase storage or a service
+                      // For this demo, we simulate a local URL
+                      const url = URL.createObjectURL(file);
+                      setEditingProject({ ...editingProject, image: url });
+                    }
+                  }}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#b7102a]/10 file:text-[#b7102a] hover:file:bg-[#b7102a]/20"
+                />
+                {editingProject.image && <img src={editingProject.image} alt="Preview" className="mt-2 h-20 w-auto rounded-lg" />}
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Property Video (Upload)</label>
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // Simulating local URL
+                      const url = URL.createObjectURL(file);
+                      // Assuming video URL is added to specs or a new field in Project if needed
+                      setEditingProject({ ...editingProject, specs: { ...editingProject.specs, area: url } });
+                    }
+                  }}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#b7102a]/10 file:text-[#b7102a] hover:file:bg-[#b7102a]/20"
+                />
               </div>
 
               <div>

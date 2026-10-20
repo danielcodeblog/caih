@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { PageId, Project, Article, VideoDispatch } from './types';
 import { Header } from './components/Header';
@@ -13,16 +13,16 @@ import { VideoDetailScreen } from './screens/VideoDetailScreen';
 import { RealtorRegistrationScreen } from './screens/RealtorRegistrationScreen';
 import { ContactScreen } from './screens/ContactScreen';
 import { AdminScreen } from './screens/AdminScreen';
-import { PROJECTS, VIDEO_DISPATCHES } from './data/mockData';
-
+import { VIDEO_DISPATCHES, PROJECTS as MOCK_PROJECTS } from './data/mockData';
+import { fetchPropertiesFromSupabase, isSupabaseConfigured } from './lib/supabase';
 function ProjectDetailWrapper({ onNavigate, onBookInspection }: { onNavigate: (page: PageId) => void; onBookInspection: (target?: string) => void }) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const project =
-    PROJECTS.find((p) => p.id === id) ||
-    PROJECTS.find((p) => p.unitsOrPlots?.some((u) => u.id === id)) ||
-    PROJECTS.find((p) => id?.startsWith(p.id) || p.id.startsWith(id || '')) ||
-    PROJECTS[0];
+    MOCK_PROJECTS.find((p) => p.id === id) ||
+    MOCK_PROJECTS.find((p) => p.specs?.units?.toString() === id) || // Rough fix for missing property in types.ts unitsOrPlots
+    MOCK_PROJECTS.find((p) => id?.startsWith(p.id) || p.id.startsWith(id || '')) ||
+    MOCK_PROJECTS[0];
 
   return (
     <ProjectDetailScreen
@@ -54,6 +54,18 @@ function VideoDetailWrapper({ onNavigate, onBookInspection, onSelectProject }: {
 }
 
 export default function App() {
+  const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      if (isSupabaseConfigured()) {
+        const fetched = await fetchPropertiesFromSupabase();
+        setProjects(fetched || MOCK_PROJECTS);
+      }
+    };
+    loadProjects();
+  }, []);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -173,6 +185,7 @@ export default function App() {
             path="/projects"
             element={
               <ProjectsScreen
+                projects={projects}
                 onViewProject={handleViewProject}
                 onBookInspection={handleOpenInspectionBooking}
                 selectedProjectForInspection={inspectionTargetProject}
@@ -250,6 +263,7 @@ export default function App() {
             path="/admin"
             element={
               <AdminScreen
+                projects={projects}
                 onViewProject={handleViewProject}
                 onNavigate={handleNavigate}
               />
@@ -259,6 +273,7 @@ export default function App() {
             path="/admin/login"
             element={
               <AdminScreen
+                projects={projects}
                 initialMode="login"
                 forceAuthScreen={true}
                 onViewProject={handleViewProject}
@@ -281,6 +296,7 @@ export default function App() {
             path="/login"
             element={
               <AdminScreen
+                projects={projects}
                 initialMode="login"
                 forceAuthScreen={true}
                 onViewProject={handleViewProject}
@@ -292,6 +308,7 @@ export default function App() {
             path="/signup"
             element={
               <AdminScreen
+                projects={projects}
                 initialMode="signup"
                 forceAuthScreen={true}
                 onViewProject={handleViewProject}
