@@ -221,6 +221,46 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   const [newAdminRole, setNewAdminRole] = useState('Content Manager');
   const [newAdminPassword, setNewAdminPassword] = useState('');
 
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [currentPasswordInput, setCurrentPasswordInput] = useState('');
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [confirmNewPasswordInput, setConfirmNewPasswordInput] = useState('');
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPasswordInput || !newPasswordInput || !confirmNewPasswordInput) {
+      alert('Please fill in all password fields.');
+      return;
+    }
+    if (newPasswordInput !== confirmNewPasswordInput) {
+      alert('New passwords do not match.');
+      return;
+    }
+    if (newPasswordInput.length < 6) {
+      alert('Password must be at least 6 characters long.');
+      return;
+    }
+
+    setAdminUsers(prev => prev.map(u => {
+      if (u.email?.toLowerCase() === currentAdmin?.email?.toLowerCase()) {
+        return { ...u, password: newPasswordInput };
+      }
+      return u;
+    }));
+
+    if (currentAdmin) {
+      const updated = { ...currentAdmin, password: newPasswordInput };
+      setCurrentAdmin(updated);
+      localStorage.setItem('caih_current_admin', JSON.stringify(updated));
+    }
+
+    setCurrentPasswordInput('');
+    setNewPasswordInput('');
+    setConfirmNewPasswordInput('');
+    setShowChangePasswordModal(false);
+    alert('Password updated successfully!');
+  };
+
   const handleAddDashboardAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAdminName.trim() || !newAdminEmail.trim() || !newAdminPassword.trim()) {
@@ -1635,6 +1675,13 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 
                 <div className="flex items-center gap-3">
                   <button
+                    onClick={() => setShowChangePasswordModal(true)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer shrink-0"
+                  >
+                    <Lock className="w-4 h-4 text-amber-400" />
+                    <span>Change Password</span>
+                  </button>
+                  <button
                     onClick={() => setShowAddAdminModal(true)}
                     className="px-4 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer shrink-0"
                   >
@@ -2048,6 +2095,86 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 >
                   <UserPlus className="w-4 h-4" />
                   <span>Create Account</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePasswordModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-[#000f22]">Change Password</h3>
+                  <p className="text-xs text-slate-500">Update your account login password</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowChangePasswordModal(false)}
+                className="p-2 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Current Password</label>
+                <input
+                  type="password"
+                  required
+                  value={currentPasswordInput}
+                  onChange={e => setCurrentPasswordInput(e.target.value)}
+                  placeholder="Enter current password"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">New Password</label>
+                <input
+                  type="password"
+                  required
+                  value={newPasswordInput}
+                  onChange={e => setNewPasswordInput(e.target.value)}
+                  placeholder="Min 6 characters"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Confirm New Password</label>
+                <input
+                  type="password"
+                  required
+                  value={confirmNewPasswordInput}
+                  onChange={e => setConfirmNewPasswordInput(e.target.value)}
+                  placeholder="Repeat new password"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
+                <button
+                  type="button"
+                  onClick={() => setShowChangePasswordModal(false)}
+                  className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-2"
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>Update Password</span>
                 </button>
               </div>
             </form>
