@@ -576,9 +576,18 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   };
 
   // Editable Projects state initialized from localStorage
-  const [projectsList, setProjectsList] = useState<Project[]>(() => {
-    return passedProjects && passedProjects.length > 0 ? passedProjects : getStoredProjects();
-  });
+  const [projectsList, setProjectsList] = useState<Project[]>(passedProjects && passedProjects.length > 0 ? passedProjects : []);
+
+  useEffect(() => {
+    localStorage.removeItem('caih_admin_projects');
+    const loadProjects = async () => {
+        if (!passedProjects || passedProjects.length === 0) {
+            const projects = await getStoredProjects();
+            setProjectsList(projects);
+        }
+    };
+    loadProjects();
+  }, [passedProjects]);
 
   // Articles state initialized from localStorage
   const [articlesList, setArticlesList] = useState<Article[]>(() => {
@@ -682,7 +691,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   };
 
   const handleSaveProjectModal = async (savedProject: Project) => {
-    const updated = addOrUpdateProject(savedProject);
+    const updated = await addOrUpdateProject(savedProject);
     setProjectsList(updated);
     if (isSupabaseConfigured()) {
       await upsertPropertyToSupabase(savedProject, currentAdmin?.id);
@@ -706,7 +715,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     setIsDeleting(true);
     try {
       if (deleteTarget.type === 'property') {
-        const updated = deleteStoredProject(deleteTarget.id);
+        const updated = await deleteStoredProject(deleteTarget.id);
         setProjectsList(updated);
         if (isSupabaseConfigured()) {
           await deletePropertyFromSupabase(deleteTarget.id);
@@ -894,14 +903,11 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
             <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-lg shadow-black/20 mb-3 border border-slate-700/30">
               <img src="/images/cropped-Caih-icon-270x270.png" alt="Caih Group Logo" className="w-10 h-10 object-contain" />
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-[#ffb3b1] text-[10px] font-bold tracking-widest uppercase mb-1">
-              <span>LOGIN</span>
-            </div>
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
               Caih Group Admin Console
             </h1>
             <p className="text-xs text-slate-400 mt-1 max-w-md">
-              Restricted access for directors, asset managers, and verified executive administrators.
+              Restricted access for authorized personnel.
             </p>
           </div>
 

@@ -1,55 +1,46 @@
 import { Project } from '../types';
-import { PROJECTS as DEFAULT_PROJECTS } from '../data/mockData';
+import { supabase } from '../lib/supabase';
 
-const STORAGE_KEY = 'caih_admin_projects';
-
-export const getStoredProjects = (): Project[] => {
-  if (typeof window === 'undefined') return DEFAULT_PROJECTS;
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-    }
-  } catch (e) {
-    console.warn('Failed to parse stored projects:', e);
+export const getStoredProjects = async (): Promise<Project[]> => {
+  const { data, error } = await supabase
+    .from('properties')
+    .select('*');
+  
+  if (error) {
+    console.error('Error fetching projects:', error);
+    return [];
   }
-  // Initialize with DEFAULT_PROJECTS if nothing is saved
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_PROJECTS));
-  } catch {}
-  return DEFAULT_PROJECTS;
+  
+  return (data as Project[]) || [];
 };
 
-export const saveStoredProjects = (projects: Project[]): void => {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
-    window.dispatchEvent(
-      new CustomEvent('caih_projects_updated', {
-        detail: projects,
-      })
-    );
-  } catch (e) {
-    console.warn('Failed to save stored projects:', e);
+export const saveStoredProjects = async (projects: Project[]): Promise<void> => {
+  // We don't save everything at once anymore, we save individual projects
+};
+
+export const addOrUpdateProject = async (project: Project): Promise<Project[]> => {
+  const { error } = await supabase
+    .from('properties')
+    .upsert(project);
+    
+  if (error) {
+    console.error('Error saving project:', error);
+    throw error;
   }
+  
+  return await getStoredProjects();
 };
 
-export const addOrUpdateProject = (project: Project): Project[] => {
-  const current = getStoredProjects();
-  const exists = current.some((p) => p.id === project.id);
-  const updated = exists
-    ? current.map((p) => (p.id === project.id ? project : p))
-    : [project, ...current];
-  saveStoredProjects(updated);
-  return updated;
-};
-
-export const deleteStoredProject = (id: string): Project[] => {
-  const current = getStoredProjects();
-  const updated = current.filter((p) => p.id !== id);
-  saveStoredProjects(updated);
-  return updated;
+export const deleteStoredProject = async (id: string): Promise<Project[]> => {
+  const { error } = await supabase
+    .from('properties')
+    .delete()
+    .eq('id', id);
+    
+  if (error) {
+    console.error('Error deleting project:', error);
+    throw error;
+  }
+  
+  return await getStoredProjects();
 };

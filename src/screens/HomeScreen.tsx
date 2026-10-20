@@ -147,6 +147,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         if (!matchesTitle && !matchesLocation && !matchesSummary) return false;
       }
 
+      // Filter: Only active (ongoing) projects or Appleton Court
+      if (p.status !== 'ongoing' && p.id !== 'appleton-court') return false;
+
+      // Exclude specific projects
+      if (p.title.includes('Appleton Terraces')) return false;
+
       // Type match from Hero
       if (selectedType !== 'ALL TYPES') {
         if (selectedType === 'RESIDENTIAL' && p.propertyType !== 'residential') return false;
@@ -410,7 +416,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               Featured Properties
             </span>
             <h2 className="text-2xl sm:text-4xl md:text-[42px] font-extrabold text-[#000f22] tracking-tight leading-snug">
-              Find Premium Lagos Properties That Deliver Both Lifestyle And Investment Growth
+              Featured Homes and Properties
             </h2>
           </div>
 
@@ -436,7 +442,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredProperties.slice(0, 4).map((prop) => (
+              {filteredProperties.map((prop) => (
                 <div
                   key={prop.id}
                   className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
@@ -621,7 +627,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* Subtitle Guarantee Paragraph */}
           <p className="text-xs sm:text-sm md:text-base text-slate-400 max-w-3xl mx-auto mt-4 mb-16 leading-relaxed">
-            Sleep soundly knowing your investment is secure. Legitimate titles with C of O and proper government approval. Durable construction using quality materials. Fully developed estates with roads, top-tier drainage, electricity, water, and round-the-clock security.
+            Secure investments, verified titles, and durable construction. Experience peace of mind in our fully serviced estates.
           </p>
 
           {/* 4 Category Architectural Selector Columns with Delicate Hairline Dividers */}
