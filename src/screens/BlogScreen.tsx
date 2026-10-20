@@ -23,7 +23,7 @@ import {
   ChevronRight,
   Maximize2,
   Quote,
-  Star,
+  Award,
   Send,
   Mail,
   X,
@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 
 interface BlogScreenProps {
+  articles?: Article[];
   selectedArticleId?: string | null;
   onSelectArticle?: (articleId: string | null) => void;
   onViewVideo: (video: VideoDispatch) => void;
@@ -39,13 +40,33 @@ interface BlogScreenProps {
 }
 
 export const BlogScreen: React.FC<BlogScreenProps> = ({
+  articles: passedArticles,
   selectedArticleId = null,
   onSelectArticle,
   onViewVideo,
   onNavigateToProjects,
   onBookInspection
 }) => {
-  const ARTICLES = getStoredArticles();
+  const [articlesList, setArticlesList] = useState<Article[]>(() =>
+    passedArticles && passedArticles.length > 0 ? passedArticles : getStoredArticles()
+  );
+
+  useEffect(() => {
+    if (passedArticles && passedArticles.length > 0) {
+      setArticlesList(passedArticles);
+    }
+  }, [passedArticles]);
+
+  useEffect(() => {
+    const handleArticlesUpdate = (e: any) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        setArticlesList(e.detail);
+      }
+    };
+    window.addEventListener('caih_articles_updated', handleArticlesUpdate);
+    return () => window.removeEventListener('caih_articles_updated', handleArticlesUpdate);
+  }, []);
+
   const { id: paramArticleId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
@@ -73,8 +94,8 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
 
   const currentArticle = useMemo(() => {
     if (!activeArticleId) return null;
-    return ARTICLES.find((a) => a.id === activeArticleId) || null;
-  }, [activeArticleId]);
+    return articlesList.find((a) => a.id === activeArticleId) || null;
+  }, [activeArticleId, articlesList]);
 
   // Scroll to top whenever viewing a specific article
   useEffect(() => {
@@ -94,8 +115,8 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const featuredStory = ARTICLES.find((a) => a.featured) || ARTICLES[0];
-  const gridArticles = ARTICLES.filter((a) => a.id !== featuredStory.id);
+  const featuredStory = articlesList.find((a) => a.featured) || articlesList[0] || null;
+  const gridArticles = featuredStory ? articlesList.filter((a) => a.id !== featuredStory.id) : articlesList;
 
   const filteredArticles = useMemo(() => {
     return gridArticles.filter((article) => {
@@ -160,7 +181,7 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
    * IF AN ARTICLE IS SELECTED: COMPLETE IN-DEPTH ARTICLE DISPLAY
    * ------------------------------------------------------------- */
   if (currentArticle) {
-    const otherArticles = ARTICLES.filter((a) => a.id !== currentArticle.id);
+    const otherArticles = articlesList.filter((a) => a.id !== currentArticle.id);
 
     return (
       <div className="flex flex-col w-full bg-white animate-fadeIn">
@@ -807,9 +828,9 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white p-6 sm:p-7 rounded-2xl border border-[#E2E8F0] shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="flex items-center gap-1 text-amber-500">
+                <div className="flex items-center gap-1 text-[#b7102a]">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    <Award key={i} className="w-4 h-4 fill-[#b7102a]/20 text-[#b7102a]" />
                   ))}
                 </div>
                 <Quote className="w-8 h-8 text-[#b7102a]/20" />
@@ -830,9 +851,9 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
 
             <div className="bg-white p-6 sm:p-7 rounded-2xl border border-[#E2E8F0] shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="flex items-center gap-1 text-amber-500">
+                <div className="flex items-center gap-1 text-[#b7102a]">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    <Award key={i} className="w-4 h-4 fill-[#b7102a]/20 text-[#b7102a]" />
                   ))}
                 </div>
                 <Quote className="w-8 h-8 text-[#b7102a]/20" />
@@ -853,9 +874,9 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
 
             <div className="bg-white p-6 sm:p-7 rounded-2xl border border-[#E2E8F0] shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="flex items-center gap-1 text-amber-500">
+                <div className="flex items-center gap-1 text-[#b7102a]">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    <Award key={i} className="w-4 h-4 fill-[#b7102a]/20 text-[#b7102a]" />
                   ))}
                 </div>
                 <Quote className="w-8 h-8 text-[#b7102a]/20" />

@@ -14,14 +14,26 @@ import { RealtorRegistrationScreen } from './screens/RealtorRegistrationScreen';
 import { ContactScreen } from './screens/ContactScreen';
 import { AdminScreen } from './screens/AdminScreen';
 import { VIDEO_DISPATCHES, PROJECTS as MOCK_PROJECTS } from './data/mockData';
-import { fetchPropertiesFromSupabase, isSupabaseConfigured } from './lib/supabase';
-function ProjectDetailWrapper({ onNavigate, onBookInspection }: { onNavigate: (page: PageId) => void; onBookInspection: (target?: string) => void }) {
+import { fetchPropertiesFromSupabase, fetchArticlesFromSupabase, isSupabaseConfigured } from './lib/supabase';
+import { getStoredProjects, saveStoredProjects } from './utils/projectsStore';
+import { getStoredArticles, saveStoredArticles } from './utils/articlesStore';
+
+function ProjectDetailWrapper({
+  projects,
+  onNavigate,
+  onBookInspection
+}: {
+  projects: Project[];
+  onNavigate: (page: PageId) => void;
+  onBookInspection: (target?: string) => void;
+}) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const project =
-    MOCK_PROJECTS.find((p) => p.id === id) ||
-    MOCK_PROJECTS.find((p) => p.specs?.units?.toString() === id) || // Rough fix for missing property in types.ts unitsOrPlots
-    MOCK_PROJECTS.find((p) => id?.startsWith(p.id) || p.id.startsWith(id || '')) ||
+    projects.find((p) => p.id === id) ||
+    projects.find((p) => p.specs?.units?.toString() === id) ||
+    projects.find((p) => id?.startsWith(p.id) || p.id.startsWith(id || '')) ||
+    projects[0] ||
     MOCK_PROJECTS[0];
 
   return (
@@ -54,16 +66,52 @@ function VideoDetailWrapper({ onNavigate, onBookInspection, onSelectProject }: {
 }
 
 export default function App() {
-  const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
+  const [projects, setProjects] = useState<Project[]>(() => getStoredProjects());
+  const [articles, setArticles] = useState<Article[]>(() => getStoredArticles());
 
   useEffect(() => {
-    const loadProjects = async () => {
-      if (isSupabaseConfigured()) {
-        const fetched = await fetchPropertiesFromSupabase();
-        setProjects(fetched || MOCK_PROJECTS);
+    // Listen for custom store update events triggered by Admin or client actions
+    const handleProjectsUpdated = (e: any) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        setProjects(e.detail);
       }
     };
-    loadProjects();
+    const handleArticlesUpdated = (e: any) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        setArticles(e.detail);
+      }
+    };
+
+    window.addEventListener('caih_projects_updated', handleProjectsUpdated);
+    window.addEventListener('caih_articles_updated', handleArticlesUpdated);
+
+    // Initial load from Supabase if configured
+    const loadRemoteData = async () => {
+      if (isSupabaseConfigured()) {
+        try {
+          const [fetchedProps, fetchedArticles] = await Promise.all([
+            fetchPropertiesFromSupabase(),
+            fetchArticlesFromSupabase()
+          ]);
+          if (fetchedProps && fetchedProps.length > 0) {
+            setProjects(fetchedProps);
+            saveStoredProjects(fetchedProps);
+          }
+          if (fetchedArticles && fetchedArticles.length > 0) {
+            setArticles(fetchedArticles);
+            saveStoredArticles(fetchedArticles);
+          }
+        } catch (err) {
+          console.warn('Initial remote load note:', err);
+        }
+      }
+    };
+    loadRemoteData();
+
+    return () => {
+      window.removeEventListener('caih_projects_updated', handleProjectsUpdated);
+      window.removeEventListener('caih_articles_updated', handleArticlesUpdated);
+    };
   }, []);
 
   const navigate = useNavigate();
@@ -172,6 +220,8 @@ export default function App() {
             path="/"
             element={
               <HomeScreen
+                projects={projects}
+                articles={articles}
                 onNavigate={handleNavigate}
                 onViewProject={handleViewProject}
                 onViewArticle={handleViewArticle}
@@ -197,6 +247,7 @@ export default function App() {
             path="/projects/:id"
             element={
               <ProjectDetailWrapper
+                projects={projects}
                 onNavigate={handleNavigate}
                 onBookInspection={handleOpenInspectionBooking}
               />
@@ -216,6 +267,7 @@ export default function App() {
             path="/blog"
             element={
               <BlogScreen
+                articles={articles}
                 onViewVideo={handleViewVideo}
                 onNavigateToProjects={() => navigate('/projects')}
                 onBookInspection={handleOpenInspectionBooking}
@@ -226,6 +278,7 @@ export default function App() {
             path="/blog/:id"
             element={
               <BlogScreen
+                articles={articles}
                 onViewVideo={handleViewVideo}
                 onNavigateToProjects={() => navigate('/projects')}
                 onBookInspection={handleOpenInspectionBooking}
@@ -264,6 +317,7 @@ export default function App() {
             element={
               <AdminScreen
                 projects={projects}
+                articles={articles}
                 onViewProject={handleViewProject}
                 onNavigate={handleNavigate}
               />
@@ -274,6 +328,7 @@ export default function App() {
             element={
               <AdminScreen
                 projects={projects}
+                articles={articles}
                 initialMode="login"
                 forceAuthScreen={true}
                 onViewProject={handleViewProject}
@@ -285,6 +340,8 @@ export default function App() {
             path="/admin/signup"
             element={
               <AdminScreen
+                projects={projects}
+                articles={articles}
                 initialMode="signup"
                 forceAuthScreen={true}
                 onViewProject={handleViewProject}
@@ -297,6 +354,7 @@ export default function App() {
             element={
               <AdminScreen
                 projects={projects}
+                articles={articles}
                 initialMode="login"
                 forceAuthScreen={true}
                 onViewProject={handleViewProject}
@@ -309,6 +367,7 @@ export default function App() {
             element={
               <AdminScreen
                 projects={projects}
+                articles={articles}
                 initialMode="signup"
                 forceAuthScreen={true}
                 onViewProject={handleViewProject}

@@ -34,7 +34,14 @@ import {
   EyeOff,
   UserCheck,
   KeyRound,
-  UserPlus
+  UserPlus,
+  Sparkles,
+  Layers,
+  Video,
+  MapPin,
+  Tag,
+  SlidersHorizontal,
+  Image as ImageIcon
 } from 'lucide-react';
 import {
   isSupabaseConfigured,
@@ -59,6 +66,20 @@ import {
 import { DatabaseConnector } from '../components/DatabaseConnector';
 import { SUPABASE_SCHEMA_SQL } from '../data/supabaseSchema';
 import { ADMIN_AUTH_SQL } from '../data/adminAuthSql';
+import { AdminPropertyModal } from '../components/AdminPropertyModal';
+import { AdminArticleModal } from '../components/AdminArticleModal';
+import {
+  getStoredProjects,
+  saveStoredProjects,
+  addOrUpdateProject,
+  deleteStoredProject
+} from '../utils/projectsStore';
+import {
+  getStoredArticles,
+  saveStoredArticles,
+  addOrUpdateArticle,
+  deleteStoredArticle
+} from '../utils/articlesStore';
 
 export interface AdminUser {
   id: string;
@@ -73,6 +94,7 @@ const DEFAULT_ADMIN_USERS: AdminUser[] = [];
 
 interface AdminScreenProps {
   projects: Project[];
+  articles?: Article[];
   onViewProject: (project: Project) => void;
   onNavigate: (page: any) => void;
   initialMode?: 'login' | 'signup';
@@ -97,6 +119,7 @@ interface Inquiry {
 
 export const AdminScreen: React.FC<AdminScreenProps> = ({
   projects: passedProjects,
+  articles: passedArticles,
   onViewProject,
   onNavigate,
   initialMode,
@@ -227,7 +250,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   const [currentPasswordInput, setCurrentPasswordInput] = useState('');
   const [newPasswordInput, setNewPasswordInput] = useState('');
   const [confirmNewPasswordInput, setConfirmNewPasswordInput] = useState('');
-  const [isCreatingProject, setIsCreatingProject] = useState(false);
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -262,18 +284,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     setConfirmNewPasswordInput('');
     setShowChangePasswordModal(false);
     alert('Password updated successfully!');
-  };
-
-  const handleAddProject = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingProject) return;
-    setProjectsList(prev => [editingProject, ...prev]);
-    if (isSupabaseConfigured()) {
-      await upsertPropertyToSupabase(editingProject, currentAdmin?.id);
-    }
-    setEditingProject(null);
-    setIsCreatingProject(false);
-    alert('Property added successfully!');
   };
 
   const handleAddDashboardAdmin = async (e: React.FormEvent) => {
@@ -567,15 +577,31 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 
   // Editable Projects state initialized from localStorage
   const [projectsList, setProjectsList] = useState<Project[]>(() => {
-    const saved = localStorage.getItem('caih_admin_projects');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
-    }
-    return [];
+    return passedProjects && passedProjects.length > 0 ? passedProjects : getStoredProjects();
   });
 
-  // Articles state initialized empty
-  const [articlesList, setArticlesList] = useState<Article[]>([]);
+  // Articles state initialized from localStorage
+  const [articlesList, setArticlesList] = useState<Article[]>(() => {
+    return passedArticles && passedArticles.length > 0 ? passedArticles : getStoredArticles();
+  });
+
+  useEffect(() => {
+    if (passedProjects && passedProjects.length > 0) {
+      setProjectsList(passedProjects);
+    }
+  }, [passedProjects]);
+
+  useEffect(() => {
+    if (passedArticles && passedArticles.length > 0) {
+      setArticlesList(passedArticles);
+    }
+  }, [passedArticles]);
+
+  const [propertySearchQuery, setPropertySearchQuery] = useState('');
+  const [propertyFilterStatus, setPropertyFilterStatus] = useState('all');
+  const [articleSearchQuery, setArticleSearchQuery] = useState('');
+  const [articleFilterCategory, setArticleFilterCategory] = useState('all');
+
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [isCreatingArticle, setIsCreatingArticle] = useState(false);
 
@@ -591,18 +617,12 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     return [];
   });
 
-  // Newsletter Broadcast state
-
-
   // New Subscriber manual input
   const [newSubEmail, setNewSubEmail] = useState('');
 
   // Editing Project Modal state
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-
-  useEffect(() => {
-    localStorage.setItem('caih_admin_projects', JSON.stringify(projectsList));
-  }, [projectsList]);
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('caih_admin_subscribers', JSON.stringify(subscribers));
@@ -612,83 +632,188 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     localStorage.setItem('caih_admin_inquiries', JSON.stringify(inquiries));
   }, [inquiries]);
 
-  const handleSaveProjectEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingProject) return;
-    setProjectsList(prev => prev.map(p => p.id === editingProject.id ? editingProject : p));
+  const handleCreateNewProject = () => {
+    const newProj: Project = {
+      id: 'prop-' + Date.now(),
+      title: '',
+      location: '',
+      corridor: 'Idera / Lekki-Epe Expressway',
+      propertyType: 'residential',
+      priceCategory: 'mid',
+      status: 'ongoing',
+      statusLabel: 'Selling Fast',
+      badge: 'Featured',
+      secondaryBadge: 'Governor’s Consent',
+      image: '/images/appleton_court_exterior_real.jpg',
+      galleryImages: [
+        '/images/appleton_court_exterior_real.jpg',
+        '/images/appleton_court_interior_living.jpg'
+      ],
+      priceDisplay: '',
+      priceSub: '12 Months Flexible Milestone Spread',
+      paymentType: 'Direct Allocation & Installments',
+      handoverDate: 'December 2026',
+      startingDeposit: '₦10,000,000',
+      specs: {
+        beds: 4,
+        baths: 4,
+        area: '320 sqm',
+        units: 12,
+        landType: '100% Dry Table Land',
+        titleType: 'Governor’s Consent'
+      },
+      summary: '',
+      detailedDescription: '',
+      keyFeatures: [
+        '24/7 Solar & Grid Power',
+        'Smart Home Automation',
+        'Armed Security Personnel',
+        'Treated Potable Water Supply',
+        'Paved Interlocked Roads & Drainage'
+      ],
+      neighbourhood: [
+        'Alaro City & Free Trade Zone Axis',
+        'Pan-Atlantic University',
+        'Proposed Lekki Airport'
+      ]
+    };
+    setEditingProject(newProj);
+    setIsCreatingProject(true);
+  };
+
+  const handleSaveProjectModal = async (savedProject: Project) => {
+    const updated = addOrUpdateProject(savedProject);
+    setProjectsList(updated);
     if (isSupabaseConfigured()) {
-      await upsertPropertyToSupabase(editingProject, currentAdmin?.id);
+      await upsertPropertyToSupabase(savedProject, currentAdmin?.id);
     }
     setEditingProject(null);
+    setIsCreatingProject(false);
   };
 
-  const handleDeleteProperty = async (projectId: string) => {
-    if (confirm('Are you sure you want to delete this property listing? This will permanently remove it from the catalog and database.')) {
-      setProjectsList(prev => {
-        const updated = prev.filter(p => p.id !== projectId);
-        localStorage.setItem('caih_admin_projects', JSON.stringify(updated));
-        return updated;
-      });
-      if (isSupabaseConfigured()) {
-        await deletePropertyFromSupabase(projectId);
+  // In-app Delete Confirmation Modal State
+  interface DeleteTarget {
+    type: 'property' | 'article' | 'subscriber' | 'inquiry' | 'admin';
+    id: string;
+    name: string;
+  }
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
+  const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const executeDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      if (deleteTarget.type === 'property') {
+        const updated = deleteStoredProject(deleteTarget.id);
+        setProjectsList(updated);
+        if (isSupabaseConfigured()) {
+          await deletePropertyFromSupabase(deleteTarget.id);
+        }
+        setDeleteNotice(`Successfully deleted property: "${deleteTarget.name}"`);
+      } else if (deleteTarget.type === 'article') {
+        const updated = deleteStoredArticle(deleteTarget.id);
+        setArticlesList(updated);
+        if (isSupabaseConfigured()) {
+          await deleteArticleFromSupabase(deleteTarget.id);
+        }
+        setDeleteNotice(`Successfully deleted article: "${deleteTarget.name}"`);
+      } else if (deleteTarget.type === 'subscriber') {
+        const updated = subscribers.filter(s => s.email !== deleteTarget.id);
+        setSubscribers(updated);
+        localStorage.setItem('caih_admin_subscribers', JSON.stringify(updated));
+        if (isSupabaseConfigured()) {
+          await deleteSubscriberFromSupabase(deleteTarget.id);
+        }
+        setDeleteNotice(`Removed ${deleteTarget.name} from subscriber list`);
+      } else if (deleteTarget.type === 'inquiry') {
+        const updated = inquiries.filter(item => item.id !== deleteTarget.id);
+        setInquiries(updated);
+        localStorage.setItem('caih_admin_inquiries', JSON.stringify(updated));
+        if (isSupabaseConfigured()) {
+          await deleteInspectionFromSupabase(deleteTarget.id);
+        }
+        setDeleteNotice(`Removed inspection inquiry for ${deleteTarget.name}`);
+      } else if (deleteTarget.type === 'admin') {
+        const updated = adminUsers.filter(u => u.id !== deleteTarget.id);
+        setAdminUsers(updated);
+        localStorage.setItem('caih_admin_users', JSON.stringify(updated));
+        if (isSupabaseConfigured()) {
+          await deleteAdminUserFromSupabase(deleteTarget.id);
+        }
+        setDeleteNotice(`Removed team account: ${deleteTarget.name}`);
       }
+    } catch (err: any) {
+      console.error('Delete error:', err);
+      setDeleteNotice(`Delete operation encountered an issue: ${err.message || 'Error'}`);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+      if (editingProject && editingProject.id === deleteTarget?.id) {
+        setEditingProject(null);
+        setIsCreatingProject(false);
+      }
+      if (editingArticle && editingArticle.id === deleteTarget?.id) {
+        setEditingArticle(null);
+        setIsCreatingArticle(false);
+      }
+      setTimeout(() => setDeleteNotice(null), 4500);
     }
   };
 
-  const handleSaveArticle = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingArticle) return;
-    setArticlesList(prev => {
-      const exists = prev.some(a => a.id === editingArticle.id);
-      if (exists) {
-        return prev.map(a => a.id === editingArticle.id ? editingArticle : a);
-      } else {
-        return [editingArticle, ...prev];
-      }
+  const handleDeleteProperty = (projectId: string) => {
+    const p = projectsList.find(item => item.id === projectId);
+    setDeleteTarget({
+      type: 'property',
+      id: projectId,
+      name: p?.title || 'Property Listing'
     });
-    if (isSupabaseConfigured()) {
-      await upsertArticleToSupabase(editingArticle, currentAdmin?.id);
-    }
-    setEditingArticle(null);
-    setIsCreatingArticle(false);
-  };
-
-  const handleDeleteArticle = async (articleId: string) => {
-    if (confirm('Are you sure you want to delete this blog post? This action will permanently remove it from the website and database.')) {
-      setArticlesList(prev => {
-        const updated = prev.filter(a => a.id !== articleId);
-        return updated;
-      });
-      if (isSupabaseConfigured()) {
-        await deleteArticleFromSupabase(articleId);
-      }
-    }
   };
 
   const handleCreateNewArticle = () => {
     const newArt: Article = {
       id: 'article-' + Date.now(),
-      title: 'New Real Estate Market Insights',
+      title: '',
       category: 'property-market',
       categoryLabel: 'Property Market',
       readTime: '5 min read',
       date: 'April 2026',
       author: {
-        name: 'Caih Group',
+        name: currentAdmin?.name || 'Caih Group',
         avatarInitials: 'CG',
-        role: 'Caih Group'
+        role: currentAdmin?.role || 'Research & Advisory Desk'
       },
       image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200',
-      excerpt: 'Summary of the new property market insights and investment opportunities in Lagos.',
+      excerpt: '',
       content: [
-        'First paragraph of your new post describing real estate trends in Lagos.',
-        'Second paragraph highlighting infrastructural developments.'
+        'The Lagos real estate landscape continues to experience transformative infrastructure-driven capital appreciation along the Lekki-Epe expressway.'
       ],
       sections: [],
-      keyTakeaways: ['High capital appreciation', 'Secure title documentation']
+      keyTakeaways: ['High capital appreciation potential', 'Verified title documentation (Governor’s Consent / C of O)'],
+      featured: true
     };
     setEditingArticle(newArt);
     setIsCreatingArticle(true);
+  };
+
+  const handleSaveArticleModal = async (savedArticle: Article) => {
+    const updated = addOrUpdateArticle(savedArticle);
+    setArticlesList(updated);
+    if (isSupabaseConfigured()) {
+      await upsertArticleToSupabase(savedArticle, currentAdmin?.id);
+    }
+    setEditingArticle(null);
+    setIsCreatingArticle(false);
+  };
+
+  const handleDeleteArticle = (articleId: string) => {
+    const a = articlesList.find(item => item.id === articleId);
+    setDeleteTarget({
+      type: 'article',
+      id: articleId,
+      name: a?.title || 'Blog Article'
+    });
   };
 
   const handleAddSubscriber = (e: React.FormEvent) => {
@@ -697,33 +822,25 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     const res = subscribeClient(newSubEmail.trim(), '', 'all', 'manual');
     setSubscribers(prev => [...prev, { email: newSubEmail.trim(), joinedDate: new Date().toISOString().split('T')[0], source: 'manual' }]);
     setNewSubEmail('');
-    alert(res.message);
+    setDeleteNotice(res.message);
+    setTimeout(() => setDeleteNotice(null), 4500);
   };
 
-  const handleDeleteSubscriber = async (email: string) => {
-    if (confirm(`Remove ${email} from subscriber list? This will remove the contact from your database.`)) {
-      setSubscribers(prev => {
-        const updated = prev.filter(s => s.email !== email);
-        localStorage.setItem('caih_admin_subscribers', JSON.stringify(updated));
-        return updated;
-      });
-      if (isSupabaseConfigured()) {
-        await deleteSubscriberFromSupabase(email);
-      }
-    }
+  const handleDeleteSubscriber = (email: string) => {
+    setDeleteTarget({
+      type: 'subscriber',
+      id: email,
+      name: email
+    });
   };
 
-  const handleDeleteInquiry = async (id: string) => {
-    if (confirm('Are you sure you want to remove this inspection inquiry?')) {
-      setInquiries(prev => {
-        const updated = prev.filter(item => item.id !== id);
-        localStorage.setItem('caih_admin_inquiries', JSON.stringify(updated));
-        return updated;
-      });
-      if (isSupabaseConfigured()) {
-        await deleteInspectionFromSupabase(id);
-      }
-    }
+  const handleDeleteInquiry = (id: string) => {
+    const inq = inquiries.find(item => item.id === id);
+    setDeleteTarget({
+      type: 'inquiry',
+      id: id,
+      name: inq ? `${inq.fullName} (${inq.project})` : 'Inspection Inquiry'
+    });
   };
 
 
@@ -1210,26 +1327,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
               </div>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => {
-                    setEditingProject({
-                      id: 'prop_' + Date.now(),
-                      title: '',
-                      location: '',
-                      corridor: 'Ibeju-Lekki',
-                      propertyType: 'residential',
-                      priceCategory: 'mid',
-                      status: 'upcoming',
-                      statusLabel: 'Available',
-                      image: '',
-                      priceDisplay: '',
-                      priceSub: '',
-                      specs: {},
-                      summary: '',
-                      detailedDescription: '',
-                      keyFeatures: []
-                    });
-                    setIsCreatingProject(true);
-                  }}
+                  onClick={handleCreateNewProject}
                   className="px-4 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer shrink-0"
                 >
                   <Plus className="w-4 h-4" />
@@ -1791,16 +1889,26 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                           </td>
                           <td className="py-3.5 px-4 sm:px-6 text-right">
                             {!isCurrent ? (
-                              <button
-                                onClick={() => {
-                                  setCurrentAdmin(admin);
-                                  localStorage.setItem('caih_current_admin', JSON.stringify(admin));
-                                  alert(`Switched active session to ${admin.name} (${admin.role})`);
-                                }}
-                                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-[#000f22] hover:text-white text-[#000f22] text-xs font-bold transition-all cursor-pointer"
-                              >
-                                Switch Account
-                              </button>
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => {
+                                    setCurrentAdmin(admin);
+                                    localStorage.setItem('caih_current_admin', JSON.stringify(admin));
+                                    setDeleteNotice(`Switched active session to ${admin.name} (${admin.role})`);
+                                    setTimeout(() => setDeleteNotice(null), 3500);
+                                  }}
+                                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-[#000f22] hover:text-white text-[#000f22] text-xs font-bold transition-all cursor-pointer"
+                                >
+                                  Switch Account
+                                </button>
+                                <button
+                                  onClick={() => setDeleteTarget({ type: 'admin', id: admin.id, name: `${admin.name} (${admin.email})` })}
+                                  className="p-1.5 rounded-lg bg-red-50 hover:bg-red-600 hover:text-white text-red-600 transition-colors cursor-pointer"
+                                  title="Remove Team Account"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             ) : (
                               <span className="text-xs text-emerald-700 font-bold flex items-center justify-end gap-1">
                                 <Check className="w-3.5 h-3.5" />
@@ -1818,275 +1926,33 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           </div>
         )}
 
-
-
       </div>
 
-      {/* Edit Project Modal */}
-      {editingProject && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] mb-6">
-              <h3 className="text-xl font-black text-[#000f22]">
-                {isCreatingProject ? 'Add New Property' : `Edit Property: ${editingProject.title}`}
-              </h3>
-              <button
-                onClick={() => {
-                  setEditingProject(null);
-                  setIsCreatingProject(false);
-                }}
-                className="p-2 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* Executive Property Creation & Editing Modal */}
+      <AdminPropertyModal
+        isOpen={Boolean(editingProject)}
+        isCreating={isCreatingProject}
+        project={editingProject}
+        onClose={() => {
+          setEditingProject(null);
+          setIsCreatingProject(false);
+        }}
+        onSave={handleSaveProjectModal}
+        onDelete={handleDeleteProperty}
+      />
 
-            <form onSubmit={isCreatingProject ? handleAddProject : handleSaveProjectEdit} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Project Title</label>
-                <input
-                  type="text"
-                  value={editingProject.title}
-                  onChange={e => setEditingProject({ ...editingProject, title: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Location / Address</label>
-                <input
-                  type="text"
-                  value={editingProject.location}
-                  onChange={e => setEditingProject({ ...editingProject, location: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Status Label</label>
-                  <input
-                    type="text"
-                    value={editingProject.statusLabel}
-                    onChange={e => setEditingProject({ ...editingProject, statusLabel: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Price Display</label>
-                  <input
-                    type="text"
-                    value={editingProject.priceDisplay}
-                    onChange={e => setEditingProject({ ...editingProject, priceDisplay: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Property Image (Upload)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      // In a real app, you would upload this to Supabase storage or a service
-                      // For this demo, we simulate a local URL
-                      const url = URL.createObjectURL(file);
-                      setEditingProject({ ...editingProject, image: url });
-                    }
-                  }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#b7102a]/10 file:text-[#b7102a] hover:file:bg-[#b7102a]/20"
-                />
-                {editingProject.image && <img src={editingProject.image} alt="Preview" className="mt-2 h-20 w-auto rounded-lg" />}
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Property Video (Upload)</label>
-                <input
-                  type="file"
-                  accept="video/*"
-                  onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      // Simulating local URL
-                      const url = URL.createObjectURL(file);
-                      // Assuming video URL is added to specs or a new field in Project if needed
-                      setEditingProject({ ...editingProject, specs: { ...editingProject.specs, area: url } });
-                    }
-                  }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#b7102a]/10 file:text-[#b7102a] hover:file:bg-[#b7102a]/20"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Summary Description</label>
-                <textarea
-                  rows={3}
-                  value={editingProject.summary}
-                  onChange={e => setEditingProject({ ...editingProject, summary: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
-                <button
-                  type="button"
-                  onClick={() => setEditingProject(null)}
-                  className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* EDIT / CREATE ARTICLE MODAL */}
-      {editingArticle && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-8 shadow-2xl border border-[#CBD5E1] my-8 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] mb-6">
-              <h3 className="text-lg font-bold text-[#000f22]">
-                {isCreatingArticle ? 'Create New Blog Post' : 'Edit Blog Post'}
-              </h3>
-              <button
-                onClick={() => setEditingArticle(null)}
-                className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveArticle} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Article Title</label>
-                <input
-                  type="text"
-                  required
-                  value={editingArticle.title}
-                  onChange={e => setEditingArticle({ ...editingArticle, title: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Category Label</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingArticle.categoryLabel}
-                    onChange={e => setEditingArticle({ ...editingArticle, categoryLabel: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Read Time</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingArticle.readTime}
-                    onChange={e => setEditingArticle({ ...editingArticle, readTime: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Date</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingArticle.date}
-                    onChange={e => setEditingArticle({ ...editingArticle, date: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Author Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingArticle.author.name}
-                    onChange={e => setEditingArticle({ ...editingArticle, author: { ...editingArticle.author, name: e.target.value } })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Featured Image URL</label>
-                <input
-                  type="url"
-                  required
-                  value={editingArticle.image}
-                  onChange={e => setEditingArticle({ ...editingArticle, image: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Featured Video URL</label>
-                <input
-                  type="url"
-                  placeholder="Optional YouTube/Vimeo URL"
-                  value={editingArticle.videoUrl || ''}
-                  onChange={e => setEditingArticle({ ...editingArticle, videoUrl: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Excerpt Summary</label>
-                <textarea
-                  rows={2}
-                  required
-                  value={editingArticle.excerpt}
-                  onChange={e => setEditingArticle({ ...editingArticle, excerpt: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Content Paragraphs (separated by blank lines)</label>
-                <textarea
-                  rows={6}
-                  required
-                  value={editingArticle.content.join('\n\n')}
-                  onChange={e => setEditingArticle({ ...editingArticle, content: e.target.value.split('\n\n').filter(Boolean) })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30 font-mono"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
-                <button
-                  type="button"
-                  onClick={() => setEditingArticle(null)}
-                  className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
-                >
-                  Save Post
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Executive Blog Post & Article Creation / Editing Modal */}
+      <AdminArticleModal
+        isOpen={Boolean(editingArticle)}
+        isCreating={isCreatingArticle}
+        article={editingArticle}
+        onClose={() => {
+          setEditingArticle(null);
+          setIsCreatingArticle(false);
+        }}
+        onSave={handleSaveArticleModal}
+        onDelete={handleDeleteArticle}
+      />
 
       {/* Add Administrator / Content Manager Modal */}
       {showAddAdminModal && (
@@ -2262,6 +2128,77 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Universal In-App Delete Confirmation Modal (Guaranteed to work in iframe & mobile) */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-red-100">
+            <div className="flex items-center gap-3.5 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-[#000f22]">Confirm Deletion</h3>
+                <span className="text-xs uppercase tracking-wider font-bold text-red-600">
+                  {deleteTarget.type === 'property' && 'Property Listing'}
+                  {deleteTarget.type === 'article' && 'Blog Article'}
+                  {deleteTarget.type === 'subscriber' && 'Newsletter Contact'}
+                  {deleteTarget.type === 'inquiry' && 'Inspection Inquiry'}
+                  {deleteTarget.type === 'admin' && 'Team Member Account'}
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs sm:text-sm text-[#475569] leading-relaxed mb-6">
+              Are you sure you want to permanently delete <strong className="text-[#000f22]">"{deleteTarget.name}"</strong>?
+              This will remove it from the website catalog, local storage, and database.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+                className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={executeDelete}
+                disabled={isDeleting}
+                className="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Yes, Delete Permanently</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Dashboard Feedback Notification Toast */}
+      {deleteNotice && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#000f22] text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 animate-slideUp">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span className="text-xs font-semibold">{deleteNotice}</span>
+          <button
+            onClick={() => setDeleteNotice(null)}
+            className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white cursor-pointer ml-2"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
     </div>

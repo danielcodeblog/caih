@@ -3,6 +3,7 @@ import { Project } from '../types';
 import { InspectionForm } from '../components/InspectionForm';
 import { fetchPropertiesFromSupabase, isSupabaseConfigured } from '../lib/supabase';
 import { PROJECTS } from '../data/mockData';
+import { getStoredProjects } from '../utils/projectsStore';
 import {
   MapPin,
   Building,
@@ -36,7 +37,9 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
   selectedProjectForInspection,
   initialFilter
 }) => {
-  const [projects, setProjects] = useState<Project[]>(passedProjects || []);
+  const [projects, setProjects] = useState<Project[]>(() =>
+    passedProjects && passedProjects.length > 0 ? passedProjects : getStoredProjects()
+  );
 
   useEffect(() => {
     if (passedProjects && passedProjects.length > 0) {
@@ -45,10 +48,20 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
   }, [passedProjects]);
 
   useEffect(() => {
+    const handleProjectsUpdated = (e: any) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        setProjects(e.detail);
+      }
+    };
+    window.addEventListener('caih_projects_updated', handleProjectsUpdated);
+    return () => window.removeEventListener('caih_projects_updated', handleProjectsUpdated);
+  }, []);
+
+  useEffect(() => {
     const load = async () => {
       if (isSupabaseConfigured() && (!passedProjects || passedProjects.length === 0)) {
         const fetched = await fetchPropertiesFromSupabase();
-        if (fetched) setProjects(fetched);
+        if (fetched && fetched.length > 0) setProjects(fetched);
       }
     };
     load();

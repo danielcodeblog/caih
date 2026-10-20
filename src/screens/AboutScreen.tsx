@@ -11,7 +11,6 @@ import {
   Users,
   CheckCircle,
   ExternalLink,
-  Star,
   MapPin,
   BadgeCheck,
   ChevronLeft,

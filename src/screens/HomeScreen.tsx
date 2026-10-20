@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Project, Article, VideoDispatch, PageId } from '../types';
-import { PROJECTS, VIDEO_DISPATCHES, TESTIMONIALS, BRAND_ASSETS } from '../data/mockData';
+import { VIDEO_DISPATCHES, TESTIMONIALS, BRAND_ASSETS } from '../data/mockData';
 import { getStoredArticles } from '../utils/articlesStore';
+import { getStoredProjects } from '../utils/projectsStore';
 import gsap from 'gsap';
 import {
   Search,
@@ -20,16 +21,18 @@ import {
   Shield,
   Sun,
   Video,
-  Star,
   Quote,
   BadgeCheck,
   ChevronLeft,
   ChevronRight,
   Maximize2,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 
 interface HomeScreenProps {
+  projects?: Project[];
+  articles?: Article[];
   onNavigate: (page: PageId) => void;
   onViewProject: (project: Project) => void;
   onViewArticle: (article: Article) => void;
@@ -39,6 +42,8 @@ interface HomeScreenProps {
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
+  projects: passedProjects,
+  articles: passedArticles,
   onNavigate,
   onViewProject,
   onViewArticle,
@@ -46,7 +51,46 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onBookInspection,
   onSearchSubmit
 }) => {
-  const ARTICLES = getStoredArticles();
+  const [projectsList, setProjectsList] = useState<Project[]>(() =>
+    passedProjects && passedProjects.length > 0 ? passedProjects : getStoredProjects()
+  );
+  const [articlesList, setArticlesList] = useState<Article[]>(() =>
+    passedArticles && passedArticles.length > 0 ? passedArticles : getStoredArticles()
+  );
+
+  useEffect(() => {
+    if (passedProjects && passedProjects.length > 0) {
+      setProjectsList(passedProjects);
+    }
+  }, [passedProjects]);
+
+  useEffect(() => {
+    if (passedArticles && passedArticles.length > 0) {
+      setArticlesList(passedArticles);
+    }
+  }, [passedArticles]);
+
+  useEffect(() => {
+    const handleProjectsUpdated = (e: any) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        setProjectsList(e.detail);
+      }
+    };
+    const handleArticlesUpdated = (e: any) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        setArticlesList(e.detail);
+      }
+    };
+
+    window.addEventListener('caih_projects_updated', handleProjectsUpdated);
+    window.addEventListener('caih_articles_updated', handleArticlesUpdated);
+
+    return () => {
+      window.removeEventListener('caih_projects_updated', handleProjectsUpdated);
+      window.removeEventListener('caih_articles_updated', handleArticlesUpdated);
+    };
+  }, []);
+
   // Hero Search Dock State
   const [selectedType, setSelectedType] = useState('ALL TYPES');
   const [keyword, setKeyword] = useState('');
@@ -92,13 +136,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   // Filter properties based on dark section category and hero search
   const filteredProperties = useMemo(() => {
-    return PROJECTS.filter((p) => {
+    const list = [...projectsList];
+    const filtered = list.filter((p) => {
       // Keyword match
       if (keyword.trim()) {
         const query = keyword.toLowerCase();
         const matchesTitle = p.title.toLowerCase().includes(query);
         const matchesLocation = p.location.toLowerCase().includes(query);
-        const matchesSummary = p.summary.toLowerCase().includes(query);
+        const matchesSummary = (p.summary || '').toLowerCase().includes(query);
         if (!matchesTitle && !matchesLocation && !matchesSummary) return false;
       }
 
@@ -115,7 +160,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         if (
           selectedType === 'INDUSTRIAL' &&
           p.propertyType !== 'industrial' &&
-          !p.keyFeatures.some((k) => k.toLowerCase().includes('warehouse') || k.toLowerCase().includes('logistics'))
+          !p.keyFeatures?.some((k) => k.toLowerCase().includes('warehouse') || k.toLowerCase().includes('logistics'))
         ) return false;
       }
 
@@ -124,7 +169,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         const queryLoc = selectedLocation.toLowerCase();
         if (
           !p.location.toLowerCase().includes(queryLoc) &&
-          !p.corridor.toLowerCase().includes(queryLoc)
+          !(p.corridor || '').toLowerCase().includes(queryLoc)
         ) {
           return false;
         }
@@ -132,12 +177,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
       if (selectedBeds !== 'ANY') {
         const bedNum = parseInt(selectedBeds, 10);
-        if (p.specs.beds !== bedNum) return false;
+        if (p.specs?.beds !== bedNum) return false;
       }
 
       return true;
     });
-  }, [keyword, selectedType, selectedLocation, selectedBeds]);
+
+    // Prioritize properties with "Featured" in badge or newly created properties
+    return filtered.sort((a, b) => {
+      const aFeatured = a.badge?.toLowerCase().includes('featured') ? 1 : 0;
+      const bFeatured = b.badge?.toLowerCase().includes('featured') ? 1 : 0;
+      return bFeatured - aFeatured;
+    });
+  }, [projectsList, keyword, selectedType, selectedLocation, selectedBeds]);
 
   const handleHeroSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -363,51 +415,71 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
 
           {/* Grid of Clean Property Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProperties.slice(0, 4).map((prop) => (
-              <div
-                key={prop.id}
-                className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+          {filteredProperties.length === 0 ? (
+            <div className="py-16 text-center bg-[#F8FAFC] rounded-2xl border border-dashed border-[#CBD5E1]">
+              <Building2 className="w-12 h-12 text-[#94A3B8] mx-auto mb-3" />
+              <h3 className="text-lg font-bold text-[#000f22] mb-1">No matching properties found</h3>
+              <p className="text-xs text-[#64748B] max-w-md mx-auto mb-4">
+                Try clearing your search keyword or switching filters to view all available listings.
+              </p>
+              <button
+                onClick={() => {
+                  setSelectedType('ALL TYPES');
+                  setKeyword('');
+                  setSelectedLocation('ALL LOCATIONS');
+                  setSelectedBeds('ANY');
+                }}
+                className="px-4 py-2 rounded-xl bg-[#000f22] text-white text-xs font-bold hover:bg-[#b7102a] transition-colors cursor-pointer"
               >
-                <div className="relative">
-                  {/* Visual Frame */}
-                  <div
-                    onClick={() => onViewProject(prop)}
-                    className="h-60 overflow-hidden relative cursor-pointer"
-                  >
-                    <img
-                      src={prop.image}
-                      alt={prop.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    {/* Badges */}
-                    <div className="absolute top-3 left-3 flex gap-1.5">
-                      {prop.badge && (
-                        <span className="px-2.5 py-1 rounded bg-[#b7102a] text-white text-[10px] uppercase font-bold tracking-wider shadow-sm">
-                          {prop.badge}
-                        </span>
-                      )}
-                      {prop.secondaryBadge && (
-                        <span className="px-2.5 py-1 rounded bg-black/60 backdrop-blur-sm text-white text-[10px] uppercase tracking-wider">
-                          {prop.secondaryBadge}
-                        </span>
+                Reset Search Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredProperties.slice(0, 8).map((prop) => (
+                <div
+                  key={prop.id}
+                  className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                >
+                  <div className="relative">
+                    {/* Visual Frame */}
+                    <div
+                      onClick={() => onViewProject(prop)}
+                      className="h-60 overflow-hidden relative cursor-pointer"
+                    >
+                      <img
+                        src={prop.image || '/images/appleton_court_exterior_real.jpg'}
+                        alt={prop.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {/* Badges */}
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                        {prop.badge && (
+                          <span className="px-2.5 py-1 rounded bg-[#b7102a] text-white text-[10px] uppercase font-bold tracking-wider shadow-sm">
+                            {prop.badge}
+                          </span>
+                        )}
+                        {prop.secondaryBadge && (
+                          <span className="px-2.5 py-1 rounded bg-black/60 backdrop-blur-sm text-white text-[10px] uppercase tracking-wider">
+                            {prop.secondaryBadge}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Video tour available pill */}
+                      {prop.id !== 'appleton-haven' && (
+                        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">
+                          <Video className="w-3 h-3 text-[#ffb3b1]" />
+                          <span>Video Tour Available</span>
+                        </div>
                       )}
                     </div>
-
-                    {/* Video tour available pill */}
-                    {prop.id !== 'appleton-haven' && (
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">
-                        <Video className="w-3 h-3 text-[#ffb3b1]" />
-                        <span>Video Tour Available</span>
-                      </div>
-                    )}
-                  </div>
 
                     {/* Metadata & Description */}
                     <div className="p-5">
                       <div className="flex items-center gap-1 text-xs text-[#94A3B8] mb-1">
                         <MapPin className="w-3.5 h-3.5 text-[#b7102a]" />
-                        <span>{prop.location}</span>
+                        <span className="truncate">{prop.location}</span>
                       </div>
 
                       <h3
@@ -421,19 +493,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                       <div className="grid grid-cols-3 gap-2 py-3 mt-2 border-y border-[#E2E8F0] text-xs text-[#475569]">
                         {prop.propertyType === 'plots' ? (
                           <>
-                            <div className="font-semibold text-[#000f22] truncate">{prop.specs.area}</div>
-                            <div className="font-semibold text-[#000f22] truncate">{prop.specs.landType || '100% Dry Land'}</div>
-                            <div className="font-semibold text-emerald-700 truncate">{prop.specs.titleType || 'Consent'}</div>
+                            <div className="font-semibold text-[#000f22] truncate">{prop.specs?.area || 'Plots'}</div>
+                            <div className="font-semibold text-[#000f22] truncate">{prop.specs?.landType || '100% Dry Land'}</div>
+                            <div className="font-semibold text-emerald-700 truncate">{prop.specs?.titleType || 'Consent'}</div>
                           </>
                         ) : (
                           <>
-                            <div className="font-semibold text-[#000f22]">{prop.specs.beds} Beds</div>
-                            <div className="font-semibold text-[#000f22]">{prop.specs.baths || 5} Baths</div>
-                            <div className="font-semibold text-[#000f22]">{prop.specs.area}</div>
+                            <div className="font-semibold text-[#000f22]">{prop.specs?.beds ? `${prop.specs.beds} Beds` : 'Luxury'}</div>
+                            <div className="font-semibold text-[#000f22]">{prop.specs?.baths ? `${prop.specs.baths} Baths` : 'Ensuite'}</div>
+                            <div className="font-semibold text-[#000f22] truncate">{prop.specs?.area || 'Prime'}</div>
                           </>
                         )}
                       </div>
-
 
                       {/* Pricing Tag */}
                       <div className="mt-3">
@@ -443,7 +514,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         <div className="text-lg font-extrabold text-[#b7102a]">
                           {prop.priceDisplay}
                         </div>
-                        <span className="text-[11px] font-semibold text-emerald-700 block mt-0.5">
+                        <span className="text-[11px] font-semibold text-emerald-700 block mt-0.5 truncate">
                           {prop.priceSub || 'Direct Allocation'}
                         </span>
                       </div>
@@ -479,15 +550,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </div>
                 </div>
               ))}
-          </div>
+            </div>
+          )}
 
           {/* View All Properties Link */}
           <div className="mt-12 text-center">
             <button
               onClick={() => onNavigate('projects')}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-[#000f22] hover:bg-[#0a2540] text-white text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer"
+              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-[#000f22] hover:bg-[#b7102a] text-white text-xs sm:text-sm font-bold tracking-wider uppercase transition-all shadow-md cursor-pointer"
             >
-              <span>Explore All Selling Properties</span>
+              <span>Explore All Properties ({projectsList.length} In Lagos &amp; Abuja)</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -730,7 +802,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {ARTICLES.slice(0, 3).map((art) => (
+            {articlesList
+              .slice()
+              .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
+              .slice(0, 3)
+              .map((art) => (
               <article
                 key={art.id}
                 className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
@@ -745,10 +821,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                       alt={art.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute top-3 left-3">
+                    <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
                       <span className="px-2.5 py-1 rounded bg-[#b7102a] text-white text-[10px] uppercase font-bold tracking-wider shadow-sm">
                         {art.categoryLabel}
                       </span>
+                      {art.featured && (
+                        <span className="px-2.5 py-1 rounded bg-amber-500 text-white text-[10px] uppercase font-bold tracking-wider shadow-sm flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          <span>Featured</span>
+                        </span>
+                      )}
                     </div>
                     <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium">
                       {art.readTime}
@@ -757,8 +839,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   <div className="p-6">
                     <div className="flex items-center gap-2 text-xs text-[#94A3B8] mb-2">
                       <span className="text-[10px] uppercase tracking-wider font-bold text-[#b7102a]">
-                        Market Advisory & Research
+                        Market Advisory &amp; Research
                       </span>
+                      <span>•</span>
+                      <span className="text-[11px] text-[#64748B] font-medium">{art.date}</span>
                     </div>
                     <h3
                       onClick={() => onViewArticle(art)}
@@ -773,7 +857,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 </div>
                 <div className="px-6 pb-6 pt-0 border-t border-[#E2E8F0]/50 mt-4 pt-4 flex items-center justify-between">
                   <span className="text-[11px] uppercase tracking-wider font-bold text-[#b7102a]">
-                    Advisory
+                    By {art.author?.name || 'Caih Group'}
                   </span>
                   <button
                     onClick={() => onViewArticle(art)}

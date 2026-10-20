@@ -55,18 +55,21 @@ CREATE TABLE public.properties (
   starting_deposit TEXT,
   units_or_plots JSONB DEFAULT '[]'::jsonb,
   gallery_images TEXT[] DEFAULT '{}',
+  video_url TEXT,
   faq_pdf_url TEXT,
   map_embed_url TEXT,
   neighbourhood TEXT[] DEFAULT '{}',
   payment_table JSONB DEFAULT '[]'::jsonb,
   banking_details JSONB DEFAULT '{}'::jsonb,
   faqs JSONB DEFAULT '[]'::jsonb,
+  updated_by TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_properties_corridor ON public.properties(corridor);
 CREATE INDEX idx_properties_status ON public.properties(status);
+CREATE INDEX idx_properties_badge ON public.properties(badge);
 CREATE INDEX idx_properties_created_at ON public.properties(created_at DESC);
 
 CREATE TRIGGER set_properties_updated_at
@@ -85,11 +88,13 @@ CREATE TABLE public.articles (
   date TEXT NOT NULL DEFAULT 'April 2026',
   author JSONB NOT NULL DEFAULT '{"name": "Caih Group", "avatarInitials": "CG", "role": "Editorial Directorate"}'::jsonb,
   image TEXT NOT NULL,
+  video_url TEXT,
   excerpt TEXT NOT NULL,
   content TEXT[] NOT NULL DEFAULT '{}',
   sections JSONB DEFAULT '[]'::jsonb,
   key_takeaways TEXT[] DEFAULT '{}',
   featured BOOLEAN NOT NULL DEFAULT false,
+  updated_by TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
