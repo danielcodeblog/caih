@@ -891,11 +891,11 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         <div className="w-full max-w-xl bg-[#0A1A2F]/95 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10">
           {/* Header */}
           <div className="flex flex-col items-center text-center mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-[#b7102a] flex items-center justify-center shadow-lg shadow-[#b7102a]/20 mb-3 border border-red-500/30">
-              <Shield className="w-7 h-7 text-white" />
+            <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-lg shadow-black/20 mb-3 border border-slate-700/30">
+              <img src="/images/cropped-Caih-icon-270x270.png" alt="Caih Group Logo" className="w-10 h-10 object-contain" />
             </div>
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-[#ffb3b1] text-[10px] font-bold tracking-widest uppercase mb-1">
-              <span>Executive Management Portal</span>
+              <span>LOGIN</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
               Caih Group Admin Console
@@ -1098,7 +1098,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         <div className="bg-[#000f22] text-white rounded-3xl p-6 sm:p-8 mb-8 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 border border-slate-800">
           <div className="flex items-start sm:items-center gap-4">
             <div className="h-14 px-3.5 rounded-2xl bg-white flex items-center justify-center shadow-lg shrink-0">
-              <img src="/images/Caih-group.png" alt="Caih Group" className="h-9 w-auto object-contain" />
+              <img src="/images/cropped-Caih-icon-270x270.png" alt="Caih Group Logo" className="h-9 w-auto object-contain" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
