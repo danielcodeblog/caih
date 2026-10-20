@@ -33,7 +33,8 @@ import {
   Code2,
   EyeOff,
   UserCheck,
-  KeyRound
+  KeyRound,
+  UserPlus
 } from 'lucide-react';
 import {
   isSupabaseConfigured,
@@ -52,6 +53,7 @@ import {
   signUpAdmin,
   fetchAdminUsersFromSupabase,
   deleteAdminUserFromSupabase,
+  updateInspectionStatusInSupabase,
   supabase
 } from '../lib/supabase';
 import { DatabaseConnector } from '../components/DatabaseConnector';
@@ -157,6 +159,94 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   const [showDbConnectModal, setShowDbConnectModal] = useState(false);
   const [copiedAuthSql, setCopiedAuthSql] = useState(false);
   const [authBackendNotice, setAuthBackendNotice] = useState<string | null>(null);
+  const [isRefreshingDb, setIsRefreshingDb] = useState(false);
+
+  const handleRefreshFromDatabase = async () => {
+    setIsRefreshingDb(true);
+    if (!isSupabaseConfigured()) {
+      alert('Supabase is not configured yet. Please configure Supabase in settings.');
+      setIsRefreshingDb(false);
+      return;
+    }
+    try {
+      const [dbAdmins, dbProps, dbArticles, dbInqs, dbSubs] = await Promise.all([
+        fetchAdminUsersFromSupabase(),
+        fetchPropertiesFromSupabase(),
+        fetchArticlesFromSupabase(),
+        fetchInspectionsFromSupabase(),
+        fetchSubscribersFromSupabase()
+      ]);
+
+      if (dbAdmins && dbAdmins.length > 0) {
+        setAdminUsers(dbAdmins.map((u: any) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          password: '••••••••',
+          role: u.role,
+          createdAt: u.createdAt || new Date().toISOString().split('T')[0],
+        })));
+      }
+      if (dbProps && dbProps.length > 0) setProjectsList(dbProps);
+      if (dbArticles && dbArticles.length > 0) setArticlesList(dbArticles);
+      if (dbInqs && dbInqs.length > 0) {
+        setInquiries(dbInqs.map((r: any) => ({
+          id: r.id || 'INQ-' + Math.random().toString().slice(2, 6),
+          fullName: r.full_name,
+          phone: r.phone_number,
+          email: r.email,
+          project: r.target_project,
+          date: r.preferred_date,
+          status: r.status || 'Pending'
+        })));
+      }
+      if (dbSubs && dbSubs.length > 0) {
+        setSubscribers(dbSubs.map((s: any) => ({
+          email: s.email,
+          joinedDate: (s.subscribedAt || '').split('T')[0] || new Date().toISOString().split('T')[0],
+          source: s.source || 'Database'
+        })));
+      }
+      alert('Dashboard successfully fetched fresh records from Supabase PostgreSQL database!');
+    } catch (err: any) {
+      alert('Error fetching from database: ' + (err?.message || err));
+    } finally {
+      setIsRefreshingDb(false);
+    }
+  };
+
+  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+  const [newAdminName, setNewAdminName] = useState('');
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [newAdminRole, setNewAdminRole] = useState('Content Manager');
+  const [newAdminPassword, setNewAdminPassword] = useState('');
+
+  const handleAddDashboardAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAdminName.trim() || !newAdminEmail.trim() || !newAdminPassword.trim()) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+    const newAdmin: AdminUser = {
+      id: 'admin_' + Date.now(),
+      name: newAdminName.trim(),
+      email: newAdminEmail.trim().toLowerCase(),
+      password: newAdminPassword,
+      role: newAdminRole,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+
+    setAdminUsers(prev => [newAdmin, ...prev]);
+    if (isSupabaseConfigured()) {
+      await signUpAdmin(newAdmin.name, newAdmin.email, newAdmin.password, newAdmin.role);
+    }
+
+    setNewAdminName('');
+    setNewAdminEmail('');
+    setNewAdminPassword('');
+    setShowAddAdminModal(false);
+    alert(`Successfully added new administrator / content manager: ${newAdmin.name} (${newAdmin.role})`);
+  };
 
   // Sync Supabase data on mount & when config changes
   useEffect(() => {
@@ -229,28 +319,19 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     };
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLoginSubmit = async (cleanEmail: string, pass: string): Promise<{ success: boolean; error?: string }> => {
     setAuthError(null);
     setAuthSuccessMessage(null);
     setIsSubmittingAuth(true);
 
-    const cleanEmail = loginEmail.trim().toLowerCase();
-    if (!cleanEmail || !loginPassword) {
-      setAuthError('Please enter both your administrative email and password.');
+    const email = cleanEmail.trim().toLowerCase();
+    if (!email || !pass) {
       setIsSubmittingAuth(false);
-      return;
-    }
-
-    // If not configured, block login
-    if (!isSupabaseConfigured()) {
-      setAuthError('Database not connected. Please configure Supabase in settings.');
-      setIsSubmittingAuth(false);
-      return;
+      return { success: false, error: 'Please enter both your administrative email and password.' };
     }
 
     try {
-      const result = await signInAdmin(cleanEmail, loginPassword);
+      const result = await signInAdmin(email, pass);
       if (result.success && result.admin) {
         const authenticatedAdmin: AdminUser = {
           id: result.admin.id,
@@ -268,56 +349,44 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         setShowAuthModal(false);
         setIsSubmittingAuth(false);
         setAuthBackendNotice('Authenticated via Supabase PostgreSQL');
-        return;
+        return { success: true };
       }
-      setAuthError(result.error || 'Authentication failed. Check your credentials.');
+      setIsSubmittingAuth(false);
+      return { success: false, error: result.error || 'Authentication failed. Check your credentials.' };
     } catch (err: any) {
-      setAuthError('Authentication service unavailable.');
+      setIsSubmittingAuth(false);
+      return { success: false, error: 'Authentication service unavailable.' };
     }
-    setIsSubmittingAuth(false);
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const res = await handleLoginSubmit(loginEmail, loginPassword);
+    if (!res.success) {
+      setAuthError(res.error || 'Authentication failed.');
+    }
+  };
+
+  const handleSignupSubmit = async (cleanName: string, cleanEmail: string, pass: string, role: string): Promise<{ success: boolean; error?: string }> => {
     setAuthError(null);
     setAuthSuccessMessage(null);
-
-    const cleanEmail = signupEmail.trim().toLowerCase();
-
-    if (!signupName.trim() || !cleanEmail || !signupPassword) {
-      setAuthError('Please fill in all required registration fields.');
-      return;
-    }
-
-    if (signupPassword.length < 6) {
-      setAuthError('Password must be at least 6 characters in length.');
-      return;
-    }
-
-    if (signupPassword !== signupConfirmPassword) {
-      setAuthError('Passwords do not match. Please re-enter your password.');
-      return;
-    }
-
-    const existing = adminUsers.find(u => u.email?.toLowerCase() === cleanEmail);
-    if (existing) {
-      setAuthError(`An administrator account with email ${signupEmail} already exists. Please log in instead.`);
-      return;
-    }
-
     setIsSubmittingAuth(true);
 
-    let createdId = 'adm-' + Date.now();
+    const email = cleanEmail.trim().toLowerCase();
+    const name = cleanName.trim();
 
-    // Try Supabase registration if configured
-    if (!isSupabaseConfigured()) {
-      setAuthError('Database not connected. Please configure Supabase in settings.');
+    if (!name || !email || !pass) {
       setIsSubmittingAuth(false);
-      return;
+      return { success: false, error: 'Please fill in all required registration fields.' };
     }
-    
+
+    if (pass.length < 6) {
+      setIsSubmittingAuth(false);
+      return { success: false, error: 'Password must be at least 6 characters in length.' };
+    }
+
     try {
-      const result = await signUpAdmin(signupName.trim(), cleanEmail, signupPassword, signupRole);
+      const result = await signUpAdmin(name, email, pass, role);
       if (result.success && result.admin) {
         const newAdmin: AdminUser = {
           id: result.admin.id,
@@ -330,19 +399,31 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 
         localStorage.setItem('caih_admin_logged_in', 'true');
         localStorage.setItem('caih_current_admin', JSON.stringify(newAdmin));
-        
         setCurrentAdmin(newAdmin);
         setIsAdminLoggedIn(true);
         setShowAuthModal(false);
-        setAuthError(null);
+        setIsSubmittingAuth(false);
         setAuthBackendNotice('Registered and authenticated via Supabase');
-      } else {
-        setAuthError(result.error || 'Registration failed.');
+        return { success: true };
       }
+      setIsSubmittingAuth(false);
+      return { success: false, error: result.error || 'Registration failed.' };
     } catch (err: any) {
-      setAuthError('Registration service unavailable.');
+      setIsSubmittingAuth(false);
+      return { success: false, error: 'Registration service unavailable.' };
     }
-    setIsSubmittingAuth(false);
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (signupPassword !== signupConfirmPassword) {
+      setAuthError('Passwords do not match. Please re-enter.');
+      return;
+    }
+    const res = await handleSignupSubmit(signupName, signupEmail, signupPassword, signupRole);
+    if (!res.success) {
+      setAuthError(res.error || 'Registration failed.');
+    }
   };
 
   const handleLogout = () => {
@@ -603,172 +684,145 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     document.body.removeChild(link);
   };
 
-  // If not logged in or auth modal requested, show Admin Login / Signup portal
+  // If not logged in or auth modal requested, show Executive Admin Login / Signup portal
   if (!isAdminLoggedIn || showAuthModal) {
     return (
-      <div className="min-h-screen bg-[#071324] text-white pt-24 pb-16 flex items-center justify-center px-4 sm:px-6">
-        <div className="max-w-lg w-full bg-[#0A1A2F]/95 rounded-3xl p-7 sm:p-10 border border-slate-800 shadow-2xl backdrop-blur-md">
+      <div className="min-h-screen bg-[#000f22] text-white flex flex-col justify-center items-center p-4 sm:p-6 relative overflow-hidden">
+        {/* Ambient subtle glow background */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#b7102a]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 right-10 w-80 h-80 bg-blue-900/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Top bar with Return to website & close if already logged in */}
+        <div className="w-full max-w-xl flex items-center justify-between mb-6 z-10">
+          <button
+            type="button"
+            onClick={() => onNavigate('home')}
+            className="flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
+          >
+            <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+            <span>Return to Caih Group Website</span>
+          </button>
+
+          {isAdminLoggedIn && (
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(false)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Back to Dashboard</span>
+            </button>
+          )}
+        </div>
+
+        {/* Main Admin Card */}
+        <div className="w-full max-w-xl bg-[#0A1A2F]/95 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10">
           {/* Header */}
-          <div className="text-center mb-7">
-            <div className="w-16 h-16 rounded-2xl bg-[#b7102a] flex items-center justify-center mx-auto mb-4 shadow-xl shadow-[#b7102a]/20">
-              <Shield className="w-8 h-8 text-white" />
+          <div className="flex flex-col items-center text-center mb-6">
+            <div className="w-14 h-14 rounded-2xl bg-[#b7102a] flex items-center justify-center shadow-lg shadow-[#b7102a]/20 mb-3 border border-red-500/30">
+              <Shield className="w-7 h-7 text-white" />
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#ffb3b1] text-[10px] font-bold tracking-widest uppercase mb-2">
-              <KeyRound className="w-3 h-3" />
-              <span>Caih Group Corporate Executive Gateway</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-[#ffb3b1] text-[10px] font-bold tracking-widest uppercase mb-1">
+              <span>Executive Management Portal</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
-              Executive Admin Portal
+              Caih Group Admin Console
             </h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Authorized personnel sign in to manage estates, inspections, subscribers, and title documents.
+            <p className="text-xs text-slate-400 mt-1 max-w-md">
+              Restricted access for directors, asset managers, and verified executive administrators.
             </p>
-
-
           </div>
 
+
+
+          {/* Error & Success Messages */}
           {authError && (
-            <div className="mb-5 p-3.5 rounded-xl bg-red-950/90 border border-red-500/50 text-red-200 text-xs flex items-center gap-2.5 animate-fadeIn">
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-              <span>{authError}</span>
+            <div className="mb-5 p-3.5 rounded-xl bg-red-950/70 border border-red-800/80 text-red-200 text-xs flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+              <div className="flex-1 leading-relaxed">
+                <span>{authError}</span>
+              </div>
             </div>
           )}
 
           {authSuccessMessage && (
-            <div className="mb-5 p-3.5 rounded-xl bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 text-xs flex items-center gap-2.5 animate-fadeIn">
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-              <span>{authSuccessMessage}</span>
+            <div className="mb-5 p-3.5 rounded-xl bg-emerald-950/70 border border-emerald-800/80 text-emerald-200 text-xs flex items-start gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="flex-1 leading-relaxed">
+                <span>{authSuccessMessage}</span>
+              </div>
             </div>
+          )}
+
+          {/* LOGIN FORM */}
+          {authMode === 'login' && (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Administrative Email
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    required
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="admin@caihgroup.com"
+                    className="w-full bg-slate-900/90 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#b7102a] focus:ring-1 focus:ring-[#b7102a] transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Master Password
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="Enter admin password"
+                    className="w-full bg-slate-900/90 border border-slate-700 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#b7102a] focus:ring-1 focus:ring-[#b7102a] transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+
+
+              <button
+                type="submit"
+                disabled={isSubmittingAuth}
+                className="w-full py-3.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white font-bold text-sm transition-all shadow-lg shadow-[#b7102a]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isSubmittingAuth ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Verifying Database Credentials...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Access Executive Portal</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
           )}
 
 
 
-            {authMode === 'login' ? (
-              <form onSubmit={handleLogin} className="space-y-4">
-                {/* Email Input */}
-                <div>
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">
-                    Administrator Email
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                      type="email"
-                      required
-                      value={loginEmail}
-                      onChange={e => setLoginEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-[#b7102a]"
-                      placeholder="name@caihgroup.com"
-                    />
-                  </div>
-                </div>
 
-                {/* Password Input */}
-                <div>
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={loginPassword}
-                      onChange={e => setLoginPassword(e.target.value)}
-                      className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-[#b7102a]"
-                      placeholder="••••••••"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmittingAuth}
-                  className="w-full py-3.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-lg shadow-[#b7102a]/20 cursor-pointer flex items-center justify-center gap-2 mt-4 disabled:opacity-60"
-                >
-                  {isSubmittingAuth ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Verifying...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Access Portal</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-                <div className="text-center mt-3">
-                  <button
-                    type="button"
-                    onClick={() => { setAuthMode('signup'); setAuthError(null); }}
-                    className="text-xs text-slate-400 hover:text-white underline cursor-pointer"
-                  >
-                    Don't have an admin account? Register Admin
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <form onSubmit={handleSignup} className="space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">Full Name</label>
-                  <input type="text" required value={signupName} onChange={e => setSignupName(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">Admin Email</label>
-                  <input type="email" required value={signupEmail} onChange={e => setSignupEmail(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">Password</label>
-                  <input type="password" required value={signupPassword} onChange={e => setSignupPassword(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">Confirm Password</label>
-                  <input type="password" required value={signupConfirmPassword} onChange={e => setSignupConfirmPassword(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs" />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isSubmittingAuth}
-                  className="w-full py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold transition-all shadow-lg cursor-pointer flex items-center justify-center gap-2 mt-4 disabled:opacity-60"
-                >
-                  {isSubmittingAuth ? 'Registering...' : 'Register Administrator'}
-                </button>
-                <div className="text-center mt-3">
-                  <button
-                    type="button"
-                    onClick={() => { setAuthMode('login'); setAuthError(null); }}
-                    className="text-xs text-slate-400 hover:text-white underline cursor-pointer"
-                  >
-                    Already have an account? Sign In
-                  </button>
-                </div>
-              </form>
-            )}
-
-
-          <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-            {isAdminLoggedIn && (
-              <button
-                onClick={() => setShowAuthModal(false)}
-                className="hover:text-white transition-colors cursor-pointer text-emerald-400 font-bold"
-              >
-                ← Return to Admin Dashboard
-              </button>
-            )}
-            <button
-              onClick={() => onNavigate('home')}
-              className="hover:text-white transition-colors cursor-pointer"
-            >
-              ← Return to Caih Group Main Website
-            </button>
-          </div>
         </div>
 
         {/* Modal: SQL for Admin Signup and Login */}
@@ -871,8 +925,8 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         {/* Admin Header Banner */}
         <div className="bg-[#000f22] text-white rounded-3xl p-6 sm:p-8 mb-8 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 border border-slate-800">
           <div className="flex items-start sm:items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#b7102a] flex items-center justify-center shadow-lg shrink-0">
-              <Shield className="w-7 h-7 text-white" />
+            <div className="h-14 px-3.5 rounded-2xl bg-white flex items-center justify-center shadow-lg shrink-0">
+              <img src="/images/Caih-group.png" alt="Caih Group" className="h-9 w-auto object-contain" />
             </div>
             <div>
               <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-white/10 text-[#ffb3b1] text-[10px] font-bold tracking-widest uppercase mb-1">
@@ -898,28 +952,8 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => {
-                setShowAuthModal(true);
-                setAuthMode('login');
-              }}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all border border-slate-700 flex items-center gap-1.5 cursor-pointer"
-              title="Switch administrator account or log in with another profile"
-            >
-              <KeyRound className="w-3.5 h-3.5 text-amber-400" />
-              <span>Switch Admin Account</span>
-            </button>
-            <button
-              onClick={() => {
-                setShowAuthModal(true);
-                setAuthMode('signup');
-              }}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all border border-slate-700 flex items-center gap-1.5 cursor-pointer"
-              title="Register a new administrator"
-            >
-              <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>New Admin Signup</span>
-            </button>
+
+
             <button
               onClick={() => onNavigate('home')}
               className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/15 cursor-pointer"
@@ -947,7 +981,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
             }`}
           >
             <BarChart3 className="w-4 h-4" />
-            <span>Dashboard Overview</span>
+            <span>Dashboard</span>
           </button>
           <button
             onClick={() => setActiveTab('properties')}
@@ -958,7 +992,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
             }`}
           >
             <Building2 className="w-4 h-4" />
-            <span>Property Manager ({projectsList.length})</span>
+            <span>Properties ({projectsList.length})</span>
           </button>
           <button
             onClick={() => setActiveTab('blog')}
@@ -969,7 +1003,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
             }`}
           >
             <FileText className="w-4 h-4" />
-            <span>Blog Posts & Content ({articlesList.length})</span>
+            <span>Blog & Content ({articlesList.length})</span>
           </button>
           <button
             onClick={() => setActiveTab('newsletter')}
@@ -980,7 +1014,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
             }`}
           >
             <Mail className="w-4 h-4" />
-            <span>Newsletter & Subscribers ({subscribers.length})</span>
+            <span>Subscribers ({subscribers.length})</span>
           </button>
           <button
             onClick={() => setActiveTab('inquiries')}
@@ -991,7 +1025,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
             }`}
           >
             <Calendar className="w-4 h-4" />
-            <span>Inspection Inquiries ({inquiries.length})</span>
+            <span>Inquiries ({inquiries.length})</span>
           </button>
 
           <button
@@ -1003,7 +1037,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
             }`}
           >
             <Users className="w-4 h-4 text-[#b7102a]" />
-            <span>Admin Accounts ({adminUsers.length})</span>
+            <span>Team Accounts ({adminUsers.length})</span>
           </button>
         </div>
 
@@ -1024,7 +1058,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 
               <div className="bg-white p-6 rounded-2xl border border-[#CBD5E1] shadow-xs flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">Newsletter Subscribers</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">Subscribers</span>
                   <div className="text-3xl font-black text-[#000f22] mt-1">{subscribers.length}</div>
                   <span className="text-[11px] text-emerald-700 font-semibold mt-1 inline-block">+4 this week</span>
                 </div>
@@ -1035,7 +1069,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 
               <div className="bg-white p-6 rounded-2xl border border-[#CBD5E1] shadow-xs flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">Inspection Inquiries</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">Bookings & Inquiries</span>
                   <div className="text-3xl font-black text-[#000f22] mt-1">{inquiries.length}</div>
                   <span className="text-[11px] text-amber-700 font-semibold mt-1 inline-block">1 Pending Review</span>
                 </div>
@@ -1048,7 +1082,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">System Status</span>
                   <div className="text-3xl font-black text-emerald-700 mt-1">Live</div>
-                  <span className="text-[11px] text-slate-500 font-semibold mt-1 inline-block">SSL Secured & Synced</span>
+                  <span className="text-[11px] text-slate-500 font-semibold mt-1 inline-block">Secured & Synced</span>
                 </div>
                 <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
                   <CheckCircle2 className="w-6 h-6" />
@@ -1061,7 +1095,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
               <div className="bg-white rounded-2xl border border-[#CBD5E1] p-6 shadow-xs">
                 <h3 className="font-extrabold text-base text-[#000f22] mb-4 flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-[#b7102a]" />
-                  <span>Quick Property Management</span>
+                  <span>Manage Properties</span>
                 </h3>
                 <div className="space-y-3">
                   {projectsList.slice(0, 4).map(p => (
@@ -1101,10 +1135,10 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 <div>
                   <h3 className="font-extrabold text-base text-[#000f22] mb-4 flex items-center gap-2">
                     <Mail className="w-5 h-5 text-[#b7102a]" />
-                    <span>Quick Newsletter Broadcast</span>
+                    <span>Send Newsletter</span>
                   </h3>
                   <p className="text-xs text-[#64748B] mb-4">
-                    Send updates, price alerts, or milestone notifications instantly to all {subscribers.length} verified newsletter subscribers.
+                    Send updates or announcements to all {subscribers.length} subscribers.
                   </p>
 
                 </div>
@@ -1585,80 +1619,44 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#b7102a]">
-                      Governance & Security
+                      Team Access
                     </span>
                     <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
                       {adminUsers.length} Active Accounts
                     </span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-black text-[#000f22]">
-                    Executive Administrators Directory
+                    Team Members
                   </h3>
                   <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
-                    Authorized personnel with executive access to property management, inspection schedules, and client communications.
+                    Manage admin accounts, content managers, and team permissions.
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex items-center gap-3">
                   <button
-                    onClick={() => setShowSqlAuthModal(true)}
-                    className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all border border-slate-700 flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    onClick={() => setShowAddAdminModal(true)}
+                    className="px-4 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer shrink-0"
                   >
-                    <Code2 className="w-3.5 h-3.5 text-[#b7102a]" />
-                    <span>Admin Auth SQL</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowAuthModal(true);
-                      setAuthMode('signup');
-                    }}
-                    className="px-4 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-                  >
-                    <UserCheck className="w-4 h-4" />
-                    <span>Register New Admin</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowAuthModal(true);
-                      setAuthMode('login');
-                    }}
-                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all border border-[#CBD5E1] flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <KeyRound className="w-3.5 h-3.5" />
-                    <span>Switch Sign In</span>
+                    <UserPlus className="w-4 h-4" />
+                    <span>Add Team Member</span>
                   </button>
                 </div>
+
+
               </div>
 
-              {/* Database & Sync Status Banner */}
-              <div className="mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2">
-                  <Database className="w-4 h-4 text-[#b7102a] shrink-0" />
-                  <span className="text-slate-700">
-                    {isSupabaseConfigured()
-                      ? 'Admins directory synced with Supabase PostgreSQL (public.admin_users)'
-                      : 'Running in Standalone mode with local storage and built-in demo credentials. To sync to PostgreSQL, run the Admin Auth SQL.'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCopyAuthSql}
-                  className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:border-[#b7102a] text-slate-800 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
-                >
-                  {copiedAuthSql ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
-                  <span>{copiedAuthSql ? 'Copied SQL!' : 'Copy Auth SQL'}</span>
-                </button>
-              </div>
+
 
               {/* Admins Table */}
               <div className="overflow-x-auto rounded-xl border border-[#E2E8F0] mt-6">
                 <table className="w-full text-left text-xs sm:text-sm">
                   <thead>
                     <tr className="bg-[#000f22] text-white">
-                      <th className="py-3.5 px-4 sm:px-6 font-bold uppercase tracking-wider">Administrator</th>
-                      <th className="py-3.5 px-4 sm:px-6 font-bold uppercase tracking-wider">Executive Role</th>
+                      <th className="py-3.5 px-4 sm:px-6 font-bold uppercase tracking-wider">Name</th>
+                      <th className="py-3.5 px-4 sm:px-6 font-bold uppercase tracking-wider">Role</th>
                       <th className="py-3.5 px-4 sm:px-6 font-bold uppercase tracking-wider">Email Address</th>
-                      <th className="py-3.5 px-4 sm:px-6 font-bold uppercase tracking-wider">Account Created</th>
+                      <th className="py-3.5 px-4 sm:px-6 font-bold uppercase tracking-wider">Joined</th>
                       <th className="py-3.5 px-4 sm:px-6 font-bold uppercase tracking-wider text-right">Actions</th>
                     </tr>
                   </thead>
@@ -1688,7 +1686,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                                     </span>
                                   )}
                                 </div>
-                                <span className="text-[11px] text-slate-500">Authorized Officer</span>
+                                <span className="text-[11px] text-slate-500">Authorized User</span>
                               </div>
                             </div>
                           </td>
@@ -1713,7 +1711,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                                 }}
                                 className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-[#000f22] hover:text-white text-[#000f22] text-xs font-bold transition-all cursor-pointer"
                               >
-                                Switch To This Admin
+                                Switch Account
                               </button>
                             ) : (
                               <span className="text-xs text-emerald-700 font-bold flex items-center justify-end gap-1">
@@ -1953,6 +1951,103 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                   className="px-6 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
                 >
                   Save Post
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Administrator / Content Manager Modal */}
+      {showAddAdminModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#b7102a] text-white flex items-center justify-center">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-[#000f22]">Add New Administrator</h3>
+                  <p className="text-xs text-slate-500">Grant admin or content manager access to the platform</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAddAdminModal(false)}
+                className="p-2 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddDashboardAdmin} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={newAdminName}
+                  onChange={e => setNewAdminName(e.target.value)}
+                  placeholder="e.g. Sarah Jenkins"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Corporate Email</label>
+                <input
+                  type="email"
+                  required
+                  value={newAdminEmail}
+                  onChange={e => setNewAdminEmail(e.target.value)}
+                  placeholder="manager@caihgroup.com"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Role / Access Title</label>
+                <select
+                  value={newAdminRole}
+                  onChange={e => setNewAdminRole(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30 bg-white"
+                >
+                  <option value="Content Manager">Content Manager</option>
+                  <option value="Managing Director">Managing Director</option>
+                  <option value="Investment Director">Investment Director</option>
+                  <option value="Senior Asset Manager">Senior Asset Manager</option>
+                  <option value="Marketing Manager">Marketing Manager</option>
+                  <option value="Chief Technology Officer">Chief Technology Officer</option>
+                  <option value="General Legal Counsel">General Legal Counsel</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">Temporary Password</label>
+                <input
+                  type="password"
+                  required
+                  value={newAdminPassword}
+                  onChange={e => setNewAdminPassword(e.target.value)}
+                  placeholder="Min 6 characters"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
+                <button
+                  type="button"
+                  onClick={() => setShowAddAdminModal(false)}
+                  className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-2"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Create Account</span>
                 </button>
               </div>
             </form>

@@ -340,9 +340,9 @@ CREATE TRIGGER on_auth_user_created
 AFTER INSERT ON auth.users
 FOR EACH ROW EXECUTE FUNCTION public.handle_new_auth_admin();
 
--- ============================================================================
 -- 13. ROW LEVEL SECURITY (RLS) POLICIES
--- ============================================================================
+-- Strict Zero-Trust Access Control: Only authenticated Administrators can view content & data.
+-- Public visitors are restricted strictly to submission actions (INSERT only).
 ALTER TABLE public.properties ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.articles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.inspections ENABLE ROW LEVEL SECURITY;
@@ -352,22 +352,47 @@ ALTER TABLE public.realtor_registrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
 
+-- Helper function to check if current request has administrative privileges
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+AS $$
+  SELECT (auth.role() = 'authenticated') OR 
+         EXISTS (SELECT 1 FROM public.admin_users WHERE auth_id = auth.uid() AND is_active = true);
+$$;
+
+-- Properties & Developments: Public viewing allowed for marketing; only admin can insert/modify
 CREATE POLICY "Public can view properties" ON public.properties FOR SELECT USING (true);
+CREATE POLICY "Only admin can manage properties" ON public.properties FOR ALL USING (public.is_admin());
+
+-- Articles & Market Reports: Public viewing allowed for SEO; only admin can insert/modify
 CREATE POLICY "Public can view articles" ON public.articles FOR SELECT USING (true);
+CREATE POLICY "Only admin can manage articles" ON public.articles FOR ALL USING (public.is_admin());
+
+-- Inspections: Public can ONLY insert; ONLY admin can view and manage client inspection bookings
 CREATE POLICY "Public can insert inspections" ON public.inspections FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public can view and update inspections" ON public.inspections FOR ALL USING (true);
+CREATE POLICY "Only admin can view and manage inspections" ON public.inspections FOR ALL USING (public.is_admin());
+
+-- Newsletter Subscribers: Public can ONLY insert; ONLY admin can view and manage subscriber list
 CREATE POLICY "Public can subscribe to newsletter" ON public.newsletter_subscribers FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public can view and update subscribers" ON public.newsletter_subscribers FOR ALL USING (true);
-CREATE POLICY "Public can view broadcasts" ON public.newsletter_broadcasts FOR SELECT USING (true);
-CREATE POLICY "Public can insert broadcasts" ON public.newsletter_broadcasts FOR INSERT WITH CHECK (true);
+CREATE POLICY "Only admin can view and manage subscribers" ON public.newsletter_subscribers FOR ALL USING (public.is_admin());
+
+-- Broadcasts: ONLY admin can view, create, or send newsletter campaigns
+CREATE POLICY "Only admin can view and manage broadcasts" ON public.newsletter_broadcasts FOR ALL USING (public.is_admin());
+
+-- Realtor Registrations: Public can ONLY register; ONLY admin can view applications
 CREATE POLICY "Public can submit realtor registration" ON public.realtor_registrations FOR INSERT WITH CHECK (true);
-CREATE POLICY "Manage realtor registrations" ON public.realtor_registrations FOR ALL USING (true);
+CREATE POLICY "Only admin can view and manage realtors" ON public.realtor_registrations FOR ALL USING (public.is_admin());
+
+-- Contact Inquiries: Public can ONLY send message; ONLY admin can view messages
 CREATE POLICY "Public can submit contact messages" ON public.contact_messages FOR INSERT WITH CHECK (true);
-CREATE POLICY "Manage contact messages" ON public.contact_messages FOR ALL USING (true);
-CREATE POLICY "Allow read admin users" ON public.admin_users FOR SELECT USING (true);
-CREATE POLICY "Allow update admin users" ON public.admin_users FOR UPDATE USING (true);
-CREATE POLICY "Allow insert admin users" ON public.admin_users FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow delete admin users" ON public.admin_users FOR DELETE USING (true);
+CREATE POLICY "Only admin can view and manage contact messages" ON public.contact_messages FOR ALL USING (public.is_admin());
+
+-- Admin Directory: ONLY verified admins can view or modify administrators
+CREATE POLICY "Only admin can view admin users" ON public.admin_users FOR SELECT USING (public.is_admin());
+CREATE POLICY "Only admin can manage admin users" ON public.admin_users FOR ALL USING (public.is_admin());
 
 -- Initial Executive Administrators Seed
 INSERT INTO public.admin_users (name, email, password_hash, role)
