@@ -13,6 +13,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { BRAND_ASSETS } from '../data/mockData';
+import { submitRealtorToSupabase } from '../lib/supabase';
 
 interface RealtorRegistrationScreenProps {
   onNavigateToProjects: () => void;
@@ -46,6 +47,20 @@ export const RealtorRegistrationScreen: React.FC<RealtorRegistrationScreenProps>
     const randomId = 'CAIH-RTL-' + Math.floor(1000 + Math.random() * 9000);
     setGeneratedId(randomId);
     setSubmitted(true);
+
+    // Sync to Supabase in background
+    const nameParts = formData.fullName.trim().split(' ');
+    submitRealtorToSupabase({
+      firstName: nameParts[0] || formData.fullName,
+      lastName: nameParts.slice(1).join(' ') || 'Realtor',
+      email: formData.email,
+      phone: formData.phone,
+      company: formData.agencyName,
+      address: formData.corridor,
+      experienceYears: formData.experience,
+      licenseNumber: formData.licenseNumber || randomId
+    }).catch(err => console.warn('Supabase realtor sync:', err));
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

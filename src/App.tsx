@@ -66,7 +66,7 @@ export default function App() {
     if (pathname === '/about-us') return 'about-us';
     if (pathname === '/realtor-registration') return 'realtor-registration';
     if (pathname === '/contact') return 'contact';
-    if (pathname === '/admin') return 'admin';
+    if (pathname.startsWith('/admin') || pathname === '/login' || pathname === '/signup') return 'admin';
     return 'home';
   };
 
@@ -250,6 +250,50 @@ export default function App() {
             path="/admin"
             element={
               <AdminScreen
+                onViewProject={handleViewProject}
+                onNavigate={handleNavigate}
+              />
+            }
+          />
+          <Route
+            path="/admin/login"
+            element={
+              <AdminScreen
+                initialMode="login"
+                forceAuthScreen={true}
+                onViewProject={handleViewProject}
+                onNavigate={handleNavigate}
+              />
+            }
+          />
+          <Route
+            path="/admin/signup"
+            element={
+              <AdminScreen
+                initialMode="signup"
+                forceAuthScreen={true}
+                onViewProject={handleViewProject}
+                onNavigate={handleNavigate}
+              />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <AdminScreen
+                initialMode="login"
+                forceAuthScreen={true}
+                onViewProject={handleViewProject}
+                onNavigate={handleNavigate}
+              />
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <AdminScreen
+                initialMode="signup"
+                forceAuthScreen={true}
                 onViewProject={handleViewProject}
                 onNavigate={handleNavigate}
               />

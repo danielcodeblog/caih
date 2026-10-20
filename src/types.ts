@@ -86,6 +86,7 @@ export interface Article {
     role?: string;
   };
   image: string;
+  videoUrl?: string;
   excerpt: string;
   content: string[];
   sections?: {

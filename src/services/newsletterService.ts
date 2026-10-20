@@ -1,3 +1,5 @@
+import { submitSubscriberToSupabase } from '../lib/supabase';
+
 export interface Subscriber {
   id: string;
   email: string;
@@ -169,6 +171,11 @@ export const subscribeClient = (
   }
 
   saveSubscribers(subscribers);
+
+  // Sync to Supabase in background
+  submitSubscriberToSupabase(subscriber).catch((err) =>
+    console.warn('Supabase subscriber sync:', err)
+  );
 
   // Generate automated Welcome Email Update
   const welcomeEmail: EmailUpdate = {

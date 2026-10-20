@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ShieldCheck, Phone, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { BRAND_ASSETS, PROJECTS } from '../data/mockData';
 import { gsap, attachMagneticEffect } from '../utils/gsapAnimations';
+import { submitInspectionToSupabase } from '../lib/supabase';
 
 interface InspectionFormProps {
   initialProject?: string;
@@ -34,9 +35,35 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
     return () => cleanup();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // Save to local storage for instant admin access
+    try {
+      const existingInquiries = JSON.parse(localStorage.getItem('caih_admin_inquiries') || '[]');
+      const newInquiry = {
+        id: 'INQ-' + Date.now().toString().slice(-4),
+        fullName,
+        phone: phoneNumber,
+        email,
+        project: targetProject,
+        date: preferredDate || new Date().toISOString().split('T')[0],
+        status: 'Pending'
+      };
+      localStorage.setItem('caih_admin_inquiries', JSON.stringify([newInquiry, ...existingInquiries]));
+    } catch (err) {
+      console.warn('Local storage error', err);
+    }
+
+    // Submit to Supabase
+    submitInspectionToSupabase({
+      fullName,
+      phoneNumber,
+      email,
+      targetProject,
+      preferredDate
+    }).catch(err => console.warn('Supabase inspection sync:', err));
 
     setTimeout(() => {
       setIsSubmitting(false);
