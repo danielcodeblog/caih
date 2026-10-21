@@ -519,7 +519,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               onClick={() => onNavigate('projects')}
               className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-[#000f22] hover:bg-[#b7102a] text-white text-xs sm:text-sm font-bold tracking-wider uppercase transition-all shadow-md cursor-pointer"
             >
-              <span>Explore All Properties ({projectsList.length} In Lagos &amp; Abuja)</span>
+              <span>Explore All Properties ({projectsList.length} In Lagos)</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
