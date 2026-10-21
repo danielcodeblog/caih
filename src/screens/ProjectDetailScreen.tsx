@@ -289,27 +289,8 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                 <ImageIcon className="w-3.5 h-3.5" />
                 <span>Photo Gallery ({project.galleryImages?.length || 1})</span>
               </button>
-              {hasVideo && (
-                <button
-                  type="button"
-                  onClick={() => setActiveMediaTab('video')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    activeMediaTab === 'video'
-                      ? 'bg-[#b7102a] text-white shadow-xs'
-                      : 'text-[#64748B] hover:text-[#b7102a]'
-                  }`}
-                >
-                  <Video className="w-3.5 h-3.5" />
-                  <span>Video Tour</span>
-                  {project.videoComingSoon ? (
-                    <span className="text-[9px] bg-amber-400 text-black px-1.5 py-0.5 rounded font-black tracking-wider uppercase">
-                      Coming Soon
-                    </span>
-                  ) : (
-                    <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
-                  )}
-                </button>
-              )}
+                {/* Removed Video Tour button as requested */}
+
             </div>
 
             {hasVideo && activeMediaTab === 'photos' && (
@@ -753,7 +734,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
         )}
 
         {/* Official Payment Plan Structure & Designated Bank Account (from Form & FAQ) */}
-        {project.id !== 'appleton-gardens' && project.paymentTable && project.paymentTable.length > 0 && (
+        {false && (
           <div className="bg-white rounded-2xl border border-[#CBD5E1] p-6 sm:p-8 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-4 border-b border-[#E2E8F0]">
               <div>
@@ -841,7 +822,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
         )}
 
         {/* Frequently Asked Questions (FAQ) Accordion from Official PDF */}
-        {project.id !== 'appleton-gardens' && project.faqs && project.faqs.length > 0 && (
+        {false && (
           <div className="bg-white rounded-2xl border border-[#CBD5E1] p-6 sm:p-8 shadow-xs">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#b7102a] mb-1.5">
               <HelpCircle className="w-4 h-4" />
