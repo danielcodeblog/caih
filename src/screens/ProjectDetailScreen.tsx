@@ -637,69 +637,6 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                 </div>
               </div>
             </div>
-
-            {/* Official FAQ & Application Form PDF Download */}
-            {project.faqPdfUrl && (
-              <div className="bg-gradient-to-br from-[#000f22] to-[#1e293b] text-white rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/10 text-[#ffb3b1] text-[10px] font-bold uppercase tracking-wider mb-2">
-                    <FileText className="w-3 h-3" />
-                    <span>Official Document</span>
-                  </div>
-                  <h4 className="font-bold text-base text-white">
-                    {project.title} Form & FAQ
-                  </h4>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                    Download the official subscription form, FAQ document, and verified estate guidelines.
-                  </p>
-                </div>
-                <a
-                  href={project.faqPdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="py-2.5 px-4 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Download Form & FAQ (PDF)</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            )}
-
-            {/* Interactive Location Map */}
-            {project.mapEmbedUrl && (
-              <div className="bg-white rounded-2xl border border-[#CBD5E1] p-5 shadow-xs flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Map className="w-4 h-4 text-[#b7102a]" />
-                    <h4 className="font-bold text-xs uppercase tracking-wider text-[#000f22]">
-                      Location & Map
-                    </h4>
-                  </div>
-                  <a
-                    href={project.mapEmbedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[11px] font-semibold text-[#b7102a] hover:underline flex items-center gap-1"
-                  >
-                    <span>Open in Maps</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-                <div className="w-full h-44 rounded-xl overflow-hidden border border-[#E2E8F0] bg-slate-100">
-                  <iframe
-                    src={project.mapEmbedUrl}
-                    title={`${project.title} Map Location`}
-                    className="w-full h-full border-0"
-                    loading="lazy"
-                    allowFullScreen
-                  />
-                </div>
-                <p className="text-[11px] text-[#64748B]">
-                  {project.location}
-                </p>
-              </div>
-            )}
           </div>
         </div>
 

@@ -405,6 +405,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <h2 className="text-2xl sm:text-4xl md:text-[42px] font-extrabold text-[#000f22] tracking-tight leading-snug">
               Featured Homes and Properties
             </h2>
+            <p className="text-sm md:text-base text-[#475569] max-w-2xl mx-auto mt-3 leading-relaxed">
+              Discover premier luxury residences and master-planned communities across Lagos with Caih Group. Explore living spaces crafted for comfort, prestige, and lasting value.
+            </p>
           </div>
 
           {/* Grid of Clean Property Cards */}
@@ -445,19 +448,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         alt={prop.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      {/* Badges */}
-                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                        {prop.badge && (
-                          <span className="px-2.5 py-1 rounded bg-[#b7102a] text-white text-[10px] uppercase font-bold tracking-wider shadow-sm">
-                            {prop.badge}
-                          </span>
-                        )}
-                        {prop.secondaryBadge && (
-                          <span className="px-2.5 py-1 rounded bg-black/60 backdrop-blur-sm text-white text-[10px] uppercase tracking-wider">
-                            {prop.secondaryBadge}
-                          </span>
-                        )}
-                      </div>
 
                       {/* Video tour available pill */}
                       <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">

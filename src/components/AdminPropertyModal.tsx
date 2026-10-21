@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   Video,
   ArrowRight,
-  Edit
+  Edit,
+  FileText
 } from 'lucide-react';
 
 interface AdminPropertyModalProps {
@@ -772,6 +773,26 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                       className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
                     />
                   </div>
+                </div>
+
+                {/* Forms PDF URL (FAQ / Application Form) */}
+                <div className="border-t border-[#E2E8F0] pt-4">
+                  <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">
+                    Forms / FAQ PDF Download URL
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-[#b7102a] shrink-0" />
+                    <input
+                      type="url"
+                      value={formData.faqPdfUrl || ''}
+                      onChange={e => setFormData({ ...formData, faqPdfUrl: e.target.value })}
+                      placeholder="e.g. https://caihgroup.com/wp-content/uploads/2024/11/APPLETON-FORM-FAQ.pdf"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
+                    />
+                  </div>
+                  <p className="text-[11px] text-[#64748B] mt-1">
+                    Provides the downloadable application form and FAQ PDF link on the property detail page.
+                  </p>
                 </div>
 
                 {/* Gallery Images */}
