@@ -449,11 +449,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
 
-                      {/* Video tour available pill */}
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">
-                        <Video className="w-3 h-3 text-[#ffb3b1]" />
-                        <span>Video Tour Available</span>
-                      </div>
+                      {/* Video tour removed */}
                     </div>
 
                     {/* Metadata & Description */}
@@ -511,22 +507,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                       <span>{prop.propertyType === 'plots' ? 'View Plots & Master Plan' : 'View Residence & Plans'}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onViewProject(prop);
-                      }}
-                      className={`px-3 py-2.5 rounded border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                        prop.videoComingSoon
-                          ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
-                          : 'bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border-[#FFE4E6]'
-                      }`}
-                      title={prop.videoComingSoon ? 'Video Walkthrough Coming Soon' : 'Watch Project Video Tour'}
-                    >
-                      <Video className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">{prop.videoComingSoon ? 'Video (Soon)' : 'Video'}</span>
-                    </button>
-                  </div>
+                </div>
                 </div>
               ))}
             </div>
