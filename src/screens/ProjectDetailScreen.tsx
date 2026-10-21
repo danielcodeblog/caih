@@ -753,7 +753,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
         )}
 
         {/* Official Payment Plan Structure & Designated Bank Account (from Form & FAQ) */}
-        {project.paymentTable && project.paymentTable.length > 0 && (
+        {project.id !== 'appleton-gardens' && project.paymentTable && project.paymentTable.length > 0 && (
           <div className="bg-white rounded-2xl border border-[#CBD5E1] p-6 sm:p-8 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-4 border-b border-[#E2E8F0]">
               <div>
@@ -841,7 +841,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
         )}
 
         {/* Frequently Asked Questions (FAQ) Accordion from Official PDF */}
-        {project.faqs && project.faqs.length > 0 && (
+        {project.id !== 'appleton-gardens' && project.faqs && project.faqs.length > 0 && (
           <div className="bg-white rounded-2xl border border-[#CBD5E1] p-6 sm:p-8 shadow-xs">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#b7102a] mb-1.5">
               <HelpCircle className="w-4 h-4" />

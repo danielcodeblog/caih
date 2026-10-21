@@ -151,7 +151,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       if (p.status !== 'ongoing' && p.id !== 'appleton-court') return false;
 
       // Exclude specific projects
-      if (p.title.includes('Appleton Terraces')) return false;
+      if (p.title.includes('Appleton Terraces') || p.id === 'appleton-gardens') return false;
 
       // Type match from Hero
       if (selectedType !== 'ALL TYPES') {
