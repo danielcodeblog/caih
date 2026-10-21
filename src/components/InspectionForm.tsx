@@ -217,8 +217,8 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                     <option value="Appleton (Commercial & Residential) (Dangote Refinery)">
                       Appleton (Commercial & Residential) – Dangote Refinery Axis
                     </option>
-                    <option value="Appleton Garden (Ibeju-Lekki)">
-                      Appleton Garden (Ibeju-Lekki Axis)
+                    <option value="Appleton Gardens (Idera Scheme, Eleko)">
+                      Appleton Gardens (Idera Scheme, Eleko)
                     </option>
                     <option value="Appleton Haven (Victoria Island)">
                       Appleton Haven (Victoria Island, Lagos) – All Units

@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Project, Article, VideoDispatch, PageId } from '../types';
 import { VIDEO_DISPATCHES, TESTIMONIALS, BRAND_ASSETS } from '../data/mockData';
 import { getStoredArticles } from '../utils/articlesStore';
-import { getStoredProjects } from '../utils/projectsStore';
+import { getStoredProjects, sortProjectsByCanonicalOrder } from '../utils/projectsStore';
 import gsap from 'gsap';
 import {
   Search,
@@ -52,10 +52,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onSearchSubmit
 }) => {
   const [projectsList, setProjectsList] = useState<Project[]>(() =>
-    passedProjects && passedProjects.length > 0 ? passedProjects : getStoredProjects()
+    Array.isArray(passedProjects) && passedProjects.length > 0 ? passedProjects : getStoredProjects()
   );
   const [articlesList, setArticlesList] = useState<Article[]>(() =>
-    passedArticles && passedArticles.length > 0 ? passedArticles : getStoredArticles()
+    Array.isArray(passedArticles) && passedArticles.length > 0 ? passedArticles : getStoredArticles()
   );
 
   useEffect(() => {
@@ -136,7 +136,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   // Filter properties based on dark section category and hero search
   const filteredProperties = useMemo(() => {
-    const list = [...projectsList];
+    const list = Array.isArray(projectsList) ? [...projectsList] : [];
     const filtered = list.filter((p) => {
       // Keyword match
       if (keyword.trim()) {
@@ -189,12 +189,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       return true;
     });
 
-    // Prioritize properties with "Featured" in badge or newly created properties
-    return filtered.sort((a, b) => {
-      const aFeatured = a.badge?.toLowerCase().includes('featured') ? 1 : 0;
-      const bFeatured = b.badge?.toLowerCase().includes('featured') ? 1 : 0;
-      return bFeatured - aFeatured;
-    });
+    return sortProjectsByCanonicalOrder(filtered);
   }, [projectsList, keyword, selectedType, selectedLocation, selectedBeds]);
 
   const handleHeroSubmit = (e: React.FormEvent) => {
@@ -256,11 +251,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[80px] xl:text-[88px] text-white tracking-tight uppercase leading-[1.05] drop-shadow-lg max-w-5xl mb-6">
             FIND YOUR DREAM HOME
           </h1>
-
-          {/* Emotional Narrative Paragraph */}
-          <p className="text-lg sm:text-xl md:text-2xl text-slate-100 max-w-4xl mx-auto leading-relaxed drop-shadow">
-            Discover premier luxury residences and master-planned communities across Lagos with Caih Group. Explore living spaces crafted for comfort, prestige, and lasting value.
-          </p>
         </div>
 
         {/* Hero Search Dock (Exact layout & styling from Screenshot 1) */}
@@ -349,7 +339,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     className="w-full bg-white border border-[#CBD5E1] rounded-lg p-2.5 text-xs font-bold text-[#000f22]"
                   >
                     <option value="ALL LOCATIONS">All Corridors & Locations</option>
-                    <option value="Idera">Idera (Appleton Enclave)</option>
+                    <option value="Idera">Idera (Appleton Enclave & Appleton Gardens)</option>
                     <option value="Free Trade Zone">Free Trade Zone / Origanrigan (Appleton Commercial)</option>
                     <option value="Ibeju-Lekki">Ibeju-Lekki (Appleton Garden)</option>
                     <option value="Victoria Island">Victoria Island (Appleton Haven)</option>
@@ -412,9 +402,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
           {/* Centered Section Header from Screenshot 2 */}
           <div className="text-center max-w-4xl mx-auto mb-14">
-            <span className="text-sm sm:text-base font-bold text-[#000f22] block mb-2">
-              Featured Properties
-            </span>
             <h2 className="text-2xl sm:text-4xl md:text-[42px] font-extrabold text-[#000f22] tracking-tight leading-snug">
               Featured Homes and Properties
             </h2>
@@ -442,7 +429,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredProperties.map((prop) => (
+              {filteredProperties.slice(0, 4).map((prop) => (
                 <div
                   key={prop.id}
                   className="group bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
@@ -473,12 +460,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                       </div>
 
                       {/* Video tour available pill */}
-                      {prop.id !== 'appleton-haven' && (
-                        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">
-                          <Video className="w-3 h-3 text-[#ffb3b1]" />
-                          <span>Video Tour Available</span>
-                        </div>
-                      )}
+                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">
+                        <Video className="w-3 h-3 text-[#ffb3b1]" />
+                        <span>Video Tour Available</span>
+                      </div>
                     </div>
 
                     {/* Metadata & Description */}
@@ -536,23 +521,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                       <span>{prop.propertyType === 'plots' ? 'View Plots & Master Plan' : 'View Residence & Plans'}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
-                    {prop.id !== 'appleton-haven' && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onViewProject(prop);
-                        }}
-                        className={`px-3 py-2.5 rounded border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                          prop.videoComingSoon
-                            ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
-                            : 'bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border-[#FFE4E6]'
-                        }`}
-                        title={prop.videoComingSoon ? 'Video Walkthrough Coming Soon' : 'Watch Project Video Tour'}
-                      >
-                        <Video className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">{prop.videoComingSoon ? 'Video (Soon)' : 'Video'}</span>
-                      </button>
-                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewProject(prop);
+                      }}
+                      className={`px-3 py-2.5 rounded border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        prop.videoComingSoon
+                          ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
+                          : 'bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border-[#FFE4E6]'
+                      }`}
+                      title={prop.videoComingSoon ? 'Video Walkthrough Coming Soon' : 'Watch Project Video Tour'}
+                    >
+                      <Video className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">{prop.videoComingSoon ? 'Video (Soon)' : 'Video'}</span>
+                    </button>
                   </div>
                 </div>
               ))}

@@ -35,7 +35,8 @@ const PROPERTY_IMAGE_PRESETS = [
   { label: 'Staircase Architecture', url: '/images/appleton_court_interior_stairs.jpg' },
   { label: 'Enclave Gatehouse', url: '/images/appleton_enclave_entrance.jpg' },
   { label: 'Caih Luxury Residence', url: '/images/caih_luxury_residence_1791879278290.jpg' },
-  { label: 'Commercial Arcade', url: '/images/commercial-e1770636774756.jpeg' },
+  { label: 'Appleton Gardens Gatehouse', url: '/images/appleton_gardens_hero.jpg' },
+  { label: 'Appleton Gardens Park & Greenery', url: '/images/appleton_gardens_greenery.jpg' },
   { label: 'Modern Villa (Unsplash)', url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200' },
 ];
 

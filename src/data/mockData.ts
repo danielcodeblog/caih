@@ -1,4 +1,5 @@
 import { Project, VideoDispatch, Executive, Testimonial } from '../types';
+import { sortProjectsByCanonicalOrder } from '../utils/propertyOrdering';
 
 export const BRAND_ASSETS = {
   headerLogo: 'https://caihgroup.com/wp-content/uploads/2024/10/Caih-group.png',
@@ -9,7 +10,7 @@ export const BRAND_ASSETS = {
   address: 'No. 5 Chief Ganiu Enitan Olugborangan Layout, Eleganza Bus Stop, Lagos, Nigeria'
 };
 
-export const PROJECTS: Project[] = [
+const RAW_PROJECTS: Project[] = [
   {
     id: 'appleton-court',
     title: 'Appleton Court',
@@ -116,6 +117,156 @@ export const PROJECTS: Project[] = [
     ]
   },
   {
+    id: 'appleton-gardens',
+    title: 'Appleton Gardens',
+    location: 'Idera Government Scheme, Eleko, Lagos',
+    corridor: 'Idera',
+    propertyType: 'plots',
+    priceCategory: 'mid',
+    status: 'ongoing',
+    statusLabel: 'Selling Fast',
+    badge: 'APPLETON GARDENS',
+    secondaryBadge: 'IDERA SCHEME • ELEKO LAGOS',
+    image: '/images/appleton_gardens_hero.jpg',
+    galleryImages: [
+      '/images/appleton_gardens_hero.jpg',
+      '/images/appleton_gardens_greenery.jpg',
+      '/images/appleton_enclave_entrance.jpg'
+    ],
+    priceDisplay: 'From ₦40M',
+    priceSub: '300sqm (₦40M) • 500sqm (₦75M) • 1,000sqm (₦160M)',
+    paymentType: 'Direct Allocation & Flexible Spread',
+    handoverDate: 'Immediate Allocation',
+    startingDeposit: '₦10,000,000',
+    specs: {
+      area: '300 sqm – 1,000 sqm',
+      landType: '100% Dry Table Land',
+      titleType: 'Idera Government Scheme Allocation'
+    },
+    summary: 'Discover Appleton Gardens, located at Idera Government Scheme, Eleko, Lagos. A place to build your future, offering prime serviced land plots of 300 sqm, 500 sqm, and 1,000 sqm with paved roads, constant electricity, water, and 24/7 security.',
+    detailedDescription: 'Appleton Gardens is a place to build your future. Located at the prestigious Idera Government Scheme, Eleko, Lagos, this estate is situated close to the proposed Lekki International Airport, Pan-Atlantic University, and Anglican Centenary City. Designed with modern estate infrastructure, Appleton Gardens features well-paved roads, constant electricity, water supply, children\'s play area, lush greenery, and dedicated estate security.',
+    keyFeatures: [
+      'Well-Paved Internal Road Network',
+      'Constant Electricity Infrastructure',
+      'Treated Water Supply',
+      'Landscaped Greenery Area',
+      'Children\'s Recreational Play Area',
+      '24/7 Gated Perimeter Security & Access Control',
+      '100% Dry Table Land (Zero Sand-Filling Needed)',
+      'Strategic Proximity to Proposed Lekki Airport'
+    ],
+    neighbourhood: [
+      'Proposed Lekki International Airport',
+      'Pan-Atlantic University (PAU)',
+      'Anglican Centenary City',
+      'Eleko Beach & Coastal Highway Axis',
+      'Alaro City & Lekki Free Trade Zone Corridor',
+      'Amen Estate Phase 1 & 2'
+    ],
+    unitsOrPlots: [
+      {
+        id: 'appleton-gardens-300',
+        name: '300sqm Serviced Plot',
+        size: '300 sqm',
+        priceDisplay: '₦40M',
+        priceSub: '₦40,000,000 Total Outright',
+        deposit: '₦10,000,000',
+        paymentType: 'Flexible Installments',
+        landType: '100% Dry Land',
+        titleType: 'Idera Government Scheme Allocation',
+        isPopular: true,
+        features: [
+          '₦40M Total Plot Price',
+          '300 sqm Table Land',
+          'Close to Proposed Airport',
+          'Well-Paved Roads & Drainage'
+        ],
+        description: 'Prime 300sqm serviced plot at Appleton Gardens, Idera Government Scheme, Eleko.'
+      },
+      {
+        id: 'appleton-gardens-500',
+        name: '500sqm Serviced Plot',
+        size: '500 sqm',
+        priceDisplay: '₦75M',
+        priceSub: '₦75,000,000 Total Outright',
+        deposit: '₦15,000,000',
+        paymentType: 'Flexible Installments',
+        landType: '100% Dry Land',
+        titleType: 'Idera Government Scheme Allocation',
+        isPopular: false,
+        features: [
+          '₦75M Total Plot Price',
+          '500 sqm Standard Residential Plot',
+          'Near Pan-Atlantic University',
+          'Constant Electricity & Water'
+        ],
+        description: 'Standard 500sqm residential parcel in Appleton Gardens, Eleko.'
+      },
+      {
+        id: 'appleton-gardens-1000',
+        name: '1,000sqm Commercial / Residential Parcel',
+        size: '1,000 sqm',
+        priceDisplay: '₦160M',
+        priceSub: '₦160,000,000 Total Outright',
+        deposit: '₦30,000,000',
+        paymentType: 'Flexible Installments',
+        landType: '100% Dry Land',
+        titleType: 'Idera Government Scheme Allocation',
+        isPopular: false,
+        features: [
+          '₦160M Total Parcel Price',
+          '1,000 sqm Double Plot Parcel',
+          'High Capital Yield Potential',
+          'Suitable for Villas or Multi-Unit Flats'
+        ],
+        description: 'Expansive 1,000sqm parcel for luxury residential or mixed-use development.'
+      }
+    ],
+    paymentTable: [
+      {
+        plotSize: '300 sqm',
+        initialDeposit: '₦10,000,000',
+        threeMonths: '₦40,000,000',
+        sixMonths: '₦43,000,000'
+      },
+      {
+        plotSize: '500 sqm',
+        initialDeposit: '₦15,000,000',
+        threeMonths: '₦75,000,000',
+        sixMonths: '₦80,000,000'
+      },
+      {
+        plotSize: '1,000 sqm',
+        initialDeposit: '₦30,000,000',
+        threeMonths: '₦160,000,000',
+        sixMonths: '₦170,000,000'
+      }
+    ],
+    bankingDetails: {
+      accountName: 'CAIH RESOURCES LIMITED',
+      bankName: 'TAJ BANK',
+      accountNumber: '0008343786'
+    },
+    faqs: [
+      {
+        question: 'Where is APPLETON GARDENS located?',
+        answer: 'Appleton Gardens is located at Idera Government Scheme, Eleko, Lagos State, with close proximity to the proposed Lekki International Airport, Pan-Atlantic University, and Anglican Centenary City.'
+      },
+      {
+        question: 'What plot sizes and prices are available at Appleton Gardens?',
+        answer: 'Plots are offered in 300 sqm at ₦40,000,000, 500 sqm at ₦75,000,000, and 1,000 sqm at ₦160,000,000.'
+      },
+      {
+        question: 'What infrastructure is provided in Appleton Gardens?',
+        answer: 'The estate features well-paved internal roads, constant electricity, treated potable water supply, landscaped greenery areas, children\'s play area, and round-the-clock security.'
+      },
+      {
+        question: 'Who is the developer of Appleton Gardens?',
+        answer: 'Caih Group (Caih Properties / Caih Resources Limited). Phone: 0906 688 7444, Instagram: @caihproperties, Website: www.caihgroup.com.'
+      }
+    ]
+  },
+  {
     id: 'appleton-haven',
     title: 'Appleton Haven',
     location: 'Balarabe Musa Crescent, Victoria Island, Lagos',
@@ -161,6 +312,14 @@ export const PROJECTS: Project[] = [
       'Swimming Pool & Concierge Services',
       'High-Speed Private Elevator',
       'Private Cinema & Maid’s BQ (in Maisonette)'
+    ],
+    videoList: [
+      {
+        url: 'https://player.vimeo.com/video/1051104651',
+        title: 'Appleton Haven: Luxury Residential Tour (Victoria Island)',
+        duration: '03:45',
+        description: 'Ultra-luxurious residential tower on Balarabe Musa Crescent, Victoria Island, featuring swimming pool, concierge, and elevator.'
+      }
     ],
     unitsOrPlots: [
       {
@@ -645,6 +804,8 @@ export const PROJECTS: Project[] = [
   }
 ];
 
+export const PROJECTS: Project[] = sortProjectsByCanonicalOrder(RAW_PROJECTS);
+
 export const VIDEO_DISPATCHES: VideoDispatch[] = [
   {
     id: 'vid-1',
@@ -681,24 +842,24 @@ export const VIDEO_DISPATCHES: VideoDispatch[] = [
 export const EXECUTIVES: Executive[] = [
   {
     name: 'Engr. Kayode Olorunfemi',
-    role: 'Managing Director & CEO',
-    credentials: 'B.Eng, MSc, PMP, MNSE, COREN',
+    role: 'Managing Director',
+    credentials: 'B.Eng, MSc, PMP, MNSE, MIET, COREN',
     image: '/images/D2B631C2-32BE-4212-91E9-3268045FD781.png',
-    bio: 'Pioneering structural integrity across commercial and residential developments in Nigeria for over two decades. Accredited with the Nigerian Society of Engineers (NSE) and Council for the Regulation of Engineering in Nigeria (COREN).'
+    bio: 'Kayode Olorunfemi is a seasoned Engineer, Project Manager and a Philanthropist with over two decades of post-graduation work experience in EPC Turnkey Projects across the world. He has a First Degree and Masters Degree in Engineering from Birmingham in the United Kingdom where he began his career.\n\nHe has attended several business management and leadership courses in institutions of high repute including London School of Economics, Aston Business School and The Wharton School of the University of Pennsylvania, USA.\n\nHe is a COREN Registered Engineer and also a Member of the Nigeria Society of Engineers, NSE. He is a Certified Cost Professional and a Certified Green Building Expert. Kayode is a resource person to institutions, religious organizations and a consultant to several others.\n\nHe currently sits on the board of 4 companies majorly in Construction & Real Estate, Telecommunications, Oil & Gas and Healthcare. He has built and project managed some of the biggest and most technical construction projects in the oil and gas industry and for the Nigerian Military. He currently builds and has successfully delivered several construction and housing projects in Nigeria, the USA, and beyond.\n\nHe is a husband, father and a lover of Christ.'
   },
   {
-    name: 'Dr. Paul Olorunfemi',
-    role: 'Co-Founder & Director of Strategy',
-    credentials: 'Strategic Corporate Advisory & Global Capital',
+    name: 'Dr Paul Olorunfemi',
+    role: 'Director',
+    credentials: 'MD, Health Policy & Global Strategy | Univ. of Illinois & Univ. of Miami',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCZk4Z7owM1QyHg5U6JfTWSui6uh5sqPYJI547mAvfNy6L1Zb0L1eT7JiydgtkT3-9hbNWNsSTnSIyAV86gPM4iOeP3hICFA0vSplQyUsSLRYyHa_cW0yc32Od0eZYrM5rQj3bnk35TWPSpe0xGj6UY9iKR1wcSwoqfciBzp7iQLHVlYVY54ypaTtIsSepIsLnbyS5DnnxDfzPvdfm9KoHbQ1LzVUdhdCQTrbVZaiCaJNdWft-JXkPXYPyAVvCv_GPazSg',
-    bio: 'Oversees diaspora investment conduits, multi-tier joint ventures, and structured institutional funding partnerships across West African infrastructure assets.'
+    bio: 'Dr Paul Olorunfemi is an innovator, strategic leader and clinician. He has co-founded and leads organizations in research, development and innovation in healthcare, real estate, social services, trade and investments. With background in clinical medicine, policy and management, he brings strategic insight, global market access and leadership to the board.\n\nHe also serves on the board of healthcare and social services not-for-profit organizations with global presence. He is an alumnus of the University of Illinois and underwent post-graduate training and post-doctoral fellowships at the University of Miami.'
   },
   {
-    name: 'Engr. Obafaiye',
-    role: 'Executive Director, Projects & Operations',
-    credentials: 'COREN, NSE, PMP, SPE | 25+ Years Experience',
+    name: 'Mr. Obafaiye',
+    role: 'Director',
+    credentials: 'B.Sc, MNSE, COREN, SPE, PMP | Kenan-Flagler Business School',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB23Oz8MwH4ndcyUxIz_4SJ0y2A9foZvCjmiBs7lDa3mkgMJUPOM9l-cT87PUHRCTmMshfEYTIt4yMmvpmHE4IKWEhbAuunt7d21GS_xuVWvPPdaxD6K46m0emOp_b-8dhZPWTmRBTRJlFMlaZTLE0OSw1sDzWBJGQb32sCiybPL1Q61rh6t3HtjkkQDeSIQaMVezd6AHTrMfRrcmykzggETMq5XA9-_yzHY-EPq0YwZnARyl6pTiCC_EBFYblrKXQ64Ic',
-    bio: 'Seasoned EPC director commanding mega-scale industrial batching yards, high-load foundation piling, and highway infrastructure with rigorous health, safety, and delivery timelines.'
+    bio: 'Mr. Obafaiye’s over 25 years work experience span Business and Operations Leadership, Engineering, and Project Management, capital allocation and budget planning. Mr. Obafaiye worked in the oil & gas industry both locally and internationally holding various supervisory and managerial roles in Project management, Facilities engineering, Strategy, Planning and Safety Health and the Environment. During his career, he attended many leadership courses including the ExxonMobil Enterprise Leadership Program – University of North Carolina, Kenan-Flagler Business School, USA.\n\nMr. Obafaiye is a Corporate member of the Nigerian Society of Engineers (NSE), Chartered Electrical Engineer with the Council for Regulation of Engineering in Nigeria (COREN), member of The Society of Petroleum Engineers (SPE). He also received the Project Management Professional (PMP) designation from the Project Management Institute (PMI).\n\nMr. Obafaiye was a past elected president of the executive committee of the 1000+ member ExxonMobil Employee Multipurpose Cooperative Society, with over $10M assets under management (Mostly real estate). Mr. Obafaiye is passionate about real estate and housing, he’s an experienced real estate investor and a licensed realtor in the state of Texas, USA. He loves reading and running.'
   }
 ];
 

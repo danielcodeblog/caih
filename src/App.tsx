@@ -66,8 +66,14 @@ function VideoDetailWrapper({ onNavigate, onBookInspection, onSelectProject }: {
 }
 
 export default function App() {
-  const [projects, setProjects] = useState<Project[]>(() => getStoredProjects());
-  const [articles, setArticles] = useState<Article[]>(() => getStoredArticles());
+  const [projects, setProjects] = useState<Project[]>(() => {
+    const stored = getStoredProjects();
+    return Array.isArray(stored) ? stored : [];
+  });
+  const [articles, setArticles] = useState<Article[]>(() => {
+    const stored = getStoredArticles();
+    return Array.isArray(stored) ? stored : [];
+  });
 
   useEffect(() => {
     // Listen for custom store update events triggered by Admin or client actions

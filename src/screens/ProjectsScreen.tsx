@@ -4,6 +4,7 @@ import { InspectionForm } from '../components/InspectionForm';
 import { fetchPropertiesFromSupabase, isSupabaseConfigured } from '../lib/supabase';
 import { PROJECTS } from '../data/mockData';
 import { getStoredProjects } from '../utils/projectsStore';
+import { sortProjectsByCanonicalOrder } from '../utils/propertyOrdering';
 import {
   MapPin,
   Building,
@@ -38,19 +39,21 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
   initialFilter
 }) => {
   const [projects, setProjects] = useState<Project[]>(() =>
-    passedProjects && passedProjects.length > 0 ? passedProjects : getStoredProjects()
+    sortProjectsByCanonicalOrder(
+      Array.isArray(passedProjects) && passedProjects.length > 0 ? passedProjects : getStoredProjects()
+    )
   );
 
   useEffect(() => {
     if (passedProjects && passedProjects.length > 0) {
-      setProjects(passedProjects);
+      setProjects(sortProjectsByCanonicalOrder(passedProjects));
     }
   }, [passedProjects]);
 
   useEffect(() => {
     const handleProjectsUpdated = (e: any) => {
       if (e.detail && Array.isArray(e.detail)) {
-        setProjects(e.detail);
+        setProjects(sortProjectsByCanonicalOrder(e.detail));
       }
     };
     window.addEventListener('caih_projects_updated', handleProjectsUpdated);
@@ -61,7 +64,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
     const load = async () => {
       if (isSupabaseConfigured() && (!passedProjects || passedProjects.length === 0)) {
         const fetched = await fetchPropertiesFromSupabase();
-        if (fetched && fetched.length > 0) setProjects(fetched);
+        if (fetched && fetched.length > 0) setProjects(sortProjectsByCanonicalOrder(fetched));
       }
     };
     load();
@@ -85,7 +88,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
   const flagship = projects[0];
 
   const filteredProjects = useMemo(() => {
-    return projects.filter((p) => {
+    const list = (Array.isArray(projects) ? projects : []).filter((p) => {
       // Keyword match
       if (keywordFilter.trim()) {
         const query = keywordFilter.toLowerCase();
@@ -149,7 +152,8 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
 
       return true;
     });
-  }, [activeStatus, locationFilter, typeFilter, bedsFilter, keywordFilter, priceFilter]);
+    return sortProjectsByCanonicalOrder(list);
+  }, [projects, activeStatus, locationFilter, typeFilter, bedsFilter, keywordFilter, priceFilter]);
 
   const scrollToBooking = (projectTitle: string) => {
     if (onBookInspection) {
@@ -169,15 +173,9 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
       <section className="w-full bg-white pt-16 pb-12 border-b border-[#E2E8F0] relative overflow-hidden">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F8FAFC] border border-[#E2E8F0] text-[#b7102a] text-[11px] uppercase tracking-widest mb-5 font-bold shadow-sm">
-              <span>Caih Group Portfolio & Developments</span>
-            </div>
             <h1 className="text-3xl md:text-5xl lg:text-[54px] lg:leading-[1.15] text-[#000f22] tracking-tight font-extrabold max-w-4xl mx-auto">
               Explore Our Premier Estates & Infrastructure
             </h1>
-            <p className="text-base md:text-lg text-[#475569] max-w-3xl mx-auto mt-4 leading-relaxed">
-              Verified title properties, master-planned residential communities, and institutional developments across the Lagos growth corridor and Abuja.
-            </p>
           </div>
 
           {/* VCH Interactive Filter Ribbon & Multi-tier Search Dock */}
@@ -221,7 +219,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                     className="bg-transparent text-[#000f22] font-bold text-xs focus:outline-none cursor-pointer mt-0.5"
                   >
                     <option value="all">All Locations</option>
-                    <option value="Idera">Idera (Appleton Enclave)</option>
+                    <option value="Idera">Idera (Appleton Enclave & Appleton Gardens)</option>
                     <option value="Free Trade Zone">Free Trade Zone / Origanrigan (Appleton Commercial)</option>
                     <option value="Ibeju-Lekki">Ibeju-Lekki (Appleton Garden)</option>
                     <option value="Victoria Island">Victoria Island (Appleton Haven)</option>
@@ -345,12 +343,10 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                       <span className="absolute top-3 right-3 px-2.5 py-1 rounded bg-white/90 backdrop-blur-sm text-[#000f22] text-xs font-bold">
                         {project.corridor}
                       </span>
-                      {project.id !== 'appleton-haven' && (
-                        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">
-                          <Video className="w-3 h-3 text-[#ffb3b1]" />
-                          <span>Video Tour Available</span>
-                        </div>
-                      )}
+                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">
+                        <Video className="w-3 h-3 text-[#ffb3b1]" />
+                        <span>Video Tour Available</span>
+                      </div>
                     </div>
 
                     <div className="p-6 flex flex-col gap-2.5">
@@ -425,23 +421,21 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {project.id !== 'appleton-haven' && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onViewProject(project);
-                          }}
-                          className={`px-3 py-2 rounded border text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                            project.videoComingSoon
-                              ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
-                              : 'bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border-[#FFE4E6]'
-                          }`}
-                          title={project.videoComingSoon ? 'Video Walkthrough Coming Soon' : 'Watch Project Video Tour'}
-                        >
-                          <Video className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">{project.videoComingSoon ? 'Video (Soon)' : 'Video Tour'}</span>
-                        </button>
-                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onViewProject(project);
+                        }}
+                        className={`px-3 py-2 rounded border text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                          project.videoComingSoon
+                            ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
+                            : 'bg-[#FFF1F2] hover:bg-[#b7102a] text-[#b7102a] hover:text-white border-[#FFE4E6]'
+                        }`}
+                        title={project.videoComingSoon ? 'Video Walkthrough Coming Soon' : 'Watch Project Video Tour'}
+                      >
+                        <Video className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">{project.videoComingSoon ? 'Video (Soon)' : 'Video Tour'}</span>
+                      </button>
                       <button
                         onClick={() => onViewProject(project)}
                         className="px-4 py-2 rounded bg-[#000f22] hover:bg-[#b7102a] text-white text-xs font-bold transition-all cursor-pointer"

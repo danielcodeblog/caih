@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { EXECUTIVES, BRAND_ASSETS, TESTIMONIALS } from '../data/mockData';
+import { Executive } from '../types';
 import {
   ShieldCheck,
   Building2,
@@ -16,7 +17,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Maximize2,
-  X
+  X,
+  FileText,
+  Briefcase,
+  GraduationCap,
+  Sparkles,
+  Download,
+  Compass,
+  CheckCircle2,
+  Globe2
 } from 'lucide-react';
 
 interface AboutScreenProps {
@@ -28,11 +37,14 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
   onContactDesk,
   onNavigateToProjects
 }) => {
-  const [testimonialSlideIndex, setTestimonialSlideIndex] = React.useState(0);
-  const [isTestimonialAutoPlaying, setIsTestimonialAutoPlaying] = React.useState(true);
-  const [lightboxImage, setLightboxImage] = React.useState<string | null>(null);
+  const [testimonialSlideIndex, setTestimonialSlideIndex] = useState(0);
+  const [isTestimonialAutoPlaying, setIsTestimonialAutoPlaying] = useState(true);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [lightboxVideo, setLightboxVideo] = useState<{ url: string; title: string } | null>(null);
+  const [showCompanyProfileModal, setShowCompanyProfileModal] = useState(false);
+  const [selectedExecutive, setSelectedExecutive] = useState<Executive | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let timer: any;
     if (isTestimonialAutoPlaying) {
       timer = setInterval(() => {
@@ -49,103 +61,68 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
   const handleNextTestimonial = () => {
     setTestimonialSlideIndex((prev) => (prev + 1) % TESTIMONIALS.length);
   };
+
+  const managingDirector = EXECUTIVES[0];
+  const boardLeaders = EXECUTIVES.slice(1);
+
   return (
     <div className="flex flex-col w-full bg-white">
-      {/* 2. HERO SECTION */}
-      <section className="relative w-full bg-white pt-28 sm:pt-32 pb-20 lg:pb-28 border-b border-[#E2E8F0] overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000f22_1px,transparent_1px)] [background-size:24px_24px]"></div>
-        <div className="relative max-w-[1440px] mx-auto px-6 sm:px-8">
-          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-6xl lg:text-[64px] lg:leading-[1.12] text-[#000f22] tracking-tight mb-6">
-              Building Modern Nigeria with <span className="text-[#b7102a]">Integrity & Craftsmanship</span>
-            </h1>
-            <p className="text-lg md:text-xl text-[#475569] max-w-3xl leading-relaxed mb-8">
-              Delivering institutional-grade EPC engineering, certified Governor’s Consent titles, and sustainable master-planned communities across West Africa.
-            </p>
-          </div>
-
-          {/* Credibility Metric Box */}
-          <div className="w-full max-w-4xl mx-auto bg-[#F8FAFC] rounded-2xl shadow-sm p-8 border border-[#E2E8F0]">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-[#E2E8F0]">
-              <div className="flex flex-col items-center px-4 pt-4 md:pt-0">
-                <span className="text-3xl lg:text-4xl text-[#000f22] font-extrabold tracking-tight">
-                  20+ Years
-                </span>
-                <span className="text-xs sm:text-sm text-[#475569] mt-1 font-medium">
-                  Industry Experience
-                </span>
-              </div>
-              <div className="flex flex-col items-center px-4 pt-4 md:pt-0">
-                <span className="text-3xl lg:text-4xl text-[#b7102a] font-extrabold tracking-tight">
-                  100%
-                </span>
-                <span className="text-xs sm:text-sm text-[#475569] mt-1 font-medium">
-                  Verified Titles
-                </span>
-              </div>
-              <div className="flex flex-col items-center px-4 pt-4 md:pt-0">
-                <span className="text-3xl lg:text-4xl text-[#000f22] font-extrabold tracking-tight">
-                  ₦3.2B+
-                </span>
-                <span className="text-xs sm:text-sm text-[#475569] mt-1 font-medium">
-                  Portfolio Delivered
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. WHO WE ARE & ARCHITECTURAL FOUNDATION */}
-      <section className="py-20 lg:py-28 bg-white border-b border-[#E2E8F0]">
+      {/* CORPORATE OVERVIEW: CAIH RESOURCES & MEGATRENDS */}
+      <section className="pt-28 sm:pt-32 pb-20 lg:pb-28 bg-white border-b border-[#E2E8F0]">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            {/* Visual Column */}
-            <div className="lg:col-span-6 relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[4/3] bg-[#F1F5F9] border border-[#E2E8F0]">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3LOiHzMVhO4lCrKEDjGJWkyXK5t0UYDfjxWi5sOcY5WY1HfoIJCu8vKWjnMc8NEgdoLhPZBqysSQ7TLnnOH_RQVofnnvAt22ljf6K6hJWX-hMouTQ2IPwGKIm-o0XYoHpjmVYNk4Un59madpARowFZpnNpfLu-h-ilJSxy2HpDKJEMrkG49cqWmU9R8ZMTFHD2MN2p1NITvAcskjd9sk2kuuMXqsYkVP5HMZZwqrz7_Cdjb3Qgv2bZQ"
-                  alt="Caih Group Modernist Architecture"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md px-5 py-3 rounded-xl shadow-lg border border-white/50 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Building2 className="w-6 h-6 text-[#b7102a]" />
-                    <div>
-                      <span className="text-[11px] uppercase tracking-wider text-[#000f22] font-extrabold block">
-                        CAIH HEADQUARTERS
-                      </span>
-                      <span className="text-xs text-[#475569]">
-                        No. 5 Chief Ganiu Enitan Olugborangan layout, Eleganza Bus stop, Lagos
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Narrative Column */}
-            <div className="lg:col-span-6 flex flex-col items-start">
+          <div className="max-w-4xl mx-auto flex flex-col items-start">
               <div className="flex items-center gap-2 text-[#b7102a] mb-3">
                 <span className="text-[11px] uppercase tracking-wider font-bold">
-                  Who We Are
+                  Corporate Profile &amp; Mission
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl text-[#000f22] font-extrabold tracking-tight mb-6 leading-tight">
-                Engineering Reliability & Quality Spaces for Nigeria
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl text-[#000f22] font-extrabold tracking-tight mb-5 leading-tight">
+                Addressing Global Megatrends with Precision Building
               </h2>
-              <p className="text-base md:text-lg text-[#475569] leading-relaxed mb-6">
-                Caih Group unites master-planned residential property developments, turnkey civil engineering, and heavy industrial building resources into a cohesive powerhouse.
-              </p>
-              <p className="text-sm md:text-base text-[#475569] leading-relaxed mb-6">
-                From premium family communities in Lekki Phase 2 to high-capacity structural foundation piling and road engineering along the Epe economic corridor, our hallmark is unwavering precision, verifiable title authenticity, and lasting craftsmanship.
-              </p>
+
+              <div className="space-y-4 text-[#475569] text-sm sm:text-base leading-relaxed">
+                <p className="font-semibold text-[#000f22] text-base sm:text-lg border-l-4 border-[#b7102a] pl-4 py-0.5">
+                  CAIH Resources is a limited liability company duly registered with the Nigerian Corporate Affairs Commission.
+                </p>
+
+                <p>
+                  Increasing urbanization, changing demographics, climate change are all megatrends that present challenges as well as opportunities. In Nigeria, CAIH Resources is focused on the opportunities arising from these megatrends to deliver cutting edge building and construction works to its ever increasing customers.
+                </p>
+
+                <p>
+                  We major in the construction of state-of-the-art infrastructure in both green and brown fields. We design and build tailored structures to meet your needs. We also develop site and serviced plots for your housing and other developmental needs. We offer both preventive maintenance as well as curative maintenance services on these infrastructures.
+                </p>
+
+                <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <p className="text-base sm:text-lg font-bold text-[#b7102a] tracking-tight">
+                    &ldquo;By looking into the future, we give our customers a competitive head start.&rdquo;
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCompanyProfileModal(true)}
+                  className="px-5 py-3 rounded-xl bg-[#000f22] hover:bg-[#0a2540] text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                >
+                  <FileText className="w-4 h-4 text-[#b7102a]" />
+                  <span>View Company Profile</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={onContactDesk}
+                  className="px-5 py-3 rounded-xl bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#000f22] text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Phone className="w-4 h-4 text-[#b7102a]" />
+                  <span>Consult Advisory Desk</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* 4. THE THREE CONGLOMERATE SECTORS */}
+      {/* 3. THE THREE CONGLOMERATE SECTORS */}
       <section className="py-20 lg:py-28 bg-[#F8FAFC] border-b border-[#E2E8F0]" id="conglomerate-sectors">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
@@ -166,12 +143,28 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-[#E2E8F0]">
-              <div className="relative h-56 bg-[#F1F5F9] overflow-hidden">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpC47bcbE54rAaCiLNXn7XfkPu0Nipp9jOyIxTI5sQZ2I_JwWekuN-ThsRaiv3Cb1F7Q9-1CWxei5URI_nq5mJP_wNI8sI-3LcqSmvvnPoyxvpaUJzI4y7-6zoUtdBESR5ita26AJhkObPsB9vs1GSTHPIfD2yNNyzF4iOunfFnbXKgRs0Ue1k8lmTKAFWdD_obvPTxq8xnyRJM8Xcrhc5YlaVcQBABN9ZZcJU3j-01NmBmHBizgqwuw"
-                  alt="Caih Properties"
-                  className="w-full h-full object-cover"
+              <div className="relative h-56 bg-black overflow-hidden group">
+                <iframe
+                  src="https://www.youtube.com/embed/qa550kq6gc8?autoplay=1&mute=1&loop=1&playlist=qa550kq6gc8&controls=0&showinfo=0&rel=0"
+                  title="Caih Properties Video Tour"
+                  className="w-full h-full border-0 pointer-events-none scale-125"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 />
+                <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 shadow-xs z-10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ffb3b1] animate-pulse"></span>
+                  <span>VIDEO TOUR</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setLightboxVideo({
+                    url: 'https://www.youtube.com/embed/qa550kq6gc8?autoplay=1',
+                    title: 'Caih Properties Video Tour'
+                  })}
+                  className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-xs cursor-pointer z-20"
+                >
+                  <Maximize2 className="w-5 h-5 text-[#ffb3b1]" />
+                  <span>Expand Video</span>
+                </button>
               </div>
               <div className="p-6 flex flex-col flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -179,18 +172,34 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                   <h3 className="text-lg font-bold text-[#000f22]">Caih Properties</h3>
                 </div>
                 <p className="text-xs sm:text-sm text-[#475569] leading-relaxed flex-1">
-                  Master-planned residential estates and luxury serviced duplexes with 24/7 security.
+                  Master-planned residential estates, site &amp; serviced plots, and luxury duplexes with 24/7 security and verified documentation.
                 </p>
               </div>
             </div>
 
             <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-[#E2E8F0]">
-              <div className="relative h-56 bg-[#F1F5F9] overflow-hidden">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH98qz3hJJWxr6Cvud_k8b-BNisFlBDXwgOqw9ioesdnfBm5EtGgnDsDrerr5fv2fzJlz5PwSFijZGx5VzG28EeZAqYdc6SDAr5I4LZXt2mioYWWcSNC0EaNccQuJE7VECSLsGd8MUoKzBqGmRJwpxmZ-iMEwjYzZyL0rLcoCyxtJbGLzuUF_6sDY2QSdrxlmt6i6HtSFkF05rK7_0Zwtd6-o59CEPjWiGhD596zh4XauzNEln8VxVDA"
-                  alt="Caih Construction"
-                  className="w-full h-full object-cover"
+              <div className="relative h-56 bg-black overflow-hidden group">
+                <iframe
+                  src="https://www.youtube.com/embed/ihEzpBhqRjY?autoplay=1&mute=1&loop=1&playlist=ihEzpBhqRjY&controls=0&showinfo=0&rel=0"
+                  title="Caih Construction Video Tour"
+                  className="w-full h-full border-0 pointer-events-none scale-125"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 />
+                <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 shadow-xs z-10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ffb3b1] animate-pulse"></span>
+                  <span>VIDEO TOUR</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setLightboxVideo({
+                    url: 'https://www.youtube.com/embed/ihEzpBhqRjY?autoplay=1',
+                    title: 'Caih Construction Video Tour'
+                  })}
+                  className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-xs cursor-pointer z-20"
+                >
+                  <Maximize2 className="w-5 h-5 text-[#ffb3b1]" />
+                  <span>Expand Video</span>
+                </button>
               </div>
               <div className="p-6 flex flex-col flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -198,18 +207,34 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                   <h3 className="text-lg font-bold text-[#000f22]">Caih Construction</h3>
                 </div>
                 <p className="text-xs sm:text-sm text-[#475569] leading-relaxed flex-1">
-                  Turnkey building contracting, deep civil foundation piling, and road paving infrastructure.
+                  State-of-the-art infrastructure across green and brown fields, tailored structural designs, turnkey contracting, and civil foundation engineering.
                 </p>
               </div>
             </div>
 
             <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-[#E2E8F0]">
-              <div className="relative h-56 bg-[#F1F5F9] overflow-hidden">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzFRpyIeLl7ogQtifHFeUSAtsbvv_RPJ1yEeAbDuPtIHdJEGVW4stbhGuTxfe_8wiEOOdKSAkBSAAOy4Mqj7urOF1NMrlFr3WHW4xTdhW0o__vJDXiVW1x3rh1PBzr7hJZ5dHq3xJUg_-AF_oCNhsjh4YZnfVme_KSBZuTFKZ1wDWCChSx5x1OXG9Hm1rsYHY2TvmAMpL6LWA4GC9sF82dAOISCIHDZ2D0nEziCKCyeXyNV0j-M5qvPA"
-                  alt="Caih Resources"
-                  className="w-full h-full object-cover"
+              <div className="relative h-56 bg-black overflow-hidden group">
+                <iframe
+                  src="https://player.vimeo.com/video/1237939360?autoplay=1&muted=1&loop=1&background=1"
+                  title="Caih Resources Video Tour"
+                  className="w-full h-full border-0 pointer-events-none scale-125"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 />
+                <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 shadow-xs z-10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ffb3b1] animate-pulse"></span>
+                  <span>VIDEO TOUR</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setLightboxVideo({
+                    url: 'https://player.vimeo.com/video/1237939360?autoplay=1',
+                    title: 'Caih Resources Video Tour'
+                  })}
+                  className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-xs cursor-pointer z-20"
+                >
+                  <Maximize2 className="w-5 h-5 text-[#ffb3b1]" />
+                  <span>Expand Video</span>
+                </button>
               </div>
               <div className="p-6 flex flex-col flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -217,7 +242,7 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                   <h3 className="text-lg font-bold text-[#000f22]">Caih Resources</h3>
                 </div>
                 <p className="text-xs sm:text-sm text-[#475569] leading-relaxed flex-1">
-                  Heavy equipment leasing, quarry granite logistics, and certified ready-mix concrete supply.
+                  Preventive and curative maintenance services, heavy infrastructure equipment leasing, and integrated building resources.
                 </p>
               </div>
             </div>
@@ -225,46 +250,183 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
         </div>
       </section>
 
-      {/* 5. EXECUTIVE LEADERSHIP (CRITICAL - USING EXACT USER IMAGES) */}
+      {/* 4. THE PEOPLE / EXECUTIVE LEADERSHIP */}
       <section className="py-20 lg:py-28 bg-white border-b border-[#E2E8F0]" id="leadership">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
           <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
             <div className="flex items-center gap-2 text-[#b7102a] mb-3">
               <span className="text-[11px] uppercase tracking-wider font-bold">
-                Executive Leadership
+                The People
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl text-[#000f22] font-extrabold tracking-tight mb-4">
-              The Team Leading Caih Group
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl text-[#000f22] font-extrabold tracking-tight mb-4">
+              The People Behind Caih Group
             </h2>
             <p className="text-sm md:text-base text-[#475569] leading-relaxed">
-              Experienced engineers, corporate strategists, and international operations executives driving excellence across every milestone.
+              Distinguished engineers, clinicians, and global enterprise leaders bringing over four decades of collective EPC turnkey execution and corporate governance to Nigeria.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {EXECUTIVES.map((exec, idx) => (
+          {/* MANAGING DIRECTOR SPOTLIGHT: Engr. Kayode Olorunfemi */}
+          {managingDirector && (
+            <div className="mb-16 bg-[#F8FAFC] rounded-3xl border border-[#CBD5E1] p-6 sm:p-10 lg:p-12 shadow-sm">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                <div className="lg:col-span-5 flex flex-col items-center">
+                  <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[3/4] w-full max-w-sm bg-[#F1F5F9] border-2 border-white">
+                    <img
+                      src={managingDirector.image}
+                      alt={managingDirector.name}
+                      className="w-full h-full object-cover object-top"
+                    />
+                    <div className="absolute top-4 left-4 bg-[#000f22]/90 backdrop-blur-md px-3 py-1 rounded-full text-white text-[10px] font-bold tracking-wider uppercase border border-white/20">
+                      Managing Director
+                    </div>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-7 flex flex-col">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs uppercase font-extrabold text-[#b7102a] tracking-widest">
+                      The People · Executive Directorate
+                    </span>
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#000f22] tracking-tight">
+                    Meet our Managing Director — {managingDirector.name}
+                  </h3>
+                  <p className="text-xs sm:text-sm font-mono font-bold text-[#b7102a] mt-1 mb-6">
+                    ({managingDirector.credentials})
+                  </p>
+
+                  {/* Highlights Tags */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <span className="px-3 py-1 rounded-full bg-white border border-[#CBD5E1] text-[11px] font-bold text-[#000f22] flex items-center gap-1.5 shadow-2xs">
+                      <Award className="w-3.5 h-3.5 text-[#b7102a]" />
+                      20+ Years EPC Turnkey Projects
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-white border border-[#CBD5E1] text-[11px] font-bold text-[#000f22] flex items-center gap-1.5 shadow-2xs">
+                      <GraduationCap className="w-3.5 h-3.5 text-[#b7102a]" />
+                      London School of Economics · Wharton · Aston
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-white border border-[#CBD5E1] text-[11px] font-bold text-[#000f22] flex items-center gap-1.5 shadow-2xs">
+                      <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      COREN Registered &amp; MNSE
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-white border border-[#CBD5E1] text-[11px] font-bold text-[#000f22] flex items-center gap-1.5 shadow-2xs">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      Certified Green Building Expert
+                    </span>
+                  </div>
+
+                  <div className="space-y-4 text-xs sm:text-sm text-[#475569] leading-relaxed">
+                    <p>
+                      Kayode Olorunfemi is a seasoned Engineer, Project Manager and a Philanthropist with over two decades of post-graduation work experience in EPC Turnkey Projects across the world. He has a First Degree and Masters Degree in Engineering from Birmingham in the United Kingdom where he began his career.
+                    </p>
+                    <p>
+                      He has attended several business management and leadership courses in institutions of high repute including London School of Economics, Aston Business School and The Wharton School of the University of Pennsylvania, USA.
+                    </p>
+                    <p>
+                      He is a COREN Registered Engineer and also a Member of the Nigeria Society of Engineers, NSE. He is a Certified Cost Professional and a Certified Green Building Expert. Kayode is a resource person to institutions, religious organizations and a consultant to several others.
+                    </p>
+                    <p>
+                      He currently sits on the board of 4 companies majorly in Construction &amp; Real Estate, Telecommunications, Oil &amp; Gas and Healthcare. He has built and project managed some of the biggest and most technical construction projects in the oil and gas industry and for the Nigerian Military. He currently builds and has successfully delivered several construction and housing projects in Nigeria, the USA, and beyond.
+                    </p>
+                    <p className="font-semibold text-[#000f22] pt-2 border-t border-[#E2E8F0]">
+                      He is a husband, father and a lover of Christ.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* BOARD LEADERS: Dr Paul Olorunfemi & Mr. Obafaiye */}
+          <div className="text-center mb-8">
+            <span className="text-xs uppercase font-extrabold text-[#b7102a] tracking-widest block mb-1">
+              The People
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-[#000f22]">
+              Board of Directors &amp; Executive Leadership
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {boardLeaders.map((exec, idx) => (
               <div
                 key={idx}
-                className="bg-[#F8FAFC] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col border border-[#E2E8F0]"
+                className="bg-[#F8FAFC] rounded-3xl p-6 sm:p-8 border border-[#CBD5E1] shadow-xs flex flex-col justify-between hover:shadow-md transition-all"
               >
-                <div className="aspect-[4/5] bg-[#F1F5F9] overflow-hidden relative">
-                  <img
-                    src={exec.image}
-                    alt={exec.name}
-                    className="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-102"
-                  />
+                <div>
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-6 border-b border-[#E2E8F0]">
+                    <div className="w-32 h-40 sm:w-36 sm:h-44 rounded-2xl overflow-hidden shrink-0 bg-slate-200 border-2 border-white shadow-md">
+                      <img
+                        src={exec.image}
+                        alt={exec.name}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+                    <div className="flex flex-col text-center sm:text-left">
+                      <span className="text-[11px] uppercase tracking-wider font-extrabold text-[#b7102a] mb-1">
+                        The People · Director
+                      </span>
+                      <h4 className="text-xl sm:text-2xl font-extrabold text-[#000f22]">
+                        {exec.name}
+                      </h4>
+                      <p className="text-xs font-semibold text-[#64748B] mt-0.5 mb-3">
+                        {exec.credentials}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 justify-center sm:justify-start">
+                        {idx === 0 ? (
+                          <>
+                            <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#CBD5E1] text-[10px] font-bold text-slate-700">
+                              Univ. of Illinois Alumnus
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#CBD5E1] text-[10px] font-bold text-slate-700">
+                              Univ. of Miami Fellow
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#CBD5E1] text-[10px] font-bold text-slate-700">
+                              Clinical Medicine &amp; Policy
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#CBD5E1] text-[10px] font-bold text-slate-700">
+                              25+ Yrs Oil &amp; Gas Leadership
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#CBD5E1] text-[10px] font-bold text-slate-700">
+                              Kenan-Flagler Business School
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#CBD5E1] text-[10px] font-bold text-slate-700">
+                              COREN · NSE · SPE · PMP
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#CBD5E1] text-[10px] font-bold text-slate-700">
+                              Licensed Texas Realtor
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-6 space-y-3.5 text-xs sm:text-sm text-[#475569] leading-relaxed">
+                    {exec.bio?.split('\n\n').map((paragraph, pIdx) => (
+                      <p key={pIdx}>{paragraph}</p>
+                    ))}
+                  </div>
                 </div>
-                <div className="p-6 text-center">
-                  <h3 className="text-base sm:text-lg font-bold text-[#000f22]">
-                    {exec.name}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#b7102a] font-semibold mt-0.5">
-                    {exec.role}
-                  </p>
-                  <span className="text-[11px] text-[#475569] mt-1 block">
-                    {exec.credentials}
+
+                <div className="pt-6 mt-6 border-t border-[#E2E8F0] flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-600 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    Verified Board Governance
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedExecutive(exec)}
+                    className="text-[#b7102a] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Read Full Profile</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             ))}
@@ -272,7 +434,7 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
         </div>
       </section>
 
-      {/* 6. CLIENT & INSTITUTIONAL ENDORSEMENTS (MATCHING HOME TESTIMONIALS CAROUSEL) */}
+      {/* 5. CLIENT & INSTITUTIONAL ENDORSEMENTS (MATCHING HOME TESTIMONIALS CAROUSEL) */}
       <section className="py-20 lg:py-28 bg-[#FAFAFA] border-b border-[#E2E8F0]" id="client-endorsements">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -356,7 +518,6 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
 
             {/* Navigation Bar: Dot Indicators & Thumbnail Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 px-1">
-              {/* Dot Indicators & Slide Count */}
               <div className="flex items-center gap-2">
                 {TESTIMONIALS.map((_, idx) => (
                   <button
@@ -426,7 +587,188 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
         </div>
       )}
 
-      {/* 8. CORPORATE CALL TO ACTION BANNER */}
+      {/* EXECUTIVE FULL PROFILE MODAL */}
+      {selectedExecutive && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+          onClick={() => setSelectedExecutive(null)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedExecutive(null)}
+              className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-200">
+              <div className="w-20 h-24 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border">
+                <img
+                  src={selectedExecutive.image}
+                  alt={selectedExecutive.name}
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-[#b7102a] uppercase tracking-wider block">
+                  The People · Executive Profile
+                </span>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-[#000f22]">
+                  {selectedExecutive.name}
+                </h3>
+                <p className="text-xs text-slate-600 font-semibold mt-0.5">
+                  {selectedExecutive.role} • {selectedExecutive.credentials}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
+              {selectedExecutive.bio?.split('\n\n').map((paragraph, idx) => (
+                <p key={idx}>{paragraph}</p>
+              ))}
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-slate-200 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSelectedExecutive(null)}
+                className="px-5 py-2.5 rounded-xl bg-[#000f22] text-white text-xs font-bold hover:bg-[#0a2540] transition-colors"
+              >
+                Close Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* COMPANY PROFILE MODAL */}
+      {showCompanyProfileModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+          onClick={() => setShowCompanyProfileModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setShowCompanyProfileModal(false)}
+              className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-6 pb-6 border-b border-slate-200">
+              <div className="w-12 h-12 rounded-2xl bg-[#000f22] text-white flex items-center justify-center shrink-0">
+                <Building2 className="w-6 h-6 text-[#b7102a]" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-[#b7102a] uppercase tracking-wider block">
+                  Official Corporate Dossier
+                </span>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-[#000f22]">
+                  CAIH Resources Limited
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Registered with the Corporate Affairs Commission (CAC) Nigeria
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-5 text-xs sm:text-sm text-slate-700 leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
+              <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200">
+                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#000f22] mb-2 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  Legal Registration Status
+                </h4>
+                <p>
+                  CAIH Resources is a limited liability company duly registered with the Nigerian Corporate Affairs Commission.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#000f22] mb-2">
+                  Addressing Global Megatrends
+                </h4>
+                <p>
+                  Increasing urbanization, changing demographics, climate change are all megatrends that present challenges as well as opportunities. In Nigeria, CAIH Resources is focused on the opportunities arising from these megatrends to deliver cutting edge building and construction works to its ever increasing customers.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#000f22] mb-2">
+                  Core Engineering Capabilities &amp; Infrastructure
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>State-of-the-art infrastructure across green and brown fields.</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Custom tailored structural designs to meet client specifications.</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Site and serviced plot development for housing and expansion.</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Comprehensive preventive and curative infrastructure maintenance.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#000f22] text-white">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#ffb3b1] block mb-1">
+                  Corporate Philosophy
+                </span>
+                <p className="text-base font-bold text-white">
+                  &ldquo;By looking into the future, we give our customers a competitive head start.&rdquo;
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#000f22] mb-2">
+                  Head Office &amp; Contact Desk
+                </h4>
+                <p className="text-xs text-slate-600">
+                  📍 {BRAND_ASSETS.address}
+                </p>
+                <p className="text-xs text-slate-600 mt-1">
+                  📞 {BRAND_ASSETS.phone} • ✉️ {BRAND_ASSETS.email} • 🌐 www.caihgroup.com
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+              <a
+                href="https://caihgroup.com/wp-content/uploads/2024/11/APPLETON-FORM-FAQ.pdf"
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all flex items-center gap-1.5"
+              >
+                <Download className="w-3.5 h-3.5 text-[#b7102a]" />
+                <span>Download Corporate FAQ Form (PDF)</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowCompanyProfileModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-[#000f22] text-white text-xs font-bold hover:bg-[#0a2540] transition-colors"
+              >
+                Close Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. CORPORATE CALL TO ACTION BANNER */}
       <section className="py-20 bg-white" id="consultation">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
           <div className="bg-[#0a2540] text-white rounded-2xl p-8 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
@@ -435,7 +777,7 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                 Ready to Discuss Your Next Project?
               </h2>
               <p className="text-sm text-slate-300 leading-relaxed">
-                Connect with our corporate advisory and engineering desk for properties, civil contracts, and building logistics.
+                Connect with our corporate advisory and engineering desk for properties, civil contracts, site serviced plots, and building maintenance.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-4 shrink-0">
@@ -457,6 +799,33 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
           </div>
         </div>
       </section>
+
+      {/* VIDEO LIGHTBOX MODAL */}
+      {lightboxVideo && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#000f22] border border-white/10 rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+              <h3 className="text-white font-bold text-base">{lightboxVideo.title}</h3>
+              <button
+                type="button"
+                onClick={() => setLightboxVideo(null)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="relative w-full aspect-video bg-black">
+              <iframe
+                src={lightboxVideo.url}
+                title={lightboxVideo.title}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

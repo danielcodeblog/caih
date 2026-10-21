@@ -66,6 +66,7 @@ import {
 import { DatabaseConnector } from '../components/DatabaseConnector';
 import { SUPABASE_SCHEMA_SQL } from '../data/supabaseSchema';
 import { ADMIN_AUTH_SQL } from '../data/adminAuthSql';
+import { APPLETON_GARDENS_PROPERTY_SQL } from '../data/appletonGardensSql';
 import { AdminPropertyModal } from '../components/AdminPropertyModal';
 import { AdminArticleModal } from '../components/AdminArticleModal';
 import {
@@ -74,6 +75,7 @@ import {
   addOrUpdateProject,
   deleteStoredProject
 } from '../utils/projectsStore';
+import { sortProjectsByCanonicalOrder } from '../utils/propertyOrdering';
 import {
   getStoredArticles,
   saveStoredArticles,
@@ -505,8 +507,9 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   };
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'properties' | 'blog' | 'newsletter' | 'inquiries' | 'database' | 'admins'>('dashboard');
-  const [activeSqlTab, setActiveSqlTab] = useState<'auth' | 'full'>('auth');
+  const [activeSqlTab, setActiveSqlTab] = useState<'auth' | 'full' | 'appleton'>('appleton');
   const [copiedSchema, setCopiedSchema] = useState(false);
+  const [copiedAppletonSql, setCopiedAppletonSql] = useState(false);
   const [syncingSupabase, setSyncingSupabase] = useState(false);
   const [supabaseSyncResult, setSupabaseSyncResult] = useState<string | null>(null);
 
@@ -529,6 +532,17 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     } catch (e) {
       setCopiedAuthSql(true);
       setTimeout(() => setCopiedAuthSql(false), 3000);
+    }
+  };
+
+  const handleCopyAppletonSql = async () => {
+    try {
+      await navigator.clipboard.writeText(APPLETON_GARDENS_PROPERTY_SQL);
+      setCopiedAppletonSql(true);
+      setTimeout(() => setCopiedAppletonSql(false), 3000);
+    } catch (e) {
+      setCopiedAppletonSql(true);
+      setTimeout(() => setCopiedAppletonSql(false), 3000);
     }
   };
 
@@ -576,17 +590,15 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   };
 
   // Editable Projects state initialized from localStorage
-  const [projectsList, setProjectsList] = useState<Project[]>(passedProjects && passedProjects.length > 0 ? passedProjects : []);
+  const [projectsList, setProjectsList] = useState<Project[]>(() =>
+    Array.isArray(passedProjects) && passedProjects.length > 0 ? passedProjects : getStoredProjects()
+  );
 
   useEffect(() => {
-    localStorage.removeItem('caih_admin_projects');
-    const loadProjects = async () => {
-        if (!passedProjects || passedProjects.length === 0) {
-            const projects = await getStoredProjects();
-            setProjectsList(projects);
-        }
-    };
-    loadProjects();
+    if (!passedProjects || passedProjects.length === 0) {
+      const projects = getStoredProjects();
+      setProjectsList(projects);
+    }
   }, [passedProjects]);
 
   // Articles state initialized from localStorage
@@ -1630,6 +1642,17 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
               <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
                 <div className="flex items-center gap-2 p-1 bg-slate-900 rounded-xl border border-slate-800">
                   <button
+                    onClick={() => setActiveSqlTab('appleton')}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                      activeSqlTab === 'appleton'
+                        ? 'bg-[#b7102a] text-white shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Building2 className="w-3.5 h-3.5" />
+                    <span>Appleton Gardens SQL (Only)</span>
+                  </button>
+                  <button
                     onClick={() => setActiveSqlTab('auth')}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
                       activeSqlTab === 'auth'
@@ -1653,7 +1676,19 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                   </button>
                 </div>
 
-                {activeSqlTab === 'auth' ? (
+                {activeSqlTab === 'appleton' ? (
+                  <button
+                    onClick={handleCopyAppletonSql}
+                    className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md ${
+                      copiedAppletonSql
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-[#b7102a] hover:bg-[#db313f] text-white'
+                    }`}
+                  >
+                    {copiedAppletonSql ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    <span>{copiedAppletonSql ? 'Appleton Gardens SQL Copied!' : 'Copy Appleton Gardens SQL'}</span>
+                  </button>
+                ) : activeSqlTab === 'auth' ? (
                   <button
                     onClick={handleCopyAuthSql}
                     className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md ${
@@ -1680,7 +1715,26 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 )}
               </div>
 
-              {activeSqlTab === 'auth' ? (
+              {activeSqlTab === 'appleton' ? (
+                <div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-[#b7102a] text-white flex items-center justify-center shrink-0">
+                      <Building2 className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-extrabold uppercase tracking-wide">
+                        Appleton Gardens Property SQL (supabase/appleton_gardens_property.sql)
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        Inserts / Upserts exclusively <code className="text-emerald-400 font-mono">Appleton Gardens</code> into <code className="text-emerald-400 font-mono">public.properties</code> with 300sqm (₦40M), 500sqm (₦75M), 1,000sqm (₦160M) plots, Taj Bank details, specs, and FAQs.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="relative rounded-xl bg-[#030712] border border-slate-800 p-4 font-mono text-[11px] text-emerald-400 max-h-96 overflow-y-auto leading-relaxed">
+                    <pre>{APPLETON_GARDENS_PROPERTY_SQL}</pre>
+                  </div>
+                </div>
+              ) : activeSqlTab === 'auth' ? (
                 <div>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-8 h-8 rounded-lg bg-[#b7102a] text-white flex items-center justify-center shrink-0">

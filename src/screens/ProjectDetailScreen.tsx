@@ -151,11 +151,10 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
   const [notifySubscribed, setNotifySubscribed] = useState(false);
   const [isFullScreenPhotoOpen, setIsFullScreenPhotoOpen] = useState(false);
   
-  const hasVideo = project.id !== 'appleton-haven';
+  const hasVideo = true;
 
   // Media tab switcher: 'photos' or 'video'
   const [activeMediaTab, setActiveMediaTab] = useState<'photos' | 'video'>(() => {
-    if (project.id === 'appleton-haven') return 'photos';
     if (typeof window !== 'undefined' && (window.location.search.includes('view=video') || window.location.hash === '#video-walkthrough')) {
       return 'video';
     }
@@ -174,12 +173,6 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
 
     if (project.unitsOrPlots && project.unitsOrPlots.length > 0) {
       setSelectedUnitId(project.unitsOrPlots[0].id);
-    }
-
-    if (project.id === 'appleton-haven') {
-      setActiveMediaTab('photos');
-      setCustomVideo(null);
-      return;
     }
 
     if (typeof window !== 'undefined' && (window.location.search.includes('view=video') || window.location.hash === '#video-walkthrough')) {
