@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Project } from '../types';
+import { uploadImageToSupabaseStorage } from '../lib/supabase';
 import {
   X,
   Building2,
@@ -214,20 +215,19 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
     });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, isGallery = false) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isGallery = false) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
+      try {
+        const publicUrl = await uploadImageToSupabaseStorage(file);
         if (isGallery) {
-          const current = formData.galleryImages || [];
-          setFormData({ ...formData, galleryImages: [...current, base64String] });
+          setFormData(prev => prev ? { ...prev, galleryImages: [...(prev.galleryImages || []), publicUrl] } : prev);
         } else {
-          setFormData({ ...formData, image: base64String });
+          setFormData(prev => prev ? { ...prev, image: publicUrl } : prev);
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('File upload error:', err);
+      }
     }
   };
 
@@ -252,10 +252,14 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
       updatedBadge = 'Premier Estate';
     }
 
+    console.log('Saving project:', formData.title, 'with image:', formData.image);
     const finalProject: Project = {
       ...formData,
       badge: updatedBadge || undefined,
-      image: formData.image || '/images/appleton_court_exterior_real.jpg'
+      image: formData.image,
+      galleryImages: formData.galleryImages?.length > 0
+        ? [formData.image, ...formData.galleryImages.filter((img) => img !== formData.image)]
+        : [formData.image]
     };
 
     onSave(finalProject);
@@ -708,29 +712,6 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                         onChange={e => handleFileUpload(e, false)}
                       />
                     </label>
-                  </div>
-
-                  {/* Preset Buttons */}
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
-                      Quick Visual Presets:
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {PROPERTY_IMAGE_PRESETS.map((preset, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => setFormData({ ...formData, image: preset.url })}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all border cursor-pointer ${
-                            formData.image === preset.url
-                              ? 'bg-[#000f22] text-white border-[#000f22]'
-                              : 'bg-[#F8FAFC] text-slate-700 border-[#E2E8F0] hover:bg-slate-200'
-                          }`}
-                        >
-                          {preset.label}
-                        </button>
-                      ))}
-                    </div>
                   </div>
 
                   {/* Cover Image Preview */}

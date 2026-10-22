@@ -530,12 +530,12 @@ const RAW_PROJECTS: Project[] = [
       '/images/appleton_enclave_entrance.jpg',
       '/images/yt_ihEzpBhqRjY.jpg'
     ],
-    priceDisplay: 'From ₦16M',
-    priceSub: '300sqm (₦16M) • 500sqm (₦25M) • 1,000sqm (₦60M)',
+    priceDisplay: 'From ₦35M',
+    priceSub: '300sqm (₦35M) • 500sqm (₦55M)',
     paymentType: 'Direct Allocation',
     handoverDate: 'Immediate Physical Allocation',
     specs: {
-      area: '300 sqm – 1,000 sqm',
+      area: '300 sqm – 500 sqm',
       landType: '100% Dry Table Land',
       titleType: 'Certificate of Occupancy (C of O)'
     },
@@ -560,26 +560,6 @@ const RAW_PROJECTS: Project[] = [
         description: 'Official site video tour of Appleton Enclave in the Free Trade Zone corridor.'
       }
     ],
-    paymentTable: [
-      {
-        plotSize: '300 sqm',
-        initialDeposit: '₦3,000,000',
-        threeMonths: '₦16,000,000',
-        sixMonths: '₦18,000,000'
-      },
-      {
-        plotSize: '500 sqm',
-        initialDeposit: '₦4,000,000',
-        threeMonths: '₦25,000,000',
-        sixMonths: '₦27,000,000'
-      },
-      {
-        plotSize: '1,000 sqm',
-        initialDeposit: '₦10,000,000',
-        threeMonths: '₦60,000,000',
-        sixMonths: '₦65,000,000'
-      }
-    ],
     bankingDetails: {
       accountName: 'CAIH RESOURCES LIMITED',
       bankName: 'TAJ BANK',
@@ -600,7 +580,7 @@ const RAW_PROJECTS: Project[] = [
       },
       {
         question: 'What plot sizes are available?',
-        answer: '300sqm, 500sqm, and 1,000sqm respectively.'
+        answer: '300sqm and 500sqm respectively.'
       },
       {
         question: 'What facilities will be available in the estate?',
@@ -616,11 +596,11 @@ const RAW_PROJECTS: Project[] = [
       },
       {
         question: 'Can I pay cash to your consultants?',
-        answer: 'No! All payments for APPLETON ENCLAVE should be made directly to CAIH GROUP’S designated bank account: Caih Resources Limited, TAJ Bank, Account Number: 0008343786.'
+        answer: 'No! All payments for APPLETON ENCLAVE should be made directly to CAIH GROUP’’s designated bank account: Caih Resources Limited, TAJ Bank, Account Number: 0008343786.'
       },
       {
         question: 'How do I pay my balance after initial deposit?',
-        answer: 'Balance will be paid based on an agreed fixed monthly installment across the 0-3 months or 4-6 months duration.'
+        answer: 'Balance will be paid based on an agreed fixed monthly installment across agreed duration.'
       },
       {
         question: 'Is the price subject to change?',
@@ -652,9 +632,9 @@ const RAW_PROJECTS: Project[] = [
         id: 'appleton-enclave-300',
         name: '300 sqm Serviced Residential Plot',
         size: '300 sqm',
-        priceDisplay: '₦16M',
-        priceSub: '₦3M Deposit • 0-3 mos: ₦16M / 4-6 mos: ₦18M',
-        deposit: '₦3,000,000',
+        priceDisplay: '₦35M',
+        priceSub: '₦35M Total Outright',
+        deposit: '₦5,000,000',
         paymentType: 'Direct Allocation',
         landType: '100% Dry Table Land',
         titleType: 'Certificate of Occupancy (C of O)',
@@ -671,9 +651,9 @@ const RAW_PROJECTS: Project[] = [
         id: 'appleton-enclave-500',
         name: '500 sqm Standard Serviced Plot',
         size: '500 sqm',
-        priceDisplay: '₦25M',
-        priceSub: '₦4M Deposit • 0-3 mos: ₦25M / 4-6 mos: ₦27M',
-        deposit: '₦4,000,000',
+        priceDisplay: '₦55M',
+        priceSub: '₦55M Total Outright',
+        deposit: '₦10,000,000',
         paymentType: 'Direct Allocation',
         landType: '100% Dry Table Land',
         titleType: 'Certificate of Occupancy (C of O)',
@@ -685,25 +665,6 @@ const RAW_PROJECTS: Project[] = [
           'Immediate Physical Demarcation'
         ],
         description: 'Standard serviced plot with maximum road frontage in the high-yield Free Trade Zone corridor.'
-      },
-      {
-        id: 'appleton-enclave-1000',
-        name: '1,000 sqm Commercial / Double Plot',
-        size: '1,000 sqm',
-        priceDisplay: '₦60M',
-        priceSub: '₦10M Deposit • 0-3 mos: ₦60M / 4-6 mos: ₦65M',
-        deposit: '₦10,000,000',
-        paymentType: 'Direct Allocation',
-        landType: '100% Dry Table Land',
-        titleType: 'Certificate of Occupancy (C of O)',
-        isPopular: false,
-        features: [
-          'Massive 1,000 sqm Estate Parcel',
-          'Certificate of Occupancy Title',
-          'Suitable for Luxury Villa or Multi-unit',
-          'Immediate Physical Allocation'
-        ],
-        description: 'Large-scale 1,000 sqm prime parcel suited for expansive residential developments or family compounds.'
       }
     ]
   },
@@ -723,8 +684,8 @@ const RAW_PROJECTS: Project[] = [
       'https://caihgroup.com/wp-content/uploads/2026/02/commercial-e1770636774756.jpeg',
       '/images/regenerated_image_1791992702647.png'
     ],
-    priceDisplay: 'From ₦70m',
-    priceSub: '1,000 SQM (₦70M) • 2,000 SQM (₦130M) • 5,000 SQM (₦300M)',
+    priceDisplay: 'From ₦95M',
+    priceSub: '1,000 SQM (₦95M) • 2,000 SQM (₦190M) • 5,000 SQM (₦285M)',
     paymentType: 'Direct Allocation',
     handoverDate: 'Immediate Physical Allocation',
     specs: {
@@ -750,7 +711,7 @@ const RAW_PROJECTS: Project[] = [
         id: 'appleton-comm-res-1000',
         name: '1,000 SQM Commercial & Residential Plot',
         size: '1,000 SQM',
-        priceDisplay: '₦70m',
+        priceDisplay: '₦95M',
         priceSub: '1,000 SQM Parcel',
         paymentType: 'Direct Allocation',
         landType: 'Heavy-Duty Dry Land',
@@ -768,7 +729,7 @@ const RAW_PROJECTS: Project[] = [
         id: 'appleton-comm-res-2000',
         name: '2,000 SQM Strategic Logistics & Enterprise Parcel',
         size: '2,000 SQM',
-        priceDisplay: '₦130m',
+        priceDisplay: '₦190M',
         priceSub: '2,000 SQM Strategic Parcel',
         paymentType: 'Direct Allocation',
         landType: 'Heavy-Duty Dry Land',
@@ -786,7 +747,7 @@ const RAW_PROJECTS: Project[] = [
         id: 'appleton-comm-res-5000',
         name: '5,000 SQM Mega Warehouse / Industrial & Commercial Hub',
         size: '5,000 SQM',
-        priceDisplay: '₦300m',
+        priceDisplay: '₦285M',
         priceSub: '5,000 SQM Mega Parcel',
         paymentType: 'Direct Allocation',
         landType: 'Heavy-Duty Dry Land',

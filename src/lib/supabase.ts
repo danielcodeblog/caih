@@ -428,7 +428,9 @@ export const upsertPropertyToSupabase = async (
   if (!isSupabaseConfigured()) return;
   try {
     const client = getClient();
-    await client.from('properties').upsert({
+    
+    // 1. Attempt to upsert the full payload
+    const fullPayload: any = {
       id: prop.id,
       title: prop.title,
       location: prop.location,
@@ -450,17 +452,40 @@ export const upsertPropertyToSupabase = async (
       payment_type: prop.paymentType,
       starting_deposit: prop.startingDeposit,
       units_or_plots: prop.unitsOrPlots,
-      gallery_images: prop.galleryImages,
+      gallery_images: prop.galleryImages || [],
+      video_url: prop.videoList?.[0]?.url || null,
+      video_list: prop.videoList || [],
       faq_pdf_url: prop.faqPdfUrl,
       map_embed_url: prop.mapEmbedUrl,
       neighbourhood: prop.neighbourhood,
       payment_table: prop.paymentTable,
       banking_details: prop.bankingDetails,
-      faqs: prop.faqs,
-      updated_by: adminId || 'admin'
-    });
+      faqs: prop.faqs
+    };
+
+    let { error } = await client.from('properties').upsert(fullPayload);
+
+    // 2. If it fails, retry with a MINIMAL payload
+    if (error) {
+      console.warn('Supabase full upsert failed, retrying with core fields:', error.message);
+      const corePayload = {
+        id: prop.id,
+        title: prop.title,
+        location: prop.location,
+        image: prop.image,
+        price_display: prop.priceDisplay,
+        summary: prop.summary,
+        detailed_description: prop.detailedDescription
+      };
+      const { error: retryError } = await client.from('properties').upsert(corePayload);
+      if (retryError) {
+        console.error('Core fields upsert also failed:', retryError.message);
+      } else {
+        console.warn('Core fields saved successfully, but extended data (video/FAQs) was lost.');
+      }
+    }
   } catch (err) {
-    console.warn('Error upserting property to Supabase:', err);
+    console.error('Fatal network/system error during upsert:', err);
   }
 };
 
@@ -481,7 +506,7 @@ export const upsertArticleToSupabase = async (
   if (!isSupabaseConfigured()) return;
   try {
     const client = getClient();
-    await client.from('articles').upsert({
+    const { error } = await client.from('articles').upsert({
       id: art.id,
       title: art.title,
       category: art.category,
@@ -495,9 +520,11 @@ export const upsertArticleToSupabase = async (
       content: art.content,
       sections: art.sections,
       key_takeaways: art.keyTakeaways,
-      featured: art.featured,
-      updated_by: adminId || 'admin'
+      featured: art.featured
     });
+    if (error) {
+      console.warn('Error upserting article to Supabase:', error);
+    }
   } catch (err) {
     console.warn('Error upserting article to Supabase:', err);
   }
@@ -684,3 +711,72 @@ export const seedDatabase = async (): Promise<{ success: boolean; message: strin
     };
   }
 };
+
+export const compressImageFile = (file: File): Promise<string> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 1000;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(e.target?.result as string);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = () => resolve(e.target?.result as string);
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+};
+
+export const uploadImageToSupabaseStorage = async (file: File): Promise<string> => {
+  if (!isSupabaseConfigured()) {
+    return await compressImageFile(file);
+  }
+
+  try {
+    const client = getClient();
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+    const filePath = `properties/${fileName}`;
+
+    const { error: uploadError } = await client.storage
+      .from('caih-assets')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      console.warn('Supabase Storage upload error (falling back to compressed data URL):', uploadError);
+      return await compressImageFile(file);
+    }
+
+    const { data: { publicUrl } } = client.storage
+      .from('caih-assets')
+      .getPublicUrl(filePath);
+
+    return publicUrl || '';
+  } catch (err) {
+    console.warn('Supabase Storage exception (falling back to compressed data URL):', err);
+    return await compressImageFile(file);
+  }
+};
+
