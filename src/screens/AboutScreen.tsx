@@ -81,10 +81,6 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
               </h2>
 
               <div className="space-y-4 text-[#475569] text-sm sm:text-base leading-relaxed">
-                <p className="font-semibold text-[#000f22] text-base sm:text-lg border-l-4 border-[#b7102a] pl-4 py-0.5">
-                  CAIH Properties is a premier real estate development and investment company duly registered with the Corporate Affairs Commission (CAC) Nigeria.
-                </p>
-
                 <p>
                   Increasing urbanization, changing demographics, and the demand for high-integrity housing in Nigeria are defining megatrends. At CAIH Properties, we transform these dynamics into exceptional opportunities, delivering architecturally refined estates, fully serviced residential plots, and solid, high-appreciating real estate assets to our homeowners and global diaspora investors.
                 </p>
