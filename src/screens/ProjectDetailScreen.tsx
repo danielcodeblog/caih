@@ -698,23 +698,11 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                         <span className="text-xs uppercase font-extrabold tracking-wider bg-[#000f22] text-white px-3 py-1 rounded-md">
                           {u.size || u.name}
                         </span>
-                        {u.isPopular ? (
-                          <span className="text-[10px] font-bold text-[#b7102a] bg-[#FFF1F2] px-2.5 py-0.5 rounded-full border border-[#FFE4E6]">
-                            Popular
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                            Available
-                          </span>
-                        )}
                       </div>
 
-                      <h4 className="font-bold text-base text-[#000f22] mb-1">
+                      <h4 className="font-bold text-base text-[#000f22] mb-3">
                         {u.name}
                       </h4>
-                      <p className="text-xs text-[#64748B] mb-4 leading-relaxed">
-                        {u.description}
-                      </p>
 
                       <div className="p-4 rounded-xl bg-white border border-[#CBD5E1] shadow-2xs mb-4">
                         <div className="flex items-center justify-between">
@@ -728,24 +716,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                         <div className="text-2xl sm:text-3xl font-black text-[#b7102a] mt-1">
                           {u.priceDisplay}
                         </div>
-                        <span className="text-[11px] text-[#475569] font-medium block mt-1">
-                          {u.priceSub || u.size} • {u.paymentType || 'Direct Allocation'}
-                        </span>
                       </div>
-
-                      {u.features && u.features.length > 0 && (
-                        <div className="space-y-2 mb-5">
-                          <span className="text-[11px] font-bold text-[#000f22] block uppercase tracking-wider">
-                            Parcel Highlights:
-                          </span>
-                          {u.features.map((feat, fIdx) => (
-                            <div key={fIdx} className="flex items-center gap-2 text-xs text-[#334155]">
-                              <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                              <span>{feat}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
 
                     <button
