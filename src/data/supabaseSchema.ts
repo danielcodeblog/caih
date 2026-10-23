@@ -81,7 +81,7 @@ FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 -- ============================================================================
 -- 5. TABLE: ARTICLES / BLOG POSTS
 -- ============================================================================
-CREATE TABLE public.articles (
+CREATE TABLE IF NOT EXISTS public.articles (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
   category TEXT NOT NULL DEFAULT 'property-market',
@@ -100,6 +100,23 @@ CREATE TABLE public.articles (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Ensure all columns exist even if public.articles was previously created with an older schema
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS category TEXT NOT NULL DEFAULT 'property-market';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS category_label TEXT NOT NULL DEFAULT 'Property Market';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS read_time TEXT NOT NULL DEFAULT '5 min read';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS date TEXT NOT NULL DEFAULT 'April 2026';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS author JSONB NOT NULL DEFAULT '{"name": "Caih Group", "avatarInitials": "CG", "role": "Editorial Directorate"}'::jsonb;
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS image TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS video_url TEXT;
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS excerpt TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS content TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS sections JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS key_takeaways TEXT[] DEFAULT '{}';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS updated_by TEXT;
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 CREATE INDEX idx_articles_category ON public.articles(category);
 CREATE INDEX idx_articles_featured ON public.articles(featured);

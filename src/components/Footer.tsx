@@ -290,15 +290,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
           >
             Corporate Desk
           </button>
-          <button
-            onClick={() => {
-              onNavigate('admin');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className="hover:text-slate-400 transition-colors cursor-pointer"
-          >
-            Admin Portal
-          </button>
         </div>
       </div>
     </footer>

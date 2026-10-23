@@ -181,14 +181,7 @@ export const Header: React.FC<HeaderProps> = ({
             Contact & Inspection Desk
           </button>
 
-          <button
-            onClick={() => handleNavClick('admin')}
-            className={`text-left py-2 px-3 rounded-lg text-sm font-bold transition-colors ${
-              currentPage === 'admin' ? 'bg-[#F1F5F9] text-[#b7102a]' : 'text-[#475569] hover:bg-[#F8FAFC]'
-            }`}
-          >
-            Admin Management Portal
-          </button>
+
 
           <div className="pt-3 border-t border-[#E2E8F0] flex flex-col gap-2">
             <div className="flex items-center gap-2 text-xs text-[#475569]">
