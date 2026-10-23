@@ -546,19 +546,13 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
               </p>
             </div>
 
-            {/* Key Features & Infrastructure Section */}
+            {/* Key Features Section */}
             <div className="pt-5 border-t border-[#E2E8F0]" id="key-features-infrastructure">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3.5">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#b7102a]" />
-                  <h3 className="text-xs uppercase font-extrabold tracking-wider text-[#000f22]">
-                    Key Features &amp; Infrastructure
-                  </h3>
-                </div>
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 w-fit">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>{normalizeStringArray(project.keyFeatures).length} Verified Facilities</span>
-                </span>
+              <div className="flex items-center gap-2 mb-3.5">
+                <ShieldCheck className="w-4 h-4 text-[#b7102a]" />
+                <h3 className="text-xs uppercase font-extrabold tracking-wider text-[#000f22]">
+                  Key Features
+                </h3>
               </div>
 
               {normalizeStringArray(project.keyFeatures).length > 0 ? (
@@ -650,17 +644,9 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                   <span className="text-[#64748B]">Title Deed:</span>
                   <span className="font-bold text-[#000f22]">{project.specs.titleType || 'Governor’s Consent'}</span>
                 </div>
-                <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
-                  <span className="text-[#64748B]">Topography:</span>
-                  <span className="font-bold text-[#000f22]">{project.specs.landType || '100% Dry Land'}</span>
-                </div>
-                <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
-                  <span className="text-[#64748B]">Allocation:</span>
-                  <span className="font-bold text-[#000f22]">{project.paymentType || 'Direct Physical Allocation'}</span>
-                </div>
-                <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
-                  <span className="text-[#64748B]">Infrastructure:</span>
-                  <span className="font-bold text-emerald-700">{normalizeStringArray(project.keyFeatures).length} Verified Facilities</span>
+                <div className="flex items-start justify-between pb-2 border-b border-[#F1F5F9] gap-3">
+                  <span className="text-[#64748B] shrink-0">Address:</span>
+                  <span className="font-bold text-[#000f22] text-right">{project.location}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#64748B]">Corridor:</span>

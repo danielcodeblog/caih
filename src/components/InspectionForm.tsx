@@ -89,13 +89,10 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
     <section className="w-full bg-[#F8FAFC] py-16 lg:py-20 border-t border-[#E2E8F0]" id="inspection-form-section">
       <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          {/* Left Column: Guarantees & Hotline Desk */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          {/* Left Column: Guarantees & Hotline Desk (Sticky on scroll) */}
+          <div className="lg:col-span-5 flex flex-col gap-6 lg:sticky lg:top-24">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#E2E8F0] text-[#b7102a] text-[11px] uppercase tracking-[0.2em] mb-3 font-bold shadow-sm">
-                <span>Direct Developer Desk</span>
-              </div>
-              <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-[#000f22] mt-1">
+              <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-[#000f22]">
                 Book an On-Site Project Inspection
               </h2>
               <p className="text-sm md:text-base text-[#475569] mt-3 leading-relaxed font-normal">

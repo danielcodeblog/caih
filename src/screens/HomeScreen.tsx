@@ -123,13 +123,48 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   };
 
   const heroRef = useRef<HTMLDivElement>(null);
+  const dreamTitleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    if (heroRef.current) {
-      gsap.fromTo(
-        heroRef.current.children,
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 1.1, stagger: 0.25, ease: 'power3.out' }
+    if (dreamTitleRef.current) {
+      const words = dreamTitleRef.current.querySelectorAll('.kinetic-word');
+
+      const tl = gsap.timeline();
+
+      // Aggressive kinetic slam entrance
+      tl.fromTo(
+        words,
+        {
+          opacity: 0,
+          scale: 2.8,
+          y: -140,
+          rotationX: 65,
+          rotationZ: (i) => (i % 2 === 0 ? -14 : 14),
+          filter: 'blur(16px)',
+          transformOrigin: '50% 50% -120px'
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          rotationX: 0,
+          rotationZ: 0,
+          filter: 'blur(0px)',
+          duration: 0.85,
+          stagger: 0.14,
+          ease: 'elastic.out(1.15, 0.42)'
+        }
+      ).fromTo(
+        dreamTitleRef.current,
+        {
+          filter: 'drop-shadow(0 0 45px rgba(255,255,255,0.9))'
+        },
+        {
+          filter: 'drop-shadow(0 20px 35px rgba(0,0,0,0.85))',
+          duration: 0.5,
+          ease: 'power2.out'
+        },
+        '-=0.25'
       );
     }
   }, []);
@@ -247,9 +282,46 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Hero Content (Centered typography - exact from Screenshot 1) */}
         <div ref={heroRef} className="relative z-10 max-w-[1320px] mx-auto px-6 sm:px-10 w-full flex-1 flex flex-col items-center justify-center text-center pt-6 sm:pt-8 pb-4 sm:pb-6">
-          {/* Massive Heading */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[80px] xl:text-[88px] text-white tracking-tight uppercase leading-[1.05] drop-shadow-lg max-w-5xl mb-6">
-            FIND YOUR DREAM HOME
+          {/* Massive Heading with Aggressive Kinetic GSAP Motion */}
+          <h1
+            ref={dreamTitleRef}
+            style={{
+              fontFamily: "'Barlow Condensed', 'Oswald', 'Bebas Neue', sans-serif",
+              perspective: '1200px',
+              transformStyle: 'preserve-3d'
+            }}
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-[88px] xl:text-[102px] font-extrabold text-white tracking-wider uppercase leading-[1.02] drop-shadow-2xl max-w-5xl mb-6 select-none cursor-default flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-2"
+            onMouseEnter={() => {
+              if (dreamTitleRef.current) {
+                const words = dreamTitleRef.current.querySelectorAll('.kinetic-word');
+                gsap.to(words, {
+                  scale: 1.08,
+                  y: -8,
+                  stagger: 0.04,
+                  duration: 0.22,
+                  ease: 'back.out(3)',
+                  textShadow: '0 0 35px rgba(255,255,255,0.85)'
+                });
+              }
+            }}
+            onMouseLeave={() => {
+              if (dreamTitleRef.current) {
+                const words = dreamTitleRef.current.querySelectorAll('.kinetic-word');
+                gsap.to(words, {
+                  scale: 1,
+                  y: 0,
+                  stagger: 0.03,
+                  duration: 0.35,
+                  ease: 'elastic.out(1, 0.4)',
+                  textShadow: 'none'
+                });
+              }
+            }}
+          >
+            <span className="kinetic-word inline-block will-change-transform">FIND</span>
+            <span className="kinetic-word inline-block will-change-transform">YOUR</span>
+            <span className="kinetic-word inline-block will-change-transform text-white">DREAM</span>
+            <span className="kinetic-word inline-block will-change-transform">HOME</span>
           </h1>
         </div>
 

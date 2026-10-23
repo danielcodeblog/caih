@@ -31,47 +31,94 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
   const [selectedProject, setSelectedProject] = useState<string>(initialProject || '');
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
     // Read ?project= from query params or location state if provided
     const params = new URLSearchParams(location.search);
     const queryProj = params.get('project');
     const stateProj = (location.state as { project?: string })?.project;
 
     if (queryProj) {
-      setSelectedProject(decodeURIComponent(queryProj));
+      const decoded = decodeURIComponent(queryProj);
+      setSelectedProject(decoded);
+      setTimeout(() => {
+        const el = document.getElementById('contact-inspection-form');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     } else if (stateProj) {
       setSelectedProject(stateProj);
-    } else if (initialProject) {
-      setSelectedProject(initialProject);
+      setTimeout(() => {
+        const el = document.getElementById('contact-inspection-form');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [location, initialProject]);
 
   return (
     <div className="flex flex-col w-full bg-white">
-      {/* 1. HERO SECTION */}
-      <section className="relative w-full bg-white pt-28 sm:pt-32 pb-16 lg:pb-20 border-b border-[#E2E8F0] overflow-hidden">
+      {/* 1. COMPACT HERO SECTION & QUICK DEVELOPER ACTIONS */}
+      <section className="relative w-full bg-white pt-20 sm:pt-24 pb-8 sm:pb-10 border-b border-[#E2E8F0] overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000f22_1px,transparent_1px)] [background-size:24px_24px]"></div>
         
         <div className="relative max-w-[1440px] mx-auto px-6 sm:px-8">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl lg:text-[56px] lg:leading-[1.12] text-[#000f22] tracking-tight font-extrabold mb-5">
-              Contact <span className="text-[#b7102a]">Caih Group</span>
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-[#000f22] tracking-tight font-extrabold mb-3">
+              Direct Developer Desk <span className="text-[#b7102a]">&amp; Consultation</span>
             </h1>
             
-            <p className="text-base sm:text-lg text-[#475569] max-w-2xl leading-relaxed">
-              Connect directly with our corporate advisory desk, schedule private on-site estate walkthroughs, or visit our Lagos headquarters.
+            <p className="text-sm sm:text-base text-[#475569] max-w-2xl leading-relaxed">
+              Book private on-site inspections, verify certified title deeds, or speak immediately with senior Caih Group engineers and property advisors.
             </p>
+
+            {/* Quick One-Touch Action Dock */}
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+              <a
+                href={`tel:${BRAND_ASSETS.phoneClean}`}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#000f22] text-white text-xs font-bold hover:bg-[#b7102a] transition-colors shadow-xs"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Call Hotline: {BRAND_ASSETS.phone}</span>
+              </a>
+              <a
+                href={`https://wa.me/${BRAND_ASSETS.phoneClean.replace('+', '')}?text=${encodeURIComponent('Hello Caih Group, I would like to speak with the Developer Desk and schedule an inspection.')}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-xs"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Chat on WhatsApp</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 2. DIRECT CONTACT CHANNELS & HEADQUARTERS DETAILS */}
-      <section className="w-full bg-[#F8FAFC] py-14 border-b border-[#E2E8F0]">
+      {/* 2. DIRECT DEVELOPER DESK & SITE INSPECTION BOOKING (PROMINENT AT TOP) */}
+      <div id="contact-inspection-form" className="scroll-mt-20">
+        <InspectionForm
+          initialProject={selectedProject || 'Appleton Enclave (Idera)'}
+        />
+      </div>
+
+      {/* 3. DIRECT CONTACT CHANNELS & HEADQUARTERS DETAILS */}
+      <section className="w-full bg-[#F8FAFC] py-14 border-t border-b border-[#E2E8F0]">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#b7102a] block mb-1">
+              Physical Location &amp; Channels
+            </span>
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#000f22] tracking-tight">
+              Corporate Headquarters &amp; Executive Desks
+            </h2>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Card 1: Lagos Headquarters */}
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-[#b7102a]/10 text-[#b7102a] flex items-center justify-center mb-5">
                   <MapPin className="w-6 h-6" />
@@ -103,22 +150,22 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
             </div>
 
             {/* Card 2: Telephone & WhatsApp Hotline */}
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-5">
                   <Phone className="w-6 h-6" />
                 </div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#94A3B8] block mb-1">
-                  Direct Line & WhatsApp
+                  Direct Line &amp; WhatsApp
                 </span>
                 <h3 className="text-lg font-extrabold text-[#000f22] mb-3">
-                  Advisory Hotline
+                  Developer Hotline
                 </h3>
                 <p className="text-base sm:text-lg font-bold text-[#b7102a] mb-2">
                   {BRAND_ASSETS.phone}
                 </p>
                 <p className="text-xs text-[#475569] leading-relaxed mb-4">
-                  Direct consultation with senior real estate analysts, plot reservation status, and immediate title verification.
+                  Immediate consultation with senior project engineers, plot reservation status, and sovereign title verification.
                 </p>
               </div>
 
@@ -143,7 +190,7 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
             </div>
 
             {/* Card 3: Executive Email Desk */}
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center mb-5">
                   <Mail className="w-6 h-6" />
@@ -152,13 +199,13 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
                   Official Inquiries
                 </span>
                 <h3 className="text-lg font-extrabold text-[#000f22] mb-3">
-                  Corporate Inquiries
+                  Corporate Advisory Desk
                 </h3>
                 <p className="text-sm font-bold text-[#000f22] mb-2 truncate">
                   {BRAND_ASSETS.email}
                 </p>
                 <p className="text-xs text-[#475569] leading-relaxed mb-4">
-                  For institutional acquisitions, diaspora client inquiries, EPC joint ventures, and official surveyor inquiries.
+                  For institutional acquisitions, diaspora client inquiries, EPC joint ventures, and certified surveyor due diligence.
                 </p>
                 <div className="flex items-center gap-2 text-xs text-emerald-700 font-semibold pt-2 border-t border-slate-100">
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
@@ -178,23 +225,16 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
         </div>
       </section>
 
-      {/* 3. SITE INSPECTION BOOKING & FORM SECTION */}
-      <div id="contact-inspection-form">
-        <InspectionForm
-          initialProject={selectedProject || 'Appleton Enclave (Idera)'}
-        />
-      </div>
-
       {/* 4. FREQUENTLY ASKED QUESTIONS REGARDING INSPECTIONS & VISITS */}
       <section className="w-full bg-white py-16 border-t border-[#E2E8F0]">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-10">
               <span className="text-[11px] uppercase tracking-wider font-bold text-[#b7102a] block mb-1">
-                Transparency & Process
+                Transparency &amp; Process
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#000f22] tracking-tight">
-                Site Inspection & Acquisition Advisory
+              <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#000f22] tracking-tight">
+                Site Inspection &amp; Acquisition Advisory
               </h2>
             </div>
 
@@ -229,18 +269,6 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
                 </p>
               </div>
             </div>
-
-            {onNavigateToProjects && (
-              <div className="mt-8 text-center">
-                <button
-                  onClick={onNavigateToProjects}
-                  className="inline-flex items-center gap-2 text-xs font-bold text-[#b7102a] hover:text-[#000f22] transition-colors cursor-pointer"
-                >
-                  <span>Browse Available Estates and Plot Inventory</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </section>

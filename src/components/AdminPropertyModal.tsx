@@ -229,9 +229,9 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
         priceDisplay: newUnitPrice.trim(),
         deposit: newUnitDeposit.trim(),
         description: newUnitDesc.trim(),
-        paymentType: 'Direct Allocation',
+        paymentType: 'Milestone Spread',
         isPopular: current.length === 0,
-        features: ['Governor’s Consent', 'Fully Serviced Infrastructure', '100% Dry Land']
+        features: ['Governor’s Consent', 'Fully Serviced', 'Verified Sovereign Title']
       };
       current.push(newUnit);
     }
@@ -370,11 +370,11 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
         {/* Navigation Tabs */}
         <div className="px-6 border-b border-[#E2E8F0] bg-[#F8FAFC] flex items-center gap-2 overflow-x-auto shrink-0 py-2">
           {[
-            { id: 'basic', label: '1. Core Details & Location', icon: Building2 },
+            { id: 'basic', label: '1. Core Details & Address', icon: Building2 },
             { id: 'pricing', label: '2. Pricing & Terms', icon: DollarSign },
             { id: 'specs', label: '3. Architecture & Specs', icon: Layers },
             { id: 'media', label: '4. Photos & Video Tour', icon: ImageIcon },
-            { id: 'features', label: '5. Amenities & Narrative', icon: Star },
+            { id: 'features', label: '5. Key Features', icon: Star },
             { id: 'units', label: '6. SQM Pricing Breakdown', icon: Layers }
           ].map(tab => {
             const Icon = tab.icon;
@@ -482,7 +482,7 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
 
                 <div>
                   <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">
-                    Full Location / Street Address <span className="text-red-500">*</span>
+                    Property Address <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -492,6 +492,9 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                     placeholder="e.g. Emmanuel Akachukwu St, Ajiwe, Abraham Adesanya, Lekki"
                     className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
                   />
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Official address shown in the Property Snapshot and project overview.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -725,16 +728,16 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider block mb-1">
-                      Land &amp; Topography Type
+                      Property Address
                     </label>
                     <input
                       type="text"
-                      value={formData.specs?.landType || ''}
+                      value={formData.location}
                       onChange={e => setFormData({
                         ...formData,
-                        specs: { ...formData.specs, landType: e.target.value }
+                        location: e.target.value
                       })}
-                      placeholder="e.g. 100% Dry Table Land"
+                      placeholder="e.g. Emmanuel Akachukwu St, Ajiwe, Lekki"
                       className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
                     />
                   </div>

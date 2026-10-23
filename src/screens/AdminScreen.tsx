@@ -672,7 +672,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
       ],
       priceDisplay: '',
       priceSub: '12 Months Flexible Milestone Spread',
-      paymentType: 'Direct Allocation & Installments',
+      paymentType: 'Flexible Milestone Spread',
       handoverDate: 'December 2026',
       startingDeposit: '₦10,000,000',
       specs: {
