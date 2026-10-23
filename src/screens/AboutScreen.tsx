@@ -144,9 +144,6 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                 The Three Structural Pillars of Caih Group
               </h2>
             </div>
-            <p className="text-sm text-[#475569] max-w-md leading-relaxed">
-              Integrating master-planned real estate (Caih Properties), turnkey contracting (Caih Contractors), and heavy industrial building resources (Caih Resources) into a unified sovereign powerhouse.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

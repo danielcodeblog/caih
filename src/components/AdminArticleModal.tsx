@@ -581,7 +581,11 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
                 {!isCreating && onDelete && formData && (
                   <button
                     type="button"
-                    onClick={() => onDelete(formData.id)}
+                    onClick={() => {
+                      const idToDelete = formData.id;
+                      onClose();
+                      onDelete(idToDelete);
+                    }}
                     className="px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-600 hover:text-white text-red-600 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-red-200 hover:border-red-600"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

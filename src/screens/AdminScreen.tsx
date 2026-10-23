@@ -506,7 +506,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     setAuthError(null);
   };
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'properties' | 'blog' | 'newsletter' | 'inquiries' | 'database' | 'admins'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'properties' | 'blog' | 'newsletter' | 'inquiries' | 'admins'>('dashboard');
   const [activeSqlTab, setActiveSqlTab] = useState<'auth' | 'full' | 'appleton'>('appleton');
   const [copiedSchema, setCopiedSchema] = useState(false);
   const [copiedAppletonSql, setCopiedAppletonSql] = useState(false);
@@ -1143,20 +1143,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 
           <div className="flex flex-wrap items-center gap-3">
             <button
-              onClick={() => setActiveTab('database')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 cursor-pointer shadow-sm ${
-                isSupabaseConfigured()
-                  ? 'bg-emerald-950/70 border-emerald-500/50 text-emerald-300 hover:bg-emerald-900/80'
-                  : 'bg-amber-950/70 border-amber-500/50 text-amber-300 hover:bg-amber-900/80'
-              }`}
-              title={isSupabaseConfigured() ? 'Database Connected' : 'Database Disconnected - Click to Connect'}
-            >
-              <Database className="w-3.5 h-3.5" />
-              <span>{isSupabaseConfigured() ? 'Database Connected' : 'Database Disconnected'}</span>
-              <span className={`w-2 h-2 rounded-full ${isSupabaseConfigured() ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
-            </button>
-
-            <button
               onClick={() => onNavigate('home')}
               className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/15 cursor-pointer"
             >
@@ -1240,23 +1226,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           >
             <Users className="w-4 h-4 text-[#b7102a]" />
             <span>Team Accounts ({adminUsers.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('database')}
-            className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
-              activeTab === 'database'
-                ? 'bg-[#000f22] text-white shadow-sm'
-                : 'bg-white text-[#64748B] hover:bg-slate-100 hover:text-[#000f22] border border-[#E2E8F0]'
-            }`}
-          >
-            <Database className="w-4 h-4 text-emerald-600" />
-            <span>Database &amp; Sync</span>
-            {isSupabaseConfigured() ? (
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-1" title="Connected"></span>
-            ) : (
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 ml-1">Offline</span>
-            )}
           </button>
         </div>
 
@@ -1643,241 +1612,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           </div>
         )}
 
-        {/* TAB 5: SUPABASE & SQL DATABASE */}
-        {activeTab === 'database' && (
-          <div className="space-y-8 animate-fadeIn">
-            {/* Interactive Database Connector */}
-            <DatabaseConnector />
 
-            <div className="bg-white p-6 rounded-2xl border border-[#CBD5E1] shadow-xs">
-              <h3 className="font-extrabold text-sm text-[#000f22] mb-2">Seed Database</h3>
-              <p className="text-xs text-slate-600 mb-4">
-                Push all property and article content from the app to the database.
-              </p>
-              <button
-                onClick={async () => {
-                  if (confirm('Are you sure you want to seed the database with mock content? This will overwrite existing records.')) {
-                    const res = await seedDatabase();
-                    alert(res.message);
-                  }
-                }}
-                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md"
-              >
-                <Database className="w-4 h-4" />
-                <span>Seed Properties & Articles</span>
-              </button>
-            </div>
-
-            {/* SQL Schema Script Box with One-Click Copy */}
-            <div className="bg-[#000f22] text-white rounded-2xl border border-slate-800 p-6 sm:p-8 shadow-xl">
-              {/* Tab Selector for SQL Script */}
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
-                <div className="flex items-center gap-2 p-1 bg-slate-900 rounded-xl border border-slate-800">
-                  <button
-                    onClick={() => setActiveSqlTab('appleton')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                      activeSqlTab === 'appleton'
-                        ? 'bg-[#b7102a] text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    <Building2 className="w-3.5 h-3.5" />
-                    <span>Appleton Gardens SQL (Only)</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveSqlTab('auth')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                      activeSqlTab === 'auth'
-                        ? 'bg-[#b7102a] text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    <KeyRound className="w-3.5 h-3.5" />
-                    <span>Admin Signup &amp; Login SQL</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveSqlTab('full')}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                      activeSqlTab === 'full'
-                        ? 'bg-[#b7102a] text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    <Database className="w-3.5 h-3.5" />
-                    <span>Complete Estate Schema SQL</span>
-                  </button>
-                </div>
-
-                {activeSqlTab === 'appleton' ? (
-                  <button
-                    onClick={handleCopyAppletonSql}
-                    className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md ${
-                      copiedAppletonSql
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-[#b7102a] hover:bg-[#db313f] text-white'
-                    }`}
-                  >
-                    {copiedAppletonSql ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    <span>{copiedAppletonSql ? 'Appleton Gardens SQL Copied!' : 'Copy Appleton Gardens SQL'}</span>
-                  </button>
-                ) : activeSqlTab === 'auth' ? (
-                  <button
-                    onClick={handleCopyAuthSql}
-                    className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md ${
-                      copiedAuthSql
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-[#b7102a] hover:bg-[#db313f] text-white'
-                    }`}
-                  >
-                    {copiedAuthSql ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    <span>{copiedAuthSql ? 'Auth SQL Copied!' : 'Copy Admin Auth SQL'}</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleCopySchema}
-                    className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md ${
-                      copiedSchema
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-[#b7102a] hover:bg-[#db313f] text-white'
-                    }`}
-                  >
-                    {copiedSchema ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    <span>{copiedSchema ? 'Full SQL Copied!' : 'Copy Full Schema SQL'}</span>
-                  </button>
-                )}
-              </div>
-
-              {activeSqlTab === 'appleton' ? (
-                <div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#b7102a] text-white flex items-center justify-center shrink-0">
-                      <Building2 className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-extrabold uppercase tracking-wide">
-                        Appleton Gardens Property SQL (supabase/appleton_gardens_property.sql)
-                      </h4>
-                      <p className="text-[11px] text-slate-400">
-                        Inserts / Upserts exclusively <code className="text-emerald-400 font-mono">Appleton Gardens</code> into <code className="text-emerald-400 font-mono">public.properties</code> with 300sqm (₦40M), 500sqm (₦75M), 1,000sqm (₦160M) plots, Taj Bank details, specs, and FAQs.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-xl bg-[#030712] border border-slate-800 p-4 font-mono text-[11px] text-emerald-400 max-h-96 overflow-y-auto leading-relaxed">
-                    <pre>{APPLETON_GARDENS_PROPERTY_SQL}</pre>
-                  </div>
-                </div>
-              ) : activeSqlTab === 'auth' ? (
-                <div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#b7102a] text-white flex items-center justify-center shrink-0">
-                      <KeyRound className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-extrabold uppercase tracking-wide">
-                        Admin Signup &amp; Login SQL Schema (src/data/adminAuthSql.ts)
-                      </h4>
-                      <p className="text-[11px] text-slate-400">
-                        Creates <code className="text-emerald-400 font-mono">public.admin_users</code>, pgcrypto bcrypt password hashing, stored procedures <code className="text-emerald-400 font-mono">admin_signup()</code> &amp; <code className="text-emerald-400 font-mono">admin_login()</code>, and auth sync triggers.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-xl bg-[#030712] border border-slate-800 p-4 font-mono text-[11px] text-emerald-400 max-h-96 overflow-y-auto leading-relaxed">
-                    <pre>{ADMIN_AUTH_SQL}</pre>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#b7102a] text-white flex items-center justify-center shrink-0">
-                      <Code2 className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-extrabold uppercase tracking-wide">
-                        Complete Drop-in Relational Schema (supabase/schema.sql)
-                      </h4>
-                      <p className="text-[11px] text-slate-400">
-                        Creates all 8 relational tables (properties, articles, inspections, subscribers, broadcasts, realtors, inquiries, admin_users), RLS, and seed data.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-xl bg-[#030712] border border-slate-800 p-4 font-mono text-[11px] text-emerald-400 max-h-96 overflow-y-auto leading-relaxed">
-                    <pre>{SUPABASE_SCHEMA_SQL}</pre>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Database Tables Overview Cards */}
-            <div className="bg-white rounded-2xl border border-[#CBD5E1] p-6 sm:p-8 shadow-xs">
-              <h4 className="text-base font-extrabold text-[#000f22] mb-4 flex items-center gap-2">
-                <Database className="w-4 h-4 text-[#b7102a]" />
-                <span>Supabase Schema Entity Directory</span>
-              </h4>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-bold text-[#b7102a]">public.properties</span>
-                    <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-semibold">Table</span>
-                  </div>
-                  <p className="text-xs text-slate-600">
-                    Estates and developments catalog (Appleton Enclave, Appleton Court, Appleton Haven) including pricing, payment milestones, and specifications.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-bold text-[#b7102a]">public.inspections</span>
-                    <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-semibold">Table</span>
-                  </div>
-                  <p className="text-xs text-slate-600">
-                    Prospective investor site walkthrough bookings submitted via the web app with phone, date, status, and target project.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-bold text-[#b7102a]">public.newsletter_subscribers</span>
-                    <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-semibold">Table</span>
-                  </div>
-                  <p className="text-xs text-slate-600">
-                    Client newsletter subscriber emails with interest tags (all, diaspora, residential, plots) and acquisition sources.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-bold text-[#b7102a]">public.articles</span>
-                    <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-semibold">Table</span>
-                  </div>
-                  <p className="text-xs text-slate-600">
-                    Real estate intelligence dispatches, C of O verification updates, market analyses, and infrastructure reports.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-bold text-[#b7102a]">public.realtor_registrations</span>
-                    <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-semibold">Table</span>
-                  </div>
-                  <p className="text-xs text-slate-600">
-                    Realtor network partner registration applications, agency details, experience, and commission verification.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-bold text-[#b7102a]">public.contact_messages</span>
-                    <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-semibold">Table</span>
-                  </div>
-                  <p className="text-xs text-slate-600">
-                    General corporate desk inquiries, investment proposals, and customer service requests with status tracking.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* TAB 6: ADMIN ACCOUNTS & ACCESS */}
         {activeTab === 'admins' && (
