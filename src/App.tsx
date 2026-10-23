@@ -114,9 +114,12 @@ export default function App() {
     };
     loadRemoteData();
 
+    window.addEventListener('caih_supabase_config_changed', loadRemoteData);
+
     return () => {
       window.removeEventListener('caih_projects_updated', handleProjectsUpdated);
       window.removeEventListener('caih_articles_updated', handleArticlesUpdated);
+      window.removeEventListener('caih_supabase_config_changed', loadRemoteData);
     };
   }, []);
 

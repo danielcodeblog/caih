@@ -30,6 +30,10 @@ import {
   Users
 } from 'lucide-react';
 
+import { fetchArticlesFromSupabase, isSupabaseConfigured } from '../lib/supabase';
+import { saveStoredArticles } from '../utils/articlesStore';
+import { Database } from 'lucide-react';
+
 interface BlogScreenProps {
   articles?: Article[];
   selectedArticleId?: string | null;
@@ -58,13 +62,35 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
   }, [passedArticles]);
 
   useEffect(() => {
+    const fetchLiveArticles = async () => {
+      if (isSupabaseConfigured()) {
+        try {
+          const remoteArticles = await fetchArticlesFromSupabase();
+          if (remoteArticles && remoteArticles.length > 0) {
+            setArticlesList(remoteArticles);
+            saveStoredArticles(remoteArticles);
+          }
+        } catch (err) {
+          console.warn('BlogScreen remote fetch note:', err);
+        }
+      }
+    };
+
+    fetchLiveArticles();
+
     const handleArticlesUpdate = (e: any) => {
       if (e.detail && Array.isArray(e.detail)) {
         setArticlesList(e.detail);
       }
     };
+
     window.addEventListener('caih_articles_updated', handleArticlesUpdate);
-    return () => window.removeEventListener('caih_articles_updated', handleArticlesUpdate);
+    window.addEventListener('caih_supabase_config_changed', fetchLiveArticles);
+
+    return () => {
+      window.removeEventListener('caih_articles_updated', handleArticlesUpdate);
+      window.removeEventListener('caih_supabase_config_changed', fetchLiveArticles);
+    };
   }, []);
 
   const { id: paramArticleId } = useParams<{ id: string }>();

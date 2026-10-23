@@ -52,6 +52,7 @@ export const DatabaseConnector: React.FC<DatabaseConnectorProps> = ({
       inspections: boolean;
       subscribers: boolean;
       projects: boolean;
+      articles: boolean;
       contactMessages: boolean;
     };
   } | null>(null);
@@ -402,6 +403,17 @@ export const DatabaseConnector: React.FC<DatabaseConnectorProps> = ({
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${testResult.tables.projects ? 'bg-emerald-600' : 'bg-amber-600'}`} />
                   <span>projects</span>
+                </div>
+
+                <div
+                  className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-medium flex items-center gap-1.5 ${
+                    testResult.tables.articles
+                      ? 'bg-emerald-100/60 text-emerald-800 border-emerald-300'
+                      : 'bg-amber-100/60 text-amber-800 border-amber-300'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${testResult.tables.articles ? 'bg-emerald-600' : 'bg-amber-600'}`} />
+                  <span>articles (blog)</span>
                 </div>
 
                 <div

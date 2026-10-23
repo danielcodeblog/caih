@@ -155,6 +155,7 @@ export const testSupabaseConnection = async (
     inspections: boolean;
     subscribers: boolean;
     projects: boolean;
+    articles: boolean;
     contactMessages: boolean;
   };
 }> => {
@@ -177,14 +178,16 @@ export const testSupabaseConnection = async (
       inspections: false,
       subscribers: false,
       projects: false,
+      articles: false,
       contactMessages: false,
     };
 
-    const [adminRes, inspRes, subsRes, projRes, msgRes] = await Promise.allSettled([
+    const [adminRes, inspRes, subsRes, projRes, artRes, msgRes] = await Promise.allSettled([
       testClient.from('admin_users').select('id').limit(1),
       testClient.from('inspections').select('id').limit(1),
       testClient.from('newsletter_subscribers').select('id').limit(1),
       testClient.from('properties').select('id').limit(1),
+      testClient.from('articles').select('id').limit(1),
       testClient.from('contact_messages').select('id').limit(1),
     ]);
 
@@ -192,6 +195,7 @@ export const testSupabaseConnection = async (
     if (inspRes.status === 'fulfilled' && !inspRes.value.error) tablesCheck.inspections = true;
     if (subsRes.status === 'fulfilled' && !subsRes.value.error) tablesCheck.subscribers = true;
     if (projRes.status === 'fulfilled' && !projRes.value.error) tablesCheck.projects = true;
+    if (artRes.status === 'fulfilled' && !artRes.value.error) tablesCheck.articles = true;
     if (msgRes.status === 'fulfilled' && !msgRes.value.error) tablesCheck.contactMessages = true;
 
     const latencyMs = Date.now() - start;
@@ -446,10 +450,10 @@ export const fetchArticlesFromSupabase = async (): Promise<Article[]> => {
       image: row.image,
       videoUrl: row.video_url || row.videoUrl,
       excerpt: row.excerpt || '',
-      content: row.content || [],
+      content: normalizeStringArray(row.content),
       sections: row.sections || [],
-      keyTakeaways: row.key_takeaways || row.keyTakeaways || [],
-      featured: row.featured || false
+      keyTakeaways: normalizeStringArray(row.key_takeaways ?? row.keyTakeaways),
+      featured: Boolean(row.featured)
     }));
   } catch (err) {
     console.warn('fetchArticlesFromSupabase error:', err);
@@ -575,7 +579,10 @@ export const upsertArticleToSupabase = async (
   if (!isSupabaseConfigured()) return;
   try {
     const client = getClient();
-    const { error } = await client.from('articles').upsert({
+    const cleanContent = normalizeStringArray(art.content);
+    const cleanKeyTakeaways = normalizeStringArray(art.keyTakeaways);
+
+    const payload: any = {
       id: art.id,
       title: art.title,
       category: art.category,
@@ -584,15 +591,28 @@ export const upsertArticleToSupabase = async (
       date: art.date,
       author: art.author,
       image: art.image,
-      video_url: art.videoUrl,
+      video_url: art.videoUrl || null,
       excerpt: art.excerpt,
-      content: art.content,
-      sections: art.sections,
-      key_takeaways: art.keyTakeaways,
-      featured: art.featured
-    });
+      content: cleanContent,
+      sections: art.sections || [],
+      key_takeaways: cleanKeyTakeaways,
+      featured: Boolean(art.featured)
+    };
+
+    let { error } = await client.from('articles').upsert(payload);
     if (error) {
-      console.warn('Error upserting article to Supabase:', error);
+      console.warn('Error upserting article to Supabase:', error.message);
+      const corePayload = {
+        id: art.id,
+        title: art.title,
+        category: art.category,
+        image: art.image,
+        excerpt: art.excerpt,
+        content: cleanContent
+      };
+      await client.from('articles').upsert(corePayload);
+    } else {
+      console.info('Article successfully upserted to Supabase database.');
     }
   } catch (err) {
     console.warn('Error upserting article to Supabase:', err);
