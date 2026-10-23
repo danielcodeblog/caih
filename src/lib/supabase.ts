@@ -242,12 +242,10 @@ export const upsertAdminUserToSupabase = async (admin: {
 
     const { error } = await client.from('admin_users').upsert(payload, { onConflict: 'email' });
     if (error) {
-      console.warn('upsertAdminUserToSupabase note (if admin_users table lacks column or constraint):', error.message);
-    } else {
-      console.info(`Successfully synced admin user '${cleanEmail}' to Supabase admin_users table.`);
+      // RLS policy notice or restriction (handled gracefully by fallback local auth)
     }
   } catch (err) {
-    console.warn('upsertAdminUserToSupabase exception:', err);
+    // Suppress network/RLS exception
   }
 };
 
@@ -264,42 +262,37 @@ export const signInAdmin = async (
     };
   }
 
-  // 1. Check Supabase database if configured
+  // 1. Check Supabase database via secure admin_login RPC if configured
   if (isSupabaseConfigured()) {
     try {
       const client = getClient();
-      const { data, error } = await client
-        .from('admin_users')
-        .select('*')
-        .eq('email', cleanEmail)
-        .maybeSingle();
+      const { data, error } = await client.rpc('admin_login', {
+        p_email: cleanEmail,
+        p_password: pass
+      });
 
-      if (!error && data) {
+      if (!error && data && data.success) {
+        const adminData = data.admin || {};
         const authenticatedAdmin = {
-          id: data.id || 'admin_' + Date.now(),
-          name: data.name || (cleanEmail === 'danielsamuel1662@gmail.com' ? 'Director Daniel Samuel' : 'Administrator'),
-          email: data.email || cleanEmail,
-          role: data.role || 'Managing Director',
-          createdAt: data.created_at || data.createdAt || new Date().toISOString().split('T')[0],
+          id: adminData.id || 'admin_' + Date.now(),
+          name: adminData.name || 'Director Daniel Samuel',
+          email: adminData.email || cleanEmail,
+          role: adminData.role || 'Managing Director',
+          createdAt: adminData.createdAt || new Date().toISOString().split('T')[0],
         };
-
-        // Sync locally
-        try {
-          const saved = localStorage.getItem('caih_admin_users');
-          const admins = saved ? JSON.parse(saved) : [];
-          if (!admins.some((u: any) => u.email?.toLowerCase() === cleanEmail)) {
-            admins.push({ ...authenticatedAdmin, password: pass });
-            localStorage.setItem('caih_admin_users', JSON.stringify(admins));
-          }
-        } catch (e) {}
 
         return {
           success: true,
           admin: authenticatedAdmin
         };
+      } else if (data && data.success === false) {
+        return {
+          success: false,
+          error: data.error || 'Invalid administrative credentials.'
+        };
       }
     } catch (e) {
-      console.warn('Supabase admin lookup note:', e);
+      console.warn('Supabase admin_login RPC note:', e);
     }
   }
 
