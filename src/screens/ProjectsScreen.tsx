@@ -15,7 +15,9 @@ import {
   ShieldCheck,
   Search,
   Star,
-  Video
+  Video,
+  Compass,
+  Layers
 } from 'lucide-react';
 
 interface ProjectsScreenProps {
@@ -85,10 +87,36 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
     selectedProjectForInspection || 'Appleton Enclave (Idera)'
   );
 
+  // High-level category mode: 'all' | 'property' | 'land'
+  const [categoryMode, setCategoryMode] = useState<'all' | 'property' | 'land'>(() => {
+    if (initialFilter?.type) {
+      const t = initialFilter.type.toLowerCase();
+      if (t.includes('plot') || t.includes('land')) return 'land';
+      if (t.includes('residential') || t.includes('commercial')) return 'property';
+    }
+    return 'all';
+  });
+
+  const propertyCount = useMemo(() => {
+    return (projects || []).filter((p) => p.propertyType !== 'plots').length;
+  }, [projects]);
+
+  const landCount = useMemo(() => {
+    return (projects || []).filter((p) => p.propertyType === 'plots').length;
+  }, [projects]);
+
   const flagship = projects[0];
 
   const filteredProjects = useMemo(() => {
     const list = (Array.isArray(projects) ? projects : []).filter((p) => {
+      // Differentiate Land vs Property category filter
+      if (categoryMode === 'land' && p.propertyType !== 'plots') {
+        return false;
+      }
+      if (categoryMode === 'property' && p.propertyType === 'plots') {
+        return false;
+      }
+
       // Keyword match
       if (keywordFilter.trim()) {
         const query = keywordFilter.toLowerCase();
@@ -97,7 +125,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
         const matchesSummary = p.summary.toLowerCase().includes(query);
         if (!matchesTitle && !matchesLocation && !matchesSummary) return false;
       }
-
 
       // Status filter
       if (activeStatus !== 'all' && p.status !== activeStatus) return false;
@@ -134,7 +161,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
         if (
           t.includes('industrial') &&
           p.propertyType !== 'industrial' &&
-          !p.keyFeatures.some((k) => k.toLowerCase().includes('warehouse') || k.toLowerCase().includes('logistics'))
+          !(Array.isArray(p.keyFeatures) && p.keyFeatures.some((k) => k.toLowerCase().includes('warehouse') || k.toLowerCase().includes('logistics')))
         ) return false;
       }
 
@@ -153,7 +180,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
       return true;
     });
     return sortProjectsByCanonicalOrder(list);
-  }, [projects, activeStatus, locationFilter, typeFilter, bedsFilter, keywordFilter, priceFilter]);
+  }, [projects, categoryMode, activeStatus, locationFilter, typeFilter, bedsFilter, keywordFilter, priceFilter]);
 
   const scrollToBooking = (projectTitle: string) => {
     if (onBookInspection) {
@@ -180,28 +207,131 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
 
           {/* VCH Interactive Filter Ribbon & Multi-tier Search Dock */}
           <div className="mt-10 max-w-5xl mx-auto bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-3 md:p-4 flex flex-col gap-3">
-            {/* Status Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto w-full pb-1 border-b border-[#E2E8F0]">
-              {[
-                { id: 'all', label: 'All Projects' },
-                { id: 'upcoming', label: 'Upcoming Projects' },
-                { id: 'ongoing', label: 'Ongoing Off-Plan' },
-                { id: 'completed', label: 'Completed & Delivered' },
-                { id: 'sites', label: 'Sites & Services' },
-                { id: 'civil', label: 'Commercial & Civil' }
-              ].map((pill) => (
-                <button
-                  key={pill.id}
-                  onClick={() => setActiveStatus(pill.id)}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                    activeStatus === pill.id
-                      ? 'bg-[#000f22] text-white shadow-sm'
-                      : 'text-[#475569] hover:text-[#000f22] hover:bg-[#F8FAFC]'
-                  }`}
-                >
-                  {pill.label}
-                </button>
-              ))}
+            {/* Status & Asset Type Differentiation Ribbon */}
+            <div className="flex flex-col gap-3 pb-3 border-b border-[#E2E8F0]">
+              {/* Primary Differentiation: Property vs Land vs All */}
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                {/* Segmented Control */}
+                <div className="inline-flex p-1 bg-[#F1F5F9] rounded-xl border border-[#E2E8F0] shadow-inner self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCategoryMode('all');
+                      setTypeFilter('all');
+                    }}
+                    className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg text-xs font-extrabold tracking-wide transition-all cursor-pointer ${
+                      categoryMode === 'all'
+                        ? 'bg-[#000f22] text-white shadow-sm'
+                        : 'text-[#475569] hover:text-[#000f22] hover:bg-white/60'
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>All Developments</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                        categoryMode === 'all' ? 'bg-white/20 text-white' : 'bg-[#E2E8F0] text-[#475569]'
+                      }`}
+                    >
+                      {projects.length}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCategoryMode('property');
+                      if (typeFilter === 'plots') setTypeFilter('all');
+                    }}
+                    className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg text-xs font-extrabold tracking-wide transition-all cursor-pointer ${
+                      categoryMode === 'property'
+                        ? 'bg-[#b7102a] text-white shadow-sm'
+                        : 'text-[#475569] hover:text-[#b7102a] hover:bg-white/60'
+                    }`}
+                  >
+                    <Building className="w-3.5 h-3.5" />
+                    <span>Property / Built Homes</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                        categoryMode === 'property' ? 'bg-white/20 text-white' : 'bg-[#E2E8F0] text-[#475569]'
+                      }`}
+                    >
+                      {propertyCount}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCategoryMode('land');
+                      setTypeFilter('plots');
+                    }}
+                    className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg text-xs font-extrabold tracking-wide transition-all cursor-pointer ${
+                      categoryMode === 'land'
+                        ? 'bg-emerald-700 text-white shadow-sm'
+                        : 'text-[#475569] hover:text-emerald-700 hover:bg-white/60'
+                    }`}
+                  >
+                    <Compass className="w-3.5 h-3.5" />
+                    <span>Land / Serviced Plots</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                        categoryMode === 'land' ? 'bg-white/20 text-white' : 'bg-[#E2E8F0] text-[#475569]'
+                      }`}
+                    >
+                      {landCount}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Explanatory differentiator indicator */}
+                <div className="flex items-center gap-2 text-xs">
+                  {categoryMode === 'land' ? (
+                    <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-900 px-3 py-1.5 rounded-lg text-[11px] font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+                      <span>
+                        <strong className="font-bold text-emerald-950">Land Plots:</strong> 100% Dry Table Land • 300 & 500 SQM • Direct Allocation • Governor’s Consent
+                      </span>
+                    </div>
+                  ) : categoryMode === 'property' ? (
+                    <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-950 px-3 py-1.5 rounded-lg text-[11px] font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-[#b7102a] shrink-0"></span>
+                      <span>
+                        <strong className="font-bold text-[#b7102a]">Housing Developments:</strong> Luxury Terraces & Duplexes • En-Suite Bedrooms • Carcass & Turnkey
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#E2E8F0] text-[#475569] px-3 py-1.5 rounded-lg text-[11px] font-semibold">
+                      <span>Differentiating between built residential estates and registered serviced plots</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Status sub-pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto w-full pt-1">
+                <span className="text-[10px] font-bold uppercase text-[#94A3B8] tracking-wider pr-1 shrink-0">
+                  Stage:
+                </span>
+                {[
+                  { id: 'all', label: categoryMode === 'land' ? 'All Plots' : categoryMode === 'property' ? 'All Homes' : 'All Stages' },
+                  { id: 'ongoing', label: categoryMode === 'land' ? 'Plots on Sale' : 'Ongoing Off-Plan' },
+                  { id: 'upcoming', label: 'Upcoming Phases' },
+                  { id: 'completed', label: categoryMode === 'land' ? 'Fully Allocated' : 'Delivered & Completed' },
+                  { id: 'sites', label: 'Sites & Services' }
+                ].map((pill) => (
+                  <button
+                    key={pill.id}
+                    onClick={() => setActiveStatus(pill.id)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                      activeStatus === pill.id
+                        ? 'bg-[#000f22] text-white shadow-xs'
+                        : 'text-[#475569] hover:text-[#000f22] hover:bg-[#F8FAFC]'
+                    }`}
+                  >
+                    {pill.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Dropdowns Row */}
@@ -340,6 +470,17 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                         alt={project.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
+                      {project.propertyType === 'plots' ? (
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-emerald-700/95 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md">
+                          <Compass className="w-3 h-3" />
+                          <span>Land / Serviced Plot</span>
+                        </span>
+                      ) : (
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#000f22]/95 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md">
+                          <Building className="w-3 h-3 text-[#ffb3b1]" />
+                          <span>Property / Built Home</span>
+                        </span>
+                      )}
                       <span className="absolute top-3 right-3 px-2.5 py-1 rounded bg-white/90 backdrop-blur-sm text-[#000f22] text-xs font-bold">
                         {project.corridor}
                       </span>

@@ -212,12 +212,16 @@ export const DatabaseConnector: React.FC<DatabaseConnectorProps> = ({
         {/* Dashboard Link & Quick Actions */}
         <div className="flex items-center gap-2 shrink-0">
           <a
-            href="https://supabase.com/dashboard"
+            href={
+              (urlInput || config.url)
+                ? `https://supabase.com/dashboard/project/${(urlInput || config.url).replace('https://', '').replace('.supabase.co', '').split('/')[0]}/settings/api`
+                : 'https://supabase.com/dashboard'
+            }
             target="_blank"
             rel="noreferrer"
             className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all border border-[#CBD5E1] flex items-center gap-1.5 cursor-pointer"
           >
-            <span>Supabase Dashboard</span>
+            <span>Supabase API Settings</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
           {isConfigured && (

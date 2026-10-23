@@ -131,9 +131,9 @@ export default function App() {
     if (pathname.startsWith('/blog')) return 'blog';
     if (pathname === '/about-us') return 'about-us';
     if (pathname === '/realtor-registration') return 'realtor-registration';
-    if (pathname === '/contact') return 'contact';
+    if (pathname === '/' || pathname === '/contact') return 'contact';
     if (pathname.startsWith('/admin') || pathname === '/login' || pathname === '/signup') return 'admin';
-    return 'home';
+    return 'contact';
   };
 
   const currentPage = getPageIdFromPath(location.pathname);
@@ -225,15 +225,9 @@ export default function App() {
           <Route
             path="/"
             element={
-              <HomeScreen
-                projects={projects}
-                articles={articles}
-                onNavigate={handleNavigate}
-                onViewProject={handleViewProject}
-                onViewArticle={handleViewArticle}
-                onViewVideo={handleViewVideo}
-                onBookInspection={handleOpenInspectionBooking}
-                onSearchSubmit={handleHeroSearchSubmit}
+              <ContactScreen
+                initialProject={inspectionTargetProject}
+                onNavigateToProjects={() => navigate('/projects')}
               />
             }
           />

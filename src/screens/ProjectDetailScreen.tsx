@@ -25,8 +25,16 @@ import {
   Film,
   Building2,
   HelpCircle,
-  ShieldCheck
+  ShieldCheck,
+  Zap,
+  Droplets,
+  Wifi,
+  Waves,
+  Dumbbell,
+  Home,
+  Trees
 } from 'lucide-react';
+import { normalizeStringArray } from '../lib/supabase';
 
 interface ProjectDetailScreenProps {
   project: Project;
@@ -538,25 +546,63 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
               </p>
             </div>
 
-            {/* Verified Estate Amenities & Key Infrastructure */}
-            {project.keyFeatures && project.keyFeatures.length > 0 && (
-              <div className="pt-5 border-t border-[#E2E8F0]">
-                <h3 className="text-xs uppercase font-extrabold tracking-wider text-[#000f22] mb-3.5">
-                  Verified Estate Amenities & Infrastructure
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {project.keyFeatures.map((feat, fIdx) => (
-                    <div
-                      key={fIdx}
-                      className="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-semibold text-[#1E293B]"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>{feat}</span>
-                    </div>
-                  ))}
+            {/* Key Features & Infrastructure Section */}
+            <div className="pt-5 border-t border-[#E2E8F0]" id="key-features-infrastructure">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3.5">
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-[#b7102a]" />
+                  <h3 className="text-xs uppercase font-extrabold tracking-wider text-[#000f22]">
+                    Key Features &amp; Infrastructure
+                  </h3>
                 </div>
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 w-fit">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>{normalizeStringArray(project.keyFeatures).length} Verified Facilities</span>
+                </span>
               </div>
-            )}
+
+              {normalizeStringArray(project.keyFeatures).length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {normalizeStringArray(project.keyFeatures).map((feat, fIdx) => {
+                    const lower = feat.toLowerCase();
+                    let icon = <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />;
+                    if (lower.includes('power') || lower.includes('solar') || lower.includes('transformer') || lower.includes('electricity') || lower.includes('light')) {
+                      icon = <Zap className="w-4 h-4 text-amber-500 shrink-0" />;
+                    } else if (lower.includes('water') || lower.includes('potable') || lower.includes('drainage')) {
+                      icon = <Droplets className="w-4 h-4 text-sky-500 shrink-0" />;
+                    } else if (lower.includes('security') || lower.includes('cctv') || lower.includes('fence') || lower.includes('armed') || lower.includes('guard')) {
+                      icon = <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />;
+                    } else if (lower.includes('pool') || lower.includes('swimming') || lower.includes('club')) {
+                      icon = <Waves className="w-4 h-4 text-cyan-600 shrink-0" />;
+                    } else if (lower.includes('gym') || lower.includes('fitness') || lower.includes('sport')) {
+                      icon = <Dumbbell className="w-4 h-4 text-indigo-600 shrink-0" />;
+                    } else if (lower.includes('park') || lower.includes('playground') || lower.includes('green') || lower.includes('tree') || lower.includes('land')) {
+                      icon = <Trees className="w-4 h-4 text-emerald-500 shrink-0" />;
+                    } else if (lower.includes('smart') || lower.includes('automation') || lower.includes('internet') || lower.includes('fiber')) {
+                      icon = <Wifi className="w-4 h-4 text-blue-600 shrink-0" />;
+                    } else if (lower.includes('kitchen') || lower.includes('door') || lower.includes('window') || lower.includes('closet') || lower.includes('staircase') || lower.includes('terrace') || lower.includes('roof')) {
+                      icon = <Home className="w-4 h-4 text-slate-700 shrink-0" />;
+                    }
+
+                    return (
+                      <div
+                        key={fIdx}
+                        className="flex items-center gap-2.5 p-3 rounded-xl bg-[#F8FAFC] hover:bg-white border border-[#E2E8F0] hover:border-[#CBD5E1] transition-all text-xs font-semibold text-[#1E293B] shadow-2xs group"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-white group-hover:bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                          {icon}
+                        </div>
+                        <span className="leading-snug">{feat}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
+                  Comprehensive infrastructure and estate amenities are being finalized for this property. Consult our advisory desk for specific parcel configurations.
+                </div>
+              )}
+            </div>
 
             {/* Neighbourhood & Surrounding Landmarks */}
             {project.neighbourhood && project.neighbourhood.length > 0 && (
@@ -611,6 +657,10 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                 <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
                   <span className="text-[#64748B]">Allocation:</span>
                   <span className="font-bold text-[#000f22]">{project.paymentType || 'Direct Physical Allocation'}</span>
+                </div>
+                <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
+                  <span className="text-[#64748B]">Infrastructure:</span>
+                  <span className="font-bold text-emerald-700">{normalizeStringArray(project.keyFeatures).length} Verified Facilities</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#64748B]">Corridor:</span>

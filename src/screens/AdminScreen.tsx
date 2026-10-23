@@ -707,6 +707,9 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     setProjectsList(updated);
     if (isSupabaseConfigured()) {
       await upsertPropertyToSupabase(savedProject, currentAdmin?.id);
+      setDeleteNotice(`Property "${savedProject.title}" saved and synced to Supabase database!`);
+    } else {
+      setDeleteNotice(`Property "${savedProject.title}" saved locally. (Database not connected - configure in Database tab to sync).`);
     }
     setEditingProject(null);
     setIsCreatingProject(false);
@@ -1139,7 +1142,19 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-
+            <button
+              onClick={() => setActiveTab('database')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 cursor-pointer shadow-sm ${
+                isSupabaseConfigured()
+                  ? 'bg-emerald-950/70 border-emerald-500/50 text-emerald-300 hover:bg-emerald-900/80'
+                  : 'bg-amber-950/70 border-amber-500/50 text-amber-300 hover:bg-amber-900/80'
+              }`}
+              title={isSupabaseConfigured() ? 'Database Connected' : 'Database Disconnected - Click to Connect'}
+            >
+              <Database className="w-3.5 h-3.5" />
+              <span>{isSupabaseConfigured() ? 'Database Connected' : 'Database Disconnected'}</span>
+              <span className={`w-2 h-2 rounded-full ${isSupabaseConfigured() ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
+            </button>
 
             <button
               onClick={() => onNavigate('home')}
@@ -1190,7 +1205,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
             }`}
           >
             <FileText className="w-4 h-4" />
-            <span>Blog & Content ({articlesList.length})</span>
+            <span>Blog &amp; Content ({articlesList.length})</span>
           </button>
           <button
             onClick={() => setActiveTab('newsletter')}
@@ -1225,6 +1240,23 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           >
             <Users className="w-4 h-4 text-[#b7102a]" />
             <span>Team Accounts ({adminUsers.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('database')}
+            className={`px-5 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+              activeTab === 'database'
+                ? 'bg-[#000f22] text-white shadow-sm'
+                : 'bg-white text-[#64748B] hover:bg-slate-100 hover:text-[#000f22] border border-[#E2E8F0]'
+            }`}
+          >
+            <Database className="w-4 h-4 text-emerald-600" />
+            <span>Database &amp; Sync</span>
+            {isSupabaseConfigured() ? (
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-1" title="Connected"></span>
+            ) : (
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 ml-1">Offline</span>
+            )}
           </button>
         </div>
 

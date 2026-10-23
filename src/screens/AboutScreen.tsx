@@ -67,35 +67,36 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
 
   return (
     <div className="flex flex-col w-full bg-white">
-      {/* CORPORATE OVERVIEW: CAIH RESOURCES & MEGATRENDS */}
+      {/* CORPORATE OVERVIEW: CAIH PROPERTIES & REAL ESTATE MISSION */}
       <section className="pt-28 sm:pt-32 pb-20 lg:pb-28 bg-white border-b border-[#E2E8F0]">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8">
           <div className="max-w-4xl mx-auto flex flex-col items-start">
               <div className="flex items-center gap-2 text-[#b7102a] mb-3">
+                <Building2 className="w-4 h-4 text-[#b7102a]" />
                 <span className="text-[11px] uppercase tracking-wider font-bold">
-                  Corporate Profile &amp; Mission
+                  About Caih Properties · Real Estate Excellence
                 </span>
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl text-[#000f22] font-extrabold tracking-tight mb-5 leading-tight">
-                Addressing Global Megatrends with Precision Building
+                Crafting Master-Planned Communities &amp; High-Yield Property Investments
               </h2>
 
               <div className="space-y-4 text-[#475569] text-sm sm:text-base leading-relaxed">
                 <p className="font-semibold text-[#000f22] text-base sm:text-lg border-l-4 border-[#b7102a] pl-4 py-0.5">
-                  CAIH Resources is a limited liability company duly registered with the Nigerian Corporate Affairs Commission.
+                  CAIH Properties is a premier real estate development and investment company duly registered with the Corporate Affairs Commission (CAC) Nigeria.
                 </p>
 
                 <p>
-                  Increasing urbanization, changing demographics, climate change are all megatrends that present challenges as well as opportunities. In Nigeria, CAIH Resources is focused on the opportunities arising from these megatrends to deliver cutting edge building and construction works to its ever increasing customers.
+                  Increasing urbanization, changing demographics, and the demand for high-integrity housing in Nigeria are defining megatrends. At CAIH Properties, we transform these dynamics into exceptional opportunities, delivering architecturally refined estates, fully serviced residential plots, and solid, high-appreciating real estate assets to our homeowners and global diaspora investors.
                 </p>
 
                 <p>
-                  We major in the construction of state-of-the-art infrastructure in both green and brown fields. We design and build tailored structures to meet your needs. We also develop site and serviced plots for your housing and other developmental needs. We offer both preventive maintenance as well as curative maintenance services on these infrastructures.
+                  Our landmark developments including Appleton Court, Appleton Enclave, Appleton Gardens, and Appleton Haven stand as benchmarks along Lagos’s prime growth corridors. Every single property is backed by 100% dry table land, verified sovereign title documentation (Governor’s Consent, C of O, Gazette), and fully integrated modern infrastructure including 24/7 security, potable water, and interlocked road networks.
                 </p>
 
                 <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
                   <p className="text-base sm:text-lg font-bold text-[#b7102a] tracking-tight">
-                    &ldquo;By looking into the future, we give our customers a competitive head start.&rdquo;
+                    &ldquo;By looking into the future, we give our property investors and homeowners a definitive, competitive head start.&rdquo;
                   </p>
                 </div>
               </div>
@@ -103,10 +104,18 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
+                  onClick={onNavigateToProjects}
+                  className="px-5 py-3 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                >
+                  <Building2 className="w-4 h-4 text-white" />
+                  <span>Explore All Properties</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setShowCompanyProfileModal(true)}
                   className="px-5 py-3 rounded-xl bg-[#000f22] hover:bg-[#0a2540] text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
-                  <FileText className="w-4 h-4 text-[#b7102a]" />
+                  <FileText className="w-4 h-4 text-[#ffb3b1]" />
                   <span>View Company Profile</span>
                 </button>
                 <button
@@ -137,7 +146,7 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
               </h2>
             </div>
             <p className="text-sm text-[#475569] max-w-md leading-relaxed">
-              Integrating master-planned real estate, turnkey civil construction, and heavy industrial building resources into a unified sovereign powerhouse.
+              Integrating master-planned real estate (Caih Properties), turnkey contracting (Caih Contractors), and heavy industrial building resources (Caih Resources) into a unified sovereign powerhouse.
             </p>
           </div>
 
@@ -181,7 +190,7 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
               <div className="relative h-56 bg-black overflow-hidden group">
                 <iframe
                   src="https://www.youtube.com/embed/ihEzpBhqRjY?autoplay=1&mute=1&loop=1&playlist=ihEzpBhqRjY&controls=0&showinfo=0&rel=0"
-                  title="Caih Construction Video Tour"
+                  title="Caih Contractors Video Tour"
                   className="w-full h-full border-0 pointer-events-none scale-125"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 />
@@ -193,7 +202,7 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                   type="button"
                   onClick={() => setLightboxVideo({
                     url: 'https://www.youtube.com/embed/ihEzpBhqRjY?autoplay=1',
-                    title: 'Caih Construction Video Tour'
+                    title: 'Caih Contractors Video Tour'
                   })}
                   className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-xs cursor-pointer z-20"
                 >
@@ -204,10 +213,10 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
               <div className="p-6 flex flex-col flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <HardHat className="w-5 h-5 text-[#b7102a]" />
-                  <h3 className="text-lg font-bold text-[#000f22]">Caih Construction</h3>
+                  <h3 className="text-lg font-bold text-[#000f22]">Caih Contractors</h3>
                 </div>
                 <p className="text-xs sm:text-sm text-[#475569] leading-relaxed flex-1">
-                  State-of-the-art infrastructure across green and brown fields, tailored structural designs, turnkey contracting, and civil foundation engineering.
+                  Turnkey general contracting, civil infrastructure across green and brown fields, tailored structural designs, and foundation engineering.
                 </p>
               </div>
             </div>
@@ -327,19 +336,13 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                     <p>
                       He is a COREN Registered Engineer and also a Member of the Nigeria Society of Engineers, NSE. He is a Certified Cost Professional and a Certified Green Building Expert. Kayode is a resource person to institutions, religious organizations and a consultant to several others.
                     </p>
-                    <p>
-                      He currently sits on the board of 4 companies majorly in Construction &amp; Real Estate, Telecommunications, Oil &amp; Gas and Healthcare. He has built and project managed some of the biggest and most technical construction projects in the oil and gas industry and for the Nigerian Military. He currently builds and has successfully delivered several construction and housing projects in Nigeria, the USA, and beyond.
-                    </p>
-                    <p className="font-semibold text-[#000f22] pt-2 border-t border-[#E2E8F0]">
-                      He is a husband, father and a lover of Christ.
-                    </p>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* BOARD LEADERS: Dr Paul Olorunfemi & Mr. Obafaiye */}
+          {/* BOARD LEADERS: Dr Paul Olorunfemi & Mr. John Obafaiye */}
           <div className="text-center mb-8">
             <span className="text-xs uppercase font-extrabold text-[#b7102a] tracking-widest block mb-1">
               The People
@@ -672,10 +675,10 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                   Official Corporate Dossier
                 </span>
                 <h3 className="text-xl sm:text-2xl font-extrabold text-[#000f22]">
-                  CAIH Resources Limited
+                  CAIH Properties
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Registered with the Corporate Affairs Commission (CAC) Nigeria
+                  Premier Real Estate Division of Caih Group · CAC Registered
                 </p>
               </div>
             </div>
@@ -684,42 +687,42 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
               <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200">
                 <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#000f22] mb-2 flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  Legal Registration Status
+                  Legal Registration &amp; Title Sanctity
                 </h4>
                 <p>
-                  CAIH Resources is a limited liability company duly registered with the Nigerian Corporate Affairs Commission.
+                  CAIH Properties is a premier real estate development arm duly registered with the Nigerian Corporate Affairs Commission (CAC). Every property project in our portfolio is secured with verifiable statutory titles including Governor’s Consent, Certificate of Occupancy (C of O), and approved layouts.
                 </p>
               </div>
 
               <div>
                 <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#000f22] mb-2">
-                  Addressing Global Megatrends
+                  Addressing Housing &amp; Wealth Megatrends
                 </h4>
                 <p>
-                  Increasing urbanization, changing demographics, climate change are all megatrends that present challenges as well as opportunities. In Nigeria, CAIH Resources is focused on the opportunities arising from these megatrends to deliver cutting edge building and construction works to its ever increasing customers.
+                  Accelerated urbanization and demographic shifts along the Lekki-Epe expressway corridor demand reliable, master-planned living environments. CAIH Properties capitalizes on these dynamics by delivering turnkey luxury homes and fully-serviced residential plots that guarantee substantial capital appreciation and enduring peace of mind.
                 </p>
               </div>
 
               <div>
                 <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#000f22] mb-2">
-                  Core Engineering Capabilities &amp; Infrastructure
+                  Core Property Capabilities &amp; Estate Infrastructure
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>State-of-the-art infrastructure across green and brown fields.</span>
+                    <span>100% dry table land along high-growth Lekki &amp; Ajah corridors.</span>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Custom tailored structural designs to meet client specifications.</span>
+                    <span>Perimeter fencing, interlocked road networks &amp; covered drainage.</span>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Site and serviced plot development for housing and expansion.</span>
+                    <span>Armed security personnel, CCTV coverage &amp; 24/7 power infrastructure.</span>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Comprehensive preventive and curative infrastructure maintenance.</span>
+                    <span>Instant physical allocation with verified documentation.</span>
                   </div>
                 </div>
               </div>
@@ -729,7 +732,7 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                   Corporate Philosophy
                 </span>
                 <p className="text-base font-bold text-white">
-                  &ldquo;By looking into the future, we give our customers a competitive head start.&rdquo;
+                  &ldquo;By looking into the future, we give our property investors and subscribers a definitive competitive head start.&rdquo;
                 </p>
               </div>
 

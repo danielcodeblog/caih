@@ -286,7 +286,7 @@ export const ARTICLES: Article[] = [
         heading: '2. Managing the Construction Delivery Risk',
         paragraphs: [
           'The primary concern for off-plan purchasers is delivery delay or developer default. To eliminate this risk, smart buyers evaluate the developer’s civil engineering capacity, balance sheet, and track record.',
-          'Unlike briefcase promoters who rely solely on third-party contractors, Caih Group integrates its own heavy civil engineering division (Caih Construction) and materials supply chain (Caih Resources). This end-to-end control prevents material shortages and guarantees construction continuity.'
+          'Unlike briefcase promoters who rely solely on third-party contractors, Caih Group integrates its own heavy civil engineering division (Caih Contractors) and materials supply chain (Caih Resources). This end-to-end control prevents material shortages and guarantees construction continuity.'
         ]
       },
       {

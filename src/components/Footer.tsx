@@ -225,7 +225,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
                 }}
                 className="hover:text-white transition-colors cursor-pointer text-left"
               >
-                Caih Construction
+                Caih Contractors
               </button>
             </li>
             <li>

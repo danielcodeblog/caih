@@ -43,6 +43,10 @@ export const getSupabaseConfig = () => {
       url = localUrl;
       anonKey = localKey;
       source = 'local';
+    } else if (localUrl) {
+      url = localUrl;
+    } else {
+      url = 'https://uzsksfhuyheyamrjtnak.supabase.co';
     }
   }
 
@@ -349,6 +353,38 @@ export const deleteAdminUserFromSupabase = async (id: string): Promise<void> => 
 // Properties & Articles Remote Sync
 // ==========================================
 
+export const normalizeStringArray = (val: any): string[] => {
+  if (!val) return [];
+  if (Array.isArray(val)) {
+    return val.filter(Boolean).map(v => (typeof v === 'string' ? v.trim() : String(v)));
+  }
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          return parsed.map(v => String(v).trim()).filter(Boolean);
+        }
+      } catch {}
+    }
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      return trimmed
+        .slice(1, -1)
+        .split(',')
+        .map(s => s.replace(/^"(.*)"$/, '$1').trim())
+        .filter(Boolean);
+    }
+    if (trimmed.includes(',')) {
+      return trimmed.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (trimmed.length > 0) {
+      return [trimmed];
+    }
+  }
+  return [];
+};
+
 export const fetchPropertiesFromSupabase = async (): Promise<Project[]> => {
   if (!isSupabaseConfigured()) return [];
   try {
@@ -372,15 +408,15 @@ export const fetchPropertiesFromSupabase = async (): Promise<Project[]> => {
       specs: row.specs || {},
       summary: row.summary || '',
       detailedDescription: row.detailed_description || row.detailedDescription || '',
-      keyFeatures: row.key_features || row.keyFeatures || [],
+      keyFeatures: normalizeStringArray(row.key_features ?? row.keyFeatures),
       handoverDate: row.handover_date || row.handoverDate,
       paymentType: row.payment_type || row.paymentType,
       startingDeposit: row.starting_deposit || row.startingDeposit,
       unitsOrPlots: row.units_or_plots || row.unitsOrPlots || [],
-      galleryImages: row.gallery_images || row.galleryImages || [],
+      galleryImages: normalizeStringArray(row.gallery_images ?? row.galleryImages),
       faqPdfUrl: row.faq_pdf_url || row.faqPdfUrl,
       mapEmbedUrl: row.map_embed_url || row.mapEmbedUrl,
-      neighbourhood: row.neighbourhood || [],
+      neighbourhood: normalizeStringArray(row.neighbourhood),
       videoList: row.video_list || row.videoList || [],
       paymentTable: row.payment_table || row.paymentTable || [],
       bankingDetails: row.banking_details || row.bankingDetails,
@@ -428,9 +464,11 @@ export const upsertPropertyToSupabase = async (
   if (!isSupabaseConfigured()) return;
   try {
     const client = getClient();
-    
+    const cleanKeyFeatures = normalizeStringArray(prop.keyFeatures);
+    const cleanGalleryImages = normalizeStringArray(prop.galleryImages);
+
     // 1. Attempt to upsert the full payload
-    const fullPayload: any = {
+    const payload: any = {
       id: prop.id,
       title: prop.title,
       location: prop.location,
@@ -444,45 +482,76 @@ export const upsertPropertyToSupabase = async (
       image: prop.image,
       price_display: prop.priceDisplay,
       price_sub: prop.priceSub,
-      specs: prop.specs,
-      summary: prop.summary,
-      detailed_description: prop.detailedDescription,
-      key_features: prop.keyFeatures,
+      specs: prop.specs || {},
+      summary: prop.summary || '',
+      detailed_description: prop.detailedDescription || '',
+      key_features: cleanKeyFeatures,
       handover_date: prop.handoverDate,
       payment_type: prop.paymentType,
       starting_deposit: prop.startingDeposit,
-      units_or_plots: prop.unitsOrPlots,
-      gallery_images: prop.galleryImages || [],
+      units_or_plots: prop.unitsOrPlots || [],
+      gallery_images: cleanGalleryImages,
       video_url: prop.videoList?.[0]?.url || null,
       video_list: prop.videoList || [],
       faq_pdf_url: prop.faqPdfUrl,
       map_embed_url: prop.mapEmbedUrl,
-      neighbourhood: prop.neighbourhood,
-      payment_table: prop.paymentTable,
-      banking_details: prop.bankingDetails,
-      faqs: prop.faqs
+      neighbourhood: normalizeStringArray(prop.neighbourhood),
+      payment_table: prop.paymentTable || [],
+      banking_details: prop.bankingDetails || {},
+      faqs: prop.faqs || []
     };
 
-    let { error } = await client.from('properties').upsert(fullPayload);
+    let { error } = await client.from('properties').upsert(payload);
 
-    // 2. If it fails, retry with a MINIMAL payload
+    // If schema cache lacks an optional column (e.g. video_url), peel it off and retry
+    let retries = 0;
+    while (error && retries < 4) {
+      retries++;
+      const match = error.message.match(/Could not find the '([^']+)' column/i);
+      if (match && match[1]) {
+        const missingCol = match[1];
+        console.warn(`Supabase schema cache missing '${missingCol}', omitting column and retrying...`);
+        delete payload[missingCol];
+        const res = await client.from('properties').upsert(payload);
+        error = res.error;
+      } else {
+        break;
+      }
+    }
+
+    // 2. Resilient fallback payload preserving key_features and gallery_images
     if (error) {
-      console.warn('Supabase full upsert failed, retrying with core fields:', error.message);
-      const corePayload = {
+      console.warn('Supabase full upsert failed, retrying with core payload:', error.message);
+      const corePayload: any = {
         id: prop.id,
         title: prop.title,
         location: prop.location,
         image: prop.image,
         price_display: prop.priceDisplay,
-        summary: prop.summary,
-        detailed_description: prop.detailedDescription
+        summary: prop.summary || '',
+        detailed_description: prop.detailedDescription || '',
+        key_features: cleanKeyFeatures,
+        gallery_images: cleanGalleryImages,
+        specs: prop.specs || {}
       };
       const { error: retryError } = await client.from('properties').upsert(corePayload);
       if (retryError) {
-        console.error('Core fields upsert also failed:', retryError.message);
+        console.warn('Resilient retry failed, trying bare minimum:', retryError.message);
+        const barePayload = {
+          id: prop.id,
+          title: prop.title,
+          location: prop.location,
+          image: prop.image,
+          price_display: prop.priceDisplay,
+          summary: prop.summary || '',
+          detailed_description: prop.detailedDescription || ''
+        };
+        await client.from('properties').upsert(barePayload);
       } else {
-        console.warn('Core fields saved successfully, but extended data (video/FAQs) was lost.');
+        console.info('Property successfully saved with key_features to Supabase.');
       }
+    } else {
+      console.info('Property successfully upserted to Supabase with all fields.');
     }
   } catch (err) {
     console.error('Fatal network/system error during upsert:', err);
