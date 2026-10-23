@@ -961,7 +961,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                     required
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="admin@caihgroup.com"
+                    placeholder="danielsamuel1662@gmail.com"
                     className="w-full bg-slate-900/90 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#b7102a] focus:ring-1 focus:ring-[#b7102a] transition-all"
                   />
                 </div>
@@ -991,8 +991,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 </div>
               </div>
 
-
-
               <button
                 type="submit"
                 disabled={isSubmittingAuth}
@@ -1001,7 +999,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 {isSubmittingAuth ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Verifying Database Credentials...</span>
+                    <span>Verifying Administrative Credentials...</span>
                   </>
                 ) : (
                   <>

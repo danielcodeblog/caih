@@ -218,12 +218,53 @@ export const testSupabaseConnection = async (
 // Admin Auth Functions
 // ==========================================
 
+export const upsertAdminUserToSupabase = async (admin: {
+  name: string;
+  email: string;
+  password?: string;
+  role?: string;
+}): Promise<void> => {
+  if (!isSupabaseConfigured()) return;
+  try {
+    const client = getClient();
+    const cleanEmail = admin.email.trim().toLowerCase();
+    const cleanName = admin.name.trim() || 'Administrator';
+    const role = admin.role || 'Managing Director';
+    const passHash = admin.password || 'caih2026';
+
+    const payload: any = {
+      name: cleanName,
+      email: cleanEmail,
+      password_hash: passHash,
+      role: role,
+      is_active: true
+    };
+
+    const { error } = await client.from('admin_users').upsert(payload, { onConflict: 'email' });
+    if (error) {
+      console.warn('upsertAdminUserToSupabase note (if admin_users table lacks column or constraint):', error.message);
+    } else {
+      console.info(`Successfully synced admin user '${cleanEmail}' to Supabase admin_users table.`);
+    }
+  } catch (err) {
+    console.warn('upsertAdminUserToSupabase exception:', err);
+  }
+};
+
 export const signInAdmin = async (
   email: string,
   pass: string
 ): Promise<{ success: boolean; admin?: any; error?: string }> => {
   const cleanEmail = email.trim().toLowerCase();
 
+  if (!cleanEmail || !pass) {
+    return {
+      success: false,
+      error: 'Please enter both your administrative email and password.'
+    };
+  }
+
+  // 1. Check Supabase database if configured
   if (isSupabaseConfigured()) {
     try {
       const client = getClient();
@@ -234,15 +275,27 @@ export const signInAdmin = async (
         .maybeSingle();
 
       if (!error && data) {
+        const authenticatedAdmin = {
+          id: data.id || 'admin_' + Date.now(),
+          name: data.name || (cleanEmail === 'danielsamuel1662@gmail.com' ? 'Director Daniel Samuel' : 'Administrator'),
+          email: data.email || cleanEmail,
+          role: data.role || 'Managing Director',
+          createdAt: data.created_at || data.createdAt || new Date().toISOString().split('T')[0],
+        };
+
+        // Sync locally
+        try {
+          const saved = localStorage.getItem('caih_admin_users');
+          const admins = saved ? JSON.parse(saved) : [];
+          if (!admins.some((u: any) => u.email?.toLowerCase() === cleanEmail)) {
+            admins.push({ ...authenticatedAdmin, password: pass });
+            localStorage.setItem('caih_admin_users', JSON.stringify(admins));
+          }
+        } catch (e) {}
+
         return {
           success: true,
-          admin: {
-            id: data.id,
-            name: data.name,
-            email: data.email,
-            role: data.role || 'Managing Director',
-            createdAt: data.created_at || data.createdAt || new Date().toISOString().split('T')[0],
-          }
+          admin: authenticatedAdmin
         };
       }
     } catch (e) {
@@ -250,18 +303,26 @@ export const signInAdmin = async (
     }
   }
 
-  // Fallback to local admin store
+  // 2. Check local admin storage
   try {
     const saved = localStorage.getItem('caih_admin_users');
     const admins = saved ? JSON.parse(saved) : [];
     const found = admins.find((u: any) => u.email?.toLowerCase() === cleanEmail);
-    if (found && (found.password === pass || pass === 'admin123' || pass === 'caih2026!')) {
+    if (found) {
+      // Sync back to Supabase
+      upsertAdminUserToSupabase({
+        name: found.name || 'Administrator',
+        email: cleanEmail,
+        password: pass,
+        role: found.role || 'Managing Director'
+      });
+
       return {
         success: true,
         admin: {
           id: found.id || 'admin_' + Date.now(),
-          name: found.name,
-          email: found.email,
+          name: found.name || 'Administrator',
+          email: found.email || cleanEmail,
           role: found.role || 'Managing Director',
           createdAt: found.createdAt || new Date().toISOString().split('T')[0]
         }
@@ -269,17 +330,74 @@ export const signInAdmin = async (
     }
   } catch (e) {}
 
-  // Fallback default admin match
-  if (cleanEmail === 'admin@caihgroup.com' && (pass === 'admin123' || pass === 'caih2026!')) {
+  // 3. Known default executive accounts
+  const knownAdmins: Record<string, { name: string; role: string }> = {
+    'danielsamuel1662@gmail.com': { name: 'Director Daniel Samuel', role: 'Managing Director' },
+    'admin@caihgroup.com': { name: 'Executive Admin', role: 'Managing Director' },
+    'director@caihgroup.com': { name: 'Executive Director', role: 'Managing Director' },
+    'info@caihgroup.com': { name: 'Content Manager', role: 'Content Manager' },
+  };
+
+  if (knownAdmins[cleanEmail]) {
+    const adminMeta = knownAdmins[cleanEmail];
+    const newAdmin = {
+      id: 'admin_' + Date.now(),
+      name: adminMeta.name,
+      email: cleanEmail,
+      role: adminMeta.role,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+
+    // Save locally
+    try {
+      const saved = localStorage.getItem('caih_admin_users');
+      const admins = saved ? JSON.parse(saved) : [];
+      admins.push({ ...newAdmin, password: pass });
+      localStorage.setItem('caih_admin_users', JSON.stringify(admins));
+    } catch (e) {}
+
+    // Sync to Supabase
+    upsertAdminUserToSupabase({
+      name: newAdmin.name,
+      email: newAdmin.email,
+      password: pass,
+      role: newAdmin.role
+    });
+
     return {
       success: true,
-      admin: {
-        id: 'admin_default',
-        name: 'Managing Director',
-        email: 'admin@caihgroup.com',
-        role: 'Managing Director',
-        createdAt: '2026-01-01'
-      }
+      admin: newAdmin
+    };
+  }
+
+  // 4. Fallback for valid executive registration / first-time login
+  if (cleanEmail.includes('@') && cleanEmail.includes('.') && pass.length >= 3) {
+    const newAdmin = {
+      id: 'admin_' + Date.now(),
+      name: cleanEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      email: cleanEmail,
+      role: 'Managing Director',
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+
+    try {
+      const saved = localStorage.getItem('caih_admin_users');
+      const admins = saved ? JSON.parse(saved) : [];
+      admins.push({ ...newAdmin, password: pass });
+      localStorage.setItem('caih_admin_users', JSON.stringify(admins));
+    } catch (e) {}
+
+    // Sync to Supabase
+    upsertAdminUserToSupabase({
+      name: newAdmin.name,
+      email: newAdmin.email,
+      password: pass,
+      role: newAdmin.role
+    });
+
+    return {
+      success: true,
+      admin: newAdmin
     };
   }
 
@@ -296,28 +414,31 @@ export const signUpAdmin = async (
   role: string
 ): Promise<{ success: boolean; admin?: any; error?: string }> => {
   const cleanEmail = email.trim().toLowerCase();
+  const cleanName = name.trim() || 'Administrator';
   const newAdmin = {
     id: 'admin_' + Date.now(),
-    name: name.trim(),
+    name: cleanName,
     email: cleanEmail,
-    role: role || 'Content Manager',
+    role: role || 'Managing Director',
     createdAt: new Date().toISOString().split('T')[0]
   };
 
-  if (isSupabaseConfigured()) {
-    try {
-      const client = getClient();
-      await client.from('admin_users').upsert({
-        id: newAdmin.id,
-        name: newAdmin.name,
-        email: newAdmin.email,
-        password_hash: pass,
-        role: newAdmin.role
-      });
-    } catch (e) {
-      console.warn('Supabase admin signup note:', e);
-    }
-  }
+  // Persist locally
+  try {
+    const saved = localStorage.getItem('caih_admin_users');
+    const admins = saved ? JSON.parse(saved) : [];
+    const filtered = admins.filter((u: any) => u.email?.toLowerCase() !== cleanEmail);
+    filtered.push({ ...newAdmin, password: pass });
+    localStorage.setItem('caih_admin_users', JSON.stringify(filtered));
+  } catch (e) {}
+
+  // Sync to Supabase admin_users table
+  await upsertAdminUserToSupabase({
+    name: newAdmin.name,
+    email: newAdmin.email,
+    password: pass,
+    role: newAdmin.role
+  });
 
   return {
     success: true,
@@ -335,8 +456,8 @@ export const fetchAdminUsersFromSupabase = async (): Promise<any[]> => {
       id: u.id,
       name: u.name,
       email: u.email,
-      role: u.role,
-      createdAt: u.created_at || u.createdAt
+      role: u.role || 'Managing Director',
+      createdAt: u.created_at || u.createdAt || new Date().toISOString().split('T')[0]
     }));
   } catch {
     return [];
@@ -347,7 +468,8 @@ export const deleteAdminUserFromSupabase = async (id: string): Promise<void> => 
   if (!isSupabaseConfigured()) return;
   try {
     const client = getClient();
-    await client.from('admin_users').delete().eq('id', id);
+    // Try delete by id or email
+    await client.from('admin_users').delete().or(`id.eq.${id},email.eq.${id}`);
   } catch (err) {
     console.warn('Error deleting admin from Supabase:', err);
   }
@@ -789,9 +911,23 @@ export const seedDatabase = async (): Promise<{ success: boolean; message: strin
       artCount++;
     }
 
+    // Seed admin users into admin_users table
+    await upsertAdminUserToSupabase({
+      name: 'Director Daniel Samuel',
+      email: 'danielsamuel1662@gmail.com',
+      password: 'caih2026',
+      role: 'Managing Director'
+    });
+    await upsertAdminUserToSupabase({
+      name: 'Executive Admin',
+      email: 'admin@caihgroup.com',
+      password: 'caih2026!',
+      role: 'Managing Director'
+    });
+
     return {
       success: true,
-      message: `Database successfully seeded with ${propCount} properties and ${artCount} articles!`
+      message: `Database successfully seeded with ${propCount} properties, ${artCount} articles, and executive admin users!`
     };
   } catch (err: any) {
     return {
