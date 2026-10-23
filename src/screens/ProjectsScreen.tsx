@@ -5,6 +5,7 @@ import { fetchPropertiesFromSupabase, isSupabaseConfigured } from '../lib/supaba
 import { PROJECTS } from '../data/mockData';
 import { getStoredProjects } from '../utils/projectsStore';
 import { sortProjectsByCanonicalOrder } from '../utils/propertyOrdering';
+import { OptimizedImage } from '../components/OptimizedImage';
 import {
   MapPin,
   Building,
@@ -412,28 +413,29 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                   <div className="relative">
                     <div
                       onClick={() => onViewProject(project)}
-                      className="h-60 overflow-hidden relative cursor-pointer"
+                      className="cursor-pointer overflow-hidden relative"
                     >
-                      <img
+                      <OptimizedImage
                         src={project.image}
                         alt={project.title}
+                        aspectRatioClassName="aspect-[16/10]"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       {project.propertyType === 'plots' ? (
-                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-emerald-700/95 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md">
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-emerald-700/95 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md z-10">
                           <Compass className="w-3 h-3" />
                           <span>Land / Serviced Plot</span>
                         </span>
                       ) : (
-                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#000f22]/95 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md">
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#000f22]/95 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md z-10">
                           <Building className="w-3 h-3 text-[#ffb3b1]" />
                           <span>Property / Built Home</span>
                         </span>
                       )}
-                      <span className="absolute top-3 right-3 px-2.5 py-1 rounded bg-white/90 backdrop-blur-sm text-[#000f22] text-xs font-bold">
+                      <span className="absolute top-3 right-3 px-2.5 py-1 rounded bg-white/90 backdrop-blur-sm text-[#000f22] text-xs font-bold z-10">
                         {project.corridor}
                       </span>
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs">
+                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold shadow-xs z-10">
                         <Video className="w-3 h-3 text-[#ffb3b1]" />
                         <span>Video Tour Available</span>
                       </div>

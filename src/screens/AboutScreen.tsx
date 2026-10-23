@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { EXECUTIVES, BRAND_ASSETS, TESTIMONIALS } from '../data/mockData';
 import { Executive } from '../types';
+import { OptimizedImage } from '../components/OptimizedImage';
 import {
   ShieldCheck,
   Building2,
@@ -274,12 +275,13 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 <div className="lg:col-span-5 flex flex-col items-center">
                   <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[3/4] w-full max-w-sm bg-[#F1F5F9] border-2 border-white">
-                    <img
+                    <OptimizedImage
                       src={managingDirector.image}
                       alt={managingDirector.name}
+                      containerClassName="w-full h-full"
                       className="w-full h-full object-cover object-top"
                     />
-                    <div className="absolute top-4 left-4 bg-[#000f22]/90 backdrop-blur-md px-3 py-1 rounded-full text-white text-[10px] font-bold tracking-wider uppercase border border-white/20">
+                    <div className="absolute top-4 left-4 bg-[#000f22]/90 backdrop-blur-md px-3 py-1 rounded-full text-white text-[10px] font-bold tracking-wider uppercase border border-white/20 z-10">
                       Managing Director
                     </div>
                   </div>
@@ -353,9 +355,10 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                 <div>
                   <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-6 border-b border-[#E2E8F0]">
                     <div className="w-32 h-40 sm:w-36 sm:h-44 rounded-2xl overflow-hidden shrink-0 bg-slate-200 border-2 border-white shadow-md">
-                      <img
+                      <OptimizedImage
                         src={exec.image}
                         alt={exec.name}
+                        containerClassName="w-full h-full"
                         className="w-full h-full object-cover object-top"
                       />
                     </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Project, PageId } from '../types';
 import { PROJECTS, BRAND_ASSETS } from '../data/mockData';
+import { OptimizedImage } from '../components/OptimizedImage';
 import {
   ArrowLeft,
   MapPin,
@@ -322,18 +323,18 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                 className="relative w-full h-[380px] sm:h-[480px] md:h-[540px] rounded-2xl overflow-hidden border border-[#E2E8F0] bg-slate-900 shadow-sm flex items-center justify-center group cursor-pointer"
                 onClick={() => setIsFullScreenPhotoOpen(true)}
               >
-                <img
+                <OptimizedImage
                   src={project.galleryImages?.[activePhotoIndex] || project.image}
                   alt={project.title}
-                  loading="lazy"
-                  decoding="async"
+                  priority={true}
+                  containerClassName="w-full h-full"
                   className={`w-full h-full transition-transform duration-500 group-hover:scale-102 ${
                     (project.galleryImages?.[activePhotoIndex] || project.image).includes('commercial')
                       ? 'object-contain'
                       : 'object-cover'
                   }`}
                 />
-                <div className="absolute top-3 left-3 flex gap-2">
+                <div className="absolute top-3 left-3 flex gap-2 z-10">
                   <span className="px-2.5 py-1 rounded bg-[#b7102a] text-white text-[10px] uppercase font-bold tracking-wider shadow">
                     {project.statusLabel}
                   </span>
@@ -388,10 +389,10 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                           : 'border-[#E2E8F0] opacity-80 hover:opacity-100 hover:border-[#CBD5E1]'
                       }`}
                     >
-                      <img
+                      <OptimizedImage
                         src={photoUrl}
                         alt={`Thumbnail ${idx + 1}`}
-                        loading="lazy"
+                        containerClassName="w-full h-full"
                         className="w-full h-full object-cover"
                       />
                     </button>

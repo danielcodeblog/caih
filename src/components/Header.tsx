@@ -44,6 +44,10 @@ export const Header: React.FC<HeaderProps> = ({
             <img
               src="/images/Caih-group.png"
               alt="Caih Group"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              referrerPolicy="no-referrer"
               className="h-11 w-auto object-contain"
             />
           </button>

@@ -86,6 +86,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
             <img
               src="/images/Caih-group.png"
               alt="Caih Group"
+              loading="lazy"
+              decoding="async"
+              referrerPolicy="no-referrer"
               className="h-10 w-auto object-contain"
             />
           </div>

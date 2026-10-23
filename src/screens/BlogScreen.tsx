@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Article, VideoDispatch } from '../types';
 import { getStoredArticles } from '../utils/articlesStore';
 import { TESTIMONIALS } from '../data/mockData';
+import { OptimizedImage } from '../components/OptimizedImage';
 import { subscribeClient, EmailUpdate, Subscriber } from '../services/newsletterService';
 import { NewsletterBroadcastModal } from '../components/NewsletterBroadcastModal';
 import {
@@ -275,10 +276,12 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
           </header>
 
           {/* Hero Article Image */}
-          <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-10 border border-[#E2E8F0] shadow-sm">
-            <img
+          <div className="relative w-full rounded-2xl overflow-hidden mb-10 border border-[#E2E8F0] shadow-sm">
+            <OptimizedImage
               src={currentArticle.image}
               alt={currentArticle.title}
+              priority={true}
+              aspectRatioClassName="aspect-[16/9]"
               className="w-full h-full object-cover"
             />
           </div>
@@ -591,14 +594,15 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
           <div className="group bg-[#F8FAFC] rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 border border-[#E2E8F0]">
             <div
               onClick={() => handleSelectArticle(featuredStory.id)}
-              className="lg:col-span-6 relative min-h-[340px] lg:min-h-[440px] overflow-hidden cursor-pointer"
+              className="lg:col-span-6 relative overflow-hidden cursor-pointer"
             >
-              <img
+              <OptimizedImage
                 src={featuredStory.image}
                 alt={featuredStory.title}
+                aspectRatioClassName="aspect-[16/10] lg:aspect-[4/3]"
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
               />
-              <div className="absolute top-4 left-4">
+              <div className="absolute top-4 left-4 z-10">
                 <span className="px-3.5 py-1.5 rounded bg-[#b7102a] text-white text-xs font-bold uppercase tracking-wider shadow">
                   Featured Story
                 </span>
@@ -677,17 +681,18 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
               >
                 <div
                   onClick={() => handleSelectArticle(article.id)}
-                  className="relative h-56 w-full overflow-hidden cursor-pointer"
+                  className="relative w-full cursor-pointer overflow-hidden"
                 >
-                  <img
+                  <OptimizedImage
                     src={article.image}
                     alt={article.title}
+                    aspectRatioClassName="aspect-[16/10]"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#000f22] text-white text-[10px] font-bold uppercase tracking-wider">
+                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#000f22] text-white text-[10px] font-bold uppercase tracking-wider z-10">
                     {article.categoryLabel}
                   </span>
-                  <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium">
+                  <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium z-10">
                     {article.readTime}
                   </span>
                 </div>

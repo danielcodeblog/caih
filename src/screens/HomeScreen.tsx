@@ -3,6 +3,7 @@ import { Project, Article, VideoDispatch, PageId } from '../types';
 import { VIDEO_DISPATCHES, TESTIMONIALS, BRAND_ASSETS } from '../data/mockData';
 import { getStoredArticles } from '../utils/articlesStore';
 import { getStoredProjects, sortProjectsByCanonicalOrder } from '../utils/projectsStore';
+import { OptimizedImage } from '../components/OptimizedImage';
 import gsap from 'gsap';
 import {
   Search,
@@ -270,11 +271,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <section className="relative w-full min-h-[660px] sm:min-h-[720px] md:min-h-[780px] lg:min-h-[820px] xl:min-h-[850px] flex flex-col justify-between pt-16 sm:pt-22 md:pt-28 pb-10 sm:pb-12 md:pb-14 overflow-hidden">
         {/* Full-bleed background image with modern luxury terraces */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <img
+          <OptimizedImage
             src="/images/caih_luxury_residence_1791879278290.jpg"
             alt="Caih Group Premier Luxury Residences in Lagos"
+            priority={true}
+            containerClassName="w-full h-full"
             className="w-full h-full object-cover object-center scale-105 transition-transform duration-1000 ease-out"
-            referrerPolicy="no-referrer"
           />
           {/* Subtle dark film overlay for optimal contrast matching Screenshot 1 */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-black/75"></div>
@@ -513,19 +515,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     {/* Visual Frame */}
                     <div
                       onClick={() => onViewProject(prop)}
-                      className="h-60 overflow-hidden relative cursor-pointer"
+                      className="cursor-pointer overflow-hidden relative"
                     >
-                      <img
+                      <OptimizedImage
                         src={prop.image || '/images/appleton_court_exterior_real.jpg'}
                         alt={prop.title}
+                        aspectRatioClassName="aspect-[16/10]"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       {prop.propertyType === 'plots' ? (
-                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-emerald-700/95 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-emerald-700/95 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider shadow-sm z-10">
                           Land Plot
                         </span>
                       ) : (
-                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#000f22]/95 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#000f22]/95 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider shadow-sm z-10">
                           Built Home
                         </span>
                       )}
@@ -853,14 +856,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <div>
                   <div
                     onClick={() => onViewArticle(art)}
-                    className="relative h-56 overflow-hidden cursor-pointer"
+                    className="relative cursor-pointer overflow-hidden"
                   >
-                    <img
+                    <OptimizedImage
                       src={art.image}
                       alt={art.title}
+                      aspectRatioClassName="aspect-[16/10]"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                    <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
                       <span className="px-2.5 py-1 rounded bg-[#b7102a] text-white text-[10px] uppercase font-bold tracking-wider shadow-sm">
                         {art.categoryLabel}
                       </span>
@@ -871,7 +875,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         </span>
                       )}
                     </div>
-                    <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium">
+                    <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium z-10">
                       {art.readTime}
                     </span>
                   </div>
@@ -952,9 +956,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     }`}
                     onClick={() => setLightboxImage(t.avatar)}
                   >
-                    <img
+                    <OptimizedImage
                       src={t.avatar}
                       alt={`Testimonial photo ${idx + 1}`}
+                      containerClassName="w-full h-full"
                       className="w-full h-full object-cover object-center"
                     />
 
