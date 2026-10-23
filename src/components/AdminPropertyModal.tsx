@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Project } from '../types';
-import { uploadImageToSupabaseStorage } from '../lib/supabase';
+import { uploadImageToSupabaseStorage, isSupabaseConfigured, getSupabaseConfig } from '../lib/supabase';
+import { DatabaseConnector } from './DatabaseConnector';
 import {
   X,
   Building2,
@@ -19,6 +20,7 @@ import {
   ArrowRight,
   Edit,
   FileText,
+  Database,
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
@@ -73,7 +75,7 @@ const COMMON_AMENITIES = [
   'Fitted Kitchen & Modern Appliances',
   'Skylight Roofs & Walk-in Closets',
   'Ample Front & Rear Terrace Sit-outs',
-  'Serviced Table Land Guarantee',
+  '100% Dry Table Land Guarantee',
   'Governor’s Consent / Verified Title'
 ];
 
@@ -99,6 +101,20 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
   const [newUnitDeposit, setNewUnitDeposit] = useState('');
   const [newUnitDesc, setNewUnitDesc] = useState('');
   const [editingUnitIndex, setEditingUnitIndex] = useState<number | null>(null);
+
+  // Database Connection State
+  const [isDbConnected, setIsDbConnected] = useState(isSupabaseConfigured());
+  const [showDbModal, setShowDbModal] = useState(false);
+
+  useEffect(() => {
+    const handleDbChange = () => {
+      setIsDbConnected(isSupabaseConfigured());
+    };
+    window.addEventListener('caih_supabase_config_changed', handleDbChange);
+    return () => {
+      window.removeEventListener('caih_supabase_config_changed', handleDbChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (project) {
@@ -384,6 +400,35 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
         {/* Modal Body & Forms */}
         <div className="flex-1 overflow-y-auto p-6 sm:p-8">
           <form id="property-form" onSubmit={handleSubmit} className="space-y-6">
+            {/* Live Database Connection Status Alert */}
+            {isDbConnected ? (
+              <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs">
+                <div className="flex items-center gap-2 text-emerald-800 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>Connected to Supabase Database ({getSupabaseConfig().url})</span>
+                </div>
+                <span className="text-[11px] text-emerald-700 font-bold hidden sm:inline">Live Cloud Sync</span>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                <div className="flex items-start sm:items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5 sm:mt-0" />
+                  <div>
+                    <span className="font-bold block sm:inline">Database is not connected. </span>
+                    <span className="text-[11px] text-amber-800">Changes will only be stored in your local browser cache until connected.</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowDbModal(true)}
+                  className="px-3.5 py-1.5 rounded-lg bg-[#b7102a] hover:bg-[#960d22] text-white font-bold text-xs transition-colors shrink-0 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+                >
+                  <Database className="w-3.5 h-3.5" />
+                  <span>Connect Database</span>
+                </button>
+              </div>
+            )}
+
             {/* TAB 1: BASIC DETAILS */}
             {activeTab === 'basic' && (
               <div className="space-y-5">
@@ -689,7 +734,7 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                         ...formData,
                         specs: { ...formData.specs, landType: e.target.value }
                       })}
-                      placeholder="e.g. Serviced Table Land"
+                      placeholder="e.g. 100% Dry Table Land"
                       className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
                     />
                   </div>
@@ -719,7 +764,7 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                     type="text"
                     value={formData.secondaryBadge || ''}
                     onChange={e => setFormData({ ...formData, secondaryBadge: e.target.value })}
-                    placeholder="e.g. GOVERNOR’S CONSENT • SERVICED RESIDENTIAL PLOTS"
+                    placeholder="e.g. GOVERNOR’S CONSENT • DRY TABLE LAND"
                     className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
                   />
                 </div>
@@ -1042,6 +1087,13 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                     </div>
                   </div>
 
+                  {/* Connection indicator */}
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 text-[11px] text-slate-600">
+                    <Database className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>
+                      <strong>Database &amp; Property Detail Connected:</strong> Features are saved directly to Supabase and render in the &ldquo;Verified Estate Amenities &amp; Infrastructure&rdquo; section of the property detail page.
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
@@ -1289,6 +1341,29 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
           </form>
         </div>
       </div>
+
+      {/* Embedded Database Connector Modal */}
+      {showDbModal && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="max-w-3xl w-full my-8 relative">
+            <button
+              type="button"
+              onClick={() => setShowDbModal(false)}
+              className="absolute -top-3 -right-3 z-10 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center shadow-lg border border-slate-600 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <DatabaseConnector
+              onConnectionChange={(connected) => {
+                setIsDbConnected(connected);
+                if (connected) {
+                  setShowDbModal(false);
+                }
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

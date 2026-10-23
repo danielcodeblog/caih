@@ -26,7 +26,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Maximize2,
-  X
+  X,
+  Star
 } from 'lucide-react';
 
 interface HomeScreenProps {
@@ -231,7 +232,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           - Ambient description
           - "FOR SALE" tab with clean white search dock & "ADVANCED +" button
          ========================================================================= */}
-      <section className="relative w-full min-h-[360px] sm:min-h-[420px] md:min-h-[480px] flex flex-col justify-between pt-6 sm:pt-10 pb-6 overflow-hidden">
+      <section className="relative w-full min-h-[660px] sm:min-h-[720px] md:min-h-[780px] lg:min-h-[820px] xl:min-h-[850px] flex flex-col justify-between pt-16 sm:pt-22 md:pt-28 pb-10 sm:pb-12 md:pb-14 overflow-hidden">
         {/* Full-bleed background image with modern luxury terraces */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
@@ -244,15 +245,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-black/75"></div>
         </div>
 
-        {/* Hero Content (Centered typography) */}
-        <div ref={heroRef} className="relative z-10 max-w-[1320px] mx-auto px-6 sm:px-10 w-full flex-1 flex flex-col items-center justify-center text-center pt-2 pb-2">
+        {/* Hero Content (Centered typography - exact from Screenshot 1) */}
+        <div ref={heroRef} className="relative z-10 max-w-[1320px] mx-auto px-6 sm:px-10 w-full flex-1 flex flex-col items-center justify-center text-center pt-6 sm:pt-8 pb-4 sm:pb-6">
           {/* Massive Heading */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] text-white tracking-tight uppercase leading-[1.08] drop-shadow-lg max-w-4xl mb-2">
-            FIND YOUR EXCLUSIVE PROPERTY IN LAGOS
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[80px] xl:text-[88px] text-white tracking-tight uppercase leading-[1.05] drop-shadow-lg max-w-5xl mb-6">
+            FIND YOUR DREAM HOME
           </h1>
-          <p className="text-sm sm:text-base text-slate-200 font-normal tracking-wide max-w-xl mx-auto">
-            Architectural distinction and uncompromising craftsmanship in premier locations.
-          </p>
         </div>
 
         {/* Hero Search Dock (Exact layout & styling from Screenshot 1) */}
@@ -795,8 +793,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         {art.categoryLabel}
                       </span>
                       {art.featured && (
-                        <span className="px-2.5 py-1 rounded bg-amber-500 text-white text-[10px] uppercase font-bold tracking-wider shadow-sm">
-                          Featured
+                        <span className="px-2.5 py-1 rounded bg-amber-500 text-white text-[10px] uppercase font-bold tracking-wider shadow-sm flex items-center gap-1">
+                          <Star className="w-3 h-3" />
+                          <span>Featured</span>
                         </span>
                       )}
                     </div>
