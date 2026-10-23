@@ -31,7 +31,6 @@ import {
   Wifi,
   Waves,
   Dumbbell,
-  Sparkles,
   Home,
   Trees
 } from 'lucide-react';
@@ -551,7 +550,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
             <div className="pt-5 border-t border-[#E2E8F0]" id="key-features-infrastructure">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3.5">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#b7102a]" />
+                  <ShieldCheck className="w-4 h-4 text-[#b7102a]" />
                   <h3 className="text-xs uppercase font-extrabold tracking-wider text-[#000f22]">
                     Key Features &amp; Infrastructure
                   </h3>

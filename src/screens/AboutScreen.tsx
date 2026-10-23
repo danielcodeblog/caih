@@ -21,7 +21,6 @@ import {
   FileText,
   Briefcase,
   GraduationCap,
-  Sparkles,
   Download,
   Compass,
   CheckCircle2,
@@ -321,7 +320,7 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                       COREN Registered &amp; MNSE
                     </span>
                     <span className="px-3 py-1 rounded-full bg-white border border-[#CBD5E1] text-[11px] font-bold text-[#000f22] flex items-center gap-1.5 shadow-2xs">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      <Award className="w-3.5 h-3.5 text-emerald-600" />
                       Certified Green Building Expert
                     </span>
                   </div>

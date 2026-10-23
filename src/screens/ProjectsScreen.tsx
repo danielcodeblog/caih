@@ -207,130 +207,79 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
 
           {/* VCH Interactive Filter Ribbon & Multi-tier Search Dock */}
           <div className="mt-10 max-w-5xl mx-auto bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-3 md:p-4 flex flex-col gap-3">
-            {/* Status & Asset Type Differentiation Ribbon */}
-            <div className="flex flex-col gap-3 pb-3 border-b border-[#E2E8F0]">
-              {/* Primary Differentiation: Property vs Land vs All */}
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                {/* Segmented Control */}
-                <div className="inline-flex p-1 bg-[#F1F5F9] rounded-xl border border-[#E2E8F0] shadow-inner self-start sm:self-auto">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCategoryMode('all');
-                      setTypeFilter('all');
-                    }}
-                    className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg text-xs font-extrabold tracking-wide transition-all cursor-pointer ${
-                      categoryMode === 'all'
-                        ? 'bg-[#000f22] text-white shadow-sm'
-                        : 'text-[#475569] hover:text-[#000f22] hover:bg-white/60'
-                    }`}
-                  >
-                    <Layers className="w-3.5 h-3.5" />
-                    <span>All Developments</span>
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                        categoryMode === 'all' ? 'bg-white/20 text-white' : 'bg-[#E2E8F0] text-[#475569]'
-                      }`}
-                    >
-                      {projects.length}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCategoryMode('property');
-                      if (typeFilter === 'plots') setTypeFilter('all');
-                    }}
-                    className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg text-xs font-extrabold tracking-wide transition-all cursor-pointer ${
-                      categoryMode === 'property'
-                        ? 'bg-[#b7102a] text-white shadow-sm'
-                        : 'text-[#475569] hover:text-[#b7102a] hover:bg-white/60'
-                    }`}
-                  >
-                    <Building className="w-3.5 h-3.5" />
-                    <span>Property / Built Homes</span>
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                        categoryMode === 'property' ? 'bg-white/20 text-white' : 'bg-[#E2E8F0] text-[#475569]'
-                      }`}
-                    >
-                      {propertyCount}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCategoryMode('land');
-                      setTypeFilter('plots');
-                    }}
-                    className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg text-xs font-extrabold tracking-wide transition-all cursor-pointer ${
-                      categoryMode === 'land'
-                        ? 'bg-emerald-700 text-white shadow-sm'
-                        : 'text-[#475569] hover:text-emerald-700 hover:bg-white/60'
-                    }`}
-                  >
-                    <Compass className="w-3.5 h-3.5" />
-                    <span>Land / Serviced Plots</span>
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                        categoryMode === 'land' ? 'bg-white/20 text-white' : 'bg-[#E2E8F0] text-[#475569]'
-                      }`}
-                    >
-                      {landCount}
-                    </span>
-                  </button>
-                </div>
-
-                {/* Explanatory differentiator indicator */}
-                <div className="flex items-center gap-2 text-xs">
-                  {categoryMode === 'land' ? (
-                    <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-900 px-3 py-1.5 rounded-lg text-[11px] font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
-                      <span>
-                        <strong className="font-bold text-emerald-950">Land Plots:</strong> 100% Dry Table Land • 300 & 500 SQM • Direct Allocation • Governor’s Consent
-                      </span>
-                    </div>
-                  ) : categoryMode === 'property' ? (
-                    <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-950 px-3 py-1.5 rounded-lg text-[11px] font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-[#b7102a] shrink-0"></span>
-                      <span>
-                        <strong className="font-bold text-[#b7102a]">Housing Developments:</strong> Luxury Terraces & Duplexes • En-Suite Bedrooms • Carcass & Turnkey
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#E2E8F0] text-[#475569] px-3 py-1.5 rounded-lg text-[11px] font-semibold">
-                      <span>Differentiating between built residential estates and registered serviced plots</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Status sub-pills */}
-              <div className="flex items-center gap-1.5 overflow-x-auto w-full pt-1">
-                <span className="text-[10px] font-bold uppercase text-[#94A3B8] tracking-wider pr-1 shrink-0">
-                  Stage:
+            {/* Asset Type Differentiation Ribbon: Land vs Properties */}
+            <div className="pb-3 border-b border-[#E2E8F0]">
+              <div className="flex items-center gap-2 overflow-x-auto w-full">
+                <span className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider pr-1 shrink-0">
+                  Category:
                 </span>
-                {[
-                  { id: 'all', label: categoryMode === 'land' ? 'All Plots' : categoryMode === 'property' ? 'All Homes' : 'All Stages' },
-                  { id: 'ongoing', label: categoryMode === 'land' ? 'Plots on Sale' : 'Ongoing Off-Plan' },
-                  { id: 'upcoming', label: 'Upcoming Phases' },
-                  { id: 'completed', label: categoryMode === 'land' ? 'Fully Allocated' : 'Delivered & Completed' },
-                  { id: 'sites', label: 'Sites & Services' }
-                ].map((pill) => (
-                  <button
-                    key={pill.id}
-                    onClick={() => setActiveStatus(pill.id)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                      activeStatus === pill.id
-                        ? 'bg-[#000f22] text-white shadow-xs'
-                        : 'text-[#475569] hover:text-[#000f22] hover:bg-[#F8FAFC]'
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCategoryMode('all');
+                    setTypeFilter('all');
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    categoryMode === 'all'
+                      ? 'bg-[#000f22] text-white shadow-xs'
+                      : 'bg-[#F1F5F9] text-[#475569] hover:text-[#000f22] hover:bg-[#E2E8F0]'
+                  }`}
+                >
+                  <span>All</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      categoryMode === 'all' ? 'bg-white/20 text-white' : 'bg-white text-[#475569]'
                     }`}
                   >
-                    {pill.label}
-                  </button>
-                ))}
+                    {projects.length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCategoryMode('property');
+                    if (typeFilter === 'plots') setTypeFilter('all');
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    categoryMode === 'property'
+                      ? 'bg-[#b7102a] text-white shadow-xs'
+                      : 'bg-[#F1F5F9] text-[#475569] hover:text-[#b7102a] hover:bg-[#E2E8F0]'
+                  }`}
+                >
+                  <Building className="w-3.5 h-3.5" />
+                  <span>Properties</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      categoryMode === 'property' ? 'bg-white/20 text-white' : 'bg-white text-[#475569]'
+                    }`}
+                  >
+                    {propertyCount}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCategoryMode('land');
+                    setTypeFilter('plots');
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    categoryMode === 'land'
+                      ? 'bg-emerald-700 text-white shadow-xs'
+                      : 'bg-[#F1F5F9] text-[#475569] hover:text-emerald-700 hover:bg-[#E2E8F0]'
+                  }`}
+                >
+                  <Compass className="w-3.5 h-3.5" />
+                  <span>Land</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      categoryMode === 'land' ? 'bg-white/20 text-white' : 'bg-white text-[#475569]'
+                    }`}
+                  >
+                    {landCount}
+                  </span>
+                </button>
               </div>
             </div>
 
