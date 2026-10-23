@@ -961,7 +961,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                     required
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="danielsamuel1662@gmail.com"
+                    placeholder=""
                     className="w-full bg-slate-900/90 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#b7102a] focus:ring-1 focus:ring-[#b7102a] transition-all"
                   />
                 </div>
