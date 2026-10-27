@@ -75,7 +75,6 @@ const COMMON_AMENITIES = [
   'Fitted Kitchen & Modern Appliances',
   'Skylight Roofs & Walk-in Closets',
   'Ample Front & Rear Terrace Sit-outs',
-  '100% Dry Table Land Guarantee',
   'Governor’s Consent / Verified Title'
 ];
 

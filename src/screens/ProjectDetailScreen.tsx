@@ -709,9 +709,6 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                           <span className="text-[10px] text-[#64748B] uppercase font-bold tracking-wider">
                             Investment Price
                           </span>
-                          <span className="text-[11px] font-semibold text-emerald-700">
-                            {u.landType || project.specs.landType || '100% Dry Land'}
-                          </span>
                         </div>
                         <div className="text-2xl sm:text-3xl font-black text-[#b7102a] mt-1">
                           {u.priceDisplay}

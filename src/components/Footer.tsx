@@ -271,29 +271,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
 
       <div className="max-w-[1440px] mx-auto pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 gap-4">
         <p>© 2026 Caih Group. All rights reserved. Engineering excellence across West Africa.</p>
-        <div className="flex gap-6">
-          <button
-            onClick={() => showNotice('Privacy Policy: Caih Group handles all investor and prospective buyer records under the NDPR and strict fiduciary confidentiality.')}
-            className="hover:text-slate-400 transition-colors cursor-pointer"
-          >
-            Privacy Policy
-          </button>
-          <button
-            onClick={() => showNotice('Terms of Service: All property acquisition agreements are backed by verified Lagos State Governor Consent and milestone-linked payment schedules.')}
-            className="hover:text-slate-400 transition-colors cursor-pointer"
-          >
-            Terms of Service
-          </button>
-          <button
-            onClick={() => {
-              onNavigate('contact');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className="hover:text-slate-400 transition-colors cursor-pointer"
-          >
-            Corporate Desk
-          </button>
-        </div>
       </div>
     </footer>
   );

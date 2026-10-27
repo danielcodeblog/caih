@@ -13,6 +13,7 @@ import { VideoDetailScreen } from './screens/VideoDetailScreen';
 import { RealtorRegistrationScreen } from './screens/RealtorRegistrationScreen';
 import { ContactScreen } from './screens/ContactScreen';
 import { AdminScreen } from './screens/AdminScreen';
+import { WebmailRedirect } from './components/WebmailRedirect';
 import { VIDEO_DISPATCHES, PROJECTS as MOCK_PROJECTS } from './data/mockData';
 import { fetchPropertiesFromSupabase, fetchArticlesFromSupabase, isSupabaseConfigured } from './lib/supabase';
 import { getStoredProjects, saveStoredProjects } from './utils/projectsStore';
@@ -384,6 +385,8 @@ export default function App() {
               />
             }
           />
+          <Route path="/webmail" element={<WebmailRedirect />} />
+          <Route path="/webmail/*" element={<WebmailRedirect />} />
         </Routes>
       </main>
 
