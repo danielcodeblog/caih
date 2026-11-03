@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { Mail, ArrowRight, ExternalLink } from 'lucide-react';
 
 export const WebmailRedirect: React.FC = () => {
-  const WEBMAIL_URL = 'https://webmail.cpanel.net/';
+  const WEBMAIL_URL = 'https://upperserver13.com:2096/';
 
   useEffect(() => {
-    // Perform immediate browser redirect to cPanel Webmail
+    // Perform immediate browser redirect to cPanel Webmail gateway
     try {
       window.location.replace(WEBMAIL_URL);
     } catch {
@@ -29,7 +29,7 @@ export const WebmailRedirect: React.FC = () => {
         </h1>
 
         <p className="text-xs sm:text-sm text-slate-600 mb-6 leading-relaxed">
-          Connecting to the secure corporate webmail gateway at <span className="font-semibold text-slate-800">webmail.cpanel.net</span>.
+          Connecting to the secure corporate webmail gateway at <span className="font-semibold text-slate-800">upperserver13.com:2096</span>.
         </p>
 
         <div className="flex justify-center mb-6">
@@ -51,3 +51,4 @@ export const WebmailRedirect: React.FC = () => {
     </div>
   );
 };
+

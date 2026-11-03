@@ -271,6 +271,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
 
       <div className="max-w-[1440px] mx-auto pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 gap-4">
         <p>© 2026 Caih Group. All rights reserved. Engineering excellence across West Africa.</p>
+        <div className="flex items-center gap-6">
+          <a
+            href="https://upperserver13.com:2096/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5"
+          >
+            <Mail className="w-3.5 h-3.5 text-[#ffb3b1]" />
+            <span>Corporate Webmail</span>
+          </a>
+        </div>
       </div>
     </footer>
   );
