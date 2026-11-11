@@ -399,35 +399,6 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
         {/* Modal Body & Forms */}
         <div className="flex-1 overflow-y-auto p-6 sm:p-8">
           <form id="property-form" onSubmit={handleSubmit} className="space-y-6">
-            {/* Live Database Connection Status Alert */}
-            {isDbConnected ? (
-              <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs">
-                <div className="flex items-center gap-2 text-emerald-800 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>Connected to Supabase Database ({getSupabaseConfig().url})</span>
-                </div>
-                <span className="text-[11px] text-emerald-700 font-bold hidden sm:inline">Live Cloud Sync</span>
-              </div>
-            ) : (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
-                <div className="flex items-start sm:items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5 sm:mt-0" />
-                  <div>
-                    <span className="font-bold block sm:inline">Database is not connected. </span>
-                    <span className="text-[11px] text-amber-800">Changes will only be stored in your local browser cache until connected.</span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowDbModal(true)}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#b7102a] hover:bg-[#960d22] text-white font-bold text-xs transition-colors shrink-0 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
-                >
-                  <Database className="w-3.5 h-3.5" />
-                  <span>Connect Database</span>
-                </button>
-              </div>
-            )}
-
             {/* TAB 1: BASIC DETAILS */}
             {activeTab === 'basic' && (
               <div className="space-y-5">

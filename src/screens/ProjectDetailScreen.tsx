@@ -37,8 +37,17 @@ import {
 } from 'lucide-react';
 import { normalizeStringArray } from '../lib/supabase';
 
+import {
+  getProjectFallbackImage,
+  resolveProjectImage,
+  PROJECT_CANONICAL_IMAGES
+} from '../utils/projectsStore';
+
+export { getProjectFallbackImage, resolveProjectImage };
+
 interface ProjectDetailScreenProps {
   project: Project;
+  allProjects?: Project[];
   onBack: () => void;
   onSelectProject: (project: Project) => void;
   onBookInspection: (projectTitle: string) => void;
@@ -146,6 +155,7 @@ const DEFAULT_PROJECT_VIDEOS: Record<
 
 export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
   project,
+  allProjects,
   onBack,
   onSelectProject,
   onBookInspection,
@@ -230,7 +240,8 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
     onBookInspection(target);
   };
 
-  const otherProjects = PROJECTS.filter((p) => p.id !== project.id);
+  const availableProjects = allProjects && allProjects.length > 0 ? allProjects : PROJECTS;
+  const otherProjects = availableProjects.filter((p) => p.id !== project.id);
 
   return (
     <div className="flex flex-col w-full bg-[#FAFAFA] min-h-screen text-[#000f22]">
@@ -324,7 +335,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                 onClick={() => setIsFullScreenPhotoOpen(true)}
               >
                 <OptimizedImage
-                  src={project.galleryImages?.[activePhotoIndex] || project.image}
+                  src={resolveProjectImage(project.galleryImages?.[activePhotoIndex] || project.image, project.id)}
                   alt={project.title}
                   priority={true}
                   containerClassName="w-full h-full"
@@ -390,7 +401,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                       }`}
                     >
                       <OptimizedImage
-                        src={photoUrl}
+                        src={resolveProjectImage(photoUrl, project.id)}
                         alt={`Thumbnail ${idx + 1}`}
                         containerClassName="w-full h-full"
                         className="w-full h-full object-cover"
@@ -772,52 +783,67 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
         </div>
 
         {/* Related Projects (Clean, 3-card minimalist grid) */}
-        <div className="pt-4 border-t border-[#E2E8F0]">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-[#000f22]">Other Developments</h3>
+        <div className="pt-6 border-t border-[#E2E8F0]">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <span className="text-[11px] font-bold text-[#b7102a] uppercase tracking-wider block">
+                Portfolio Exploration
+              </span>
+              <h3 className="text-lg sm:text-xl font-bold text-[#000f22]">Other Developments</h3>
+            </div>
             <button
               onClick={() => onNavigate('projects')}
-              className="text-xs font-bold text-[#b7102a] hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs sm:text-sm font-bold text-[#b7102a] hover:text-[#db313f] hover:underline flex items-center gap-1.5 cursor-pointer py-1.5 px-3 rounded-lg hover:bg-red-50 transition-colors"
             >
-              <span>View All</span>
+              <span>View All Properties</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {otherProjects.slice(0, 3).map((item) => (
-              <div
-                key={item.id}
-                onClick={() => onSelectProject(item)}
-                className="bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-md transition-all overflow-hidden flex flex-col justify-between cursor-pointer group p-3"
-              >
-                <div className="relative aspect-[16/10] rounded-lg overflow-hidden mb-3 bg-slate-100">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-300"
-                  />
-                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px] font-semibold">
-                    {item.corridor}
-                  </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+            {otherProjects.slice(0, 3).map((item) => {
+              const displayImg = resolveProjectImage(item.image, item.id);
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => onSelectProject(item)}
+                  className="bg-white rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer group p-3.5"
+                >
+                  <div className="relative aspect-[16/10] rounded-lg overflow-hidden mb-3 bg-slate-100">
+                    <OptimizedImage
+                      src={displayImg}
+                      alt={item.title}
+                      fallbackSrc={getProjectFallbackImage(item.id)}
+                      priority={true}
+                      containerClassName="w-full h-full absolute inset-0"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[10px] font-semibold tracking-wide z-10 pointer-events-none">
+                      {item.corridor || 'Lagos'}
+                    </span>
+                    <span className="absolute bottom-2.5 right-2.5 px-2.5 py-0.5 rounded-md bg-[#000f22]/85 backdrop-blur-xs text-[#ffb3b1] text-[10px] font-bold z-10 pointer-events-none">
+                      {item.statusLabel || (item.status === 'completed' ? 'Delivered' : 'Available')}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm sm:text-base font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors truncate">
+                      {item.title}
+                    </h4>
+                    <p className="text-xs text-[#64748B] flex items-center gap-1 mt-1 truncate">
+                      <MapPin className="w-3.5 h-3.5 text-[#b7102a] shrink-0" />
+                      <span>{item.location}</span>
+                    </p>
+                  </div>
+                  <div className="mt-3.5 pt-2.5 border-t border-[#F1F5F9] flex items-center justify-between">
+                    <span className="text-xs sm:text-sm font-extrabold text-[#b7102a]">{item.priceDisplay}</span>
+                    <span className="text-xs font-bold text-[#000f22] group-hover:text-[#b7102a] group-hover:translate-x-1 transition-all flex items-center gap-1">
+                      <span>Explore</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#000f22] group-hover:text-[#b7102a] transition-colors truncate">
-                    {item.title}
-                  </h4>
-                  <p className="text-xs text-[#64748B] flex items-center gap-1 mt-0.5 truncate">
-                    <MapPin className="w-3 h-3 text-[#b7102a] shrink-0" />
-                    <span>{item.location}</span>
-                  </p>
-                </div>
-                <div className="mt-3 pt-2 border-t border-[#F1F5F9] flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-[#b7102a]">{item.priceDisplay}</span>
-                  <span className="text-[11px] font-bold text-[#000f22] group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                    View &rarr;
-                  </span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -847,8 +873,13 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
           {/* Main Image Container */}
           <div className="relative w-full h-full max-w-7xl max-h-[80vh] flex items-center justify-center px-12 py-10">
             <img
-              src={project.galleryImages?.[activePhotoIndex] || project.image}
+              src={resolveProjectImage(project.galleryImages?.[activePhotoIndex] || project.image, project.id)}
               alt={project.title}
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = getProjectFallbackImage(project.id);
+              }}
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
             />
 
@@ -894,7 +925,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
                       : 'border-transparent opacity-60 hover:opacity-100'
                   }`}
                 >
-                  <img src={thumbUrl} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                  <img src={resolveProjectImage(thumbUrl, project.id)} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>

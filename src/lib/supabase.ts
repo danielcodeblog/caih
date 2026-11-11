@@ -3,6 +3,7 @@ import { Project, Article } from '../types';
 import { PROJECTS } from '../data/mockData';
 import { ARTICLES } from '../data/articles';
 import { sortProjectsByCanonicalOrder } from '../utils/propertyOrdering';
+import { sanitizeProjectImages } from '../utils/projectsStore';
 
 // Fallback dummy client for when Supabase is not configured
 const createFallbackClient = (): any => {
@@ -541,7 +542,7 @@ export const fetchPropertiesFromSupabase = async (): Promise<Project[]> => {
       bankingDetails: row.banking_details || row.bankingDetails,
       faqs: row.faqs || []
     }));
-    return sortProjectsByCanonicalOrder(mapped);
+    return sortProjectsByCanonicalOrder(mapped.map(sanitizeProjectImages));
   } catch (err) {
     console.warn('fetchPropertiesFromSupabase error:', err);
     return [];

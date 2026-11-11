@@ -40,6 +40,7 @@ function ProjectDetailWrapper({
   return (
     <ProjectDetailScreen
       project={project}
+      allProjects={projects}
       onBack={() => navigate('/projects')}
       onSelectProject={(proj) => navigate(`/projects/${proj.id}`)}
       onBookInspection={onBookInspection}

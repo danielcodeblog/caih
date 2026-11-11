@@ -3,7 +3,7 @@ import { Project } from '../types';
 import { InspectionForm } from '../components/InspectionForm';
 import { fetchPropertiesFromSupabase, isSupabaseConfigured } from '../lib/supabase';
 import { PROJECTS } from '../data/mockData';
-import { getStoredProjects } from '../utils/projectsStore';
+import { getStoredProjects, resolveProjectImage } from '../utils/projectsStore';
 import { sortProjectsByCanonicalOrder } from '../utils/propertyOrdering';
 import { OptimizedImage } from '../components/OptimizedImage';
 import {
@@ -416,7 +416,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                       className="cursor-pointer overflow-hidden relative"
                     >
                       <OptimizedImage
-                        src={project.image}
+                        src={resolveProjectImage(project.image, project.id)}
                         alt={project.title}
                         aspectRatioClassName="aspect-[16/10]"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

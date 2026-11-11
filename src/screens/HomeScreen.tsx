@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Project, Article, VideoDispatch, PageId } from '../types';
 import { VIDEO_DISPATCHES, TESTIMONIALS, BRAND_ASSETS } from '../data/mockData';
 import { getStoredArticles } from '../utils/articlesStore';
-import { getStoredProjects, sortProjectsByCanonicalOrder } from '../utils/projectsStore';
+import { getStoredProjects, sortProjectsByCanonicalOrder, resolveProjectImage } from '../utils/projectsStore';
 import { OptimizedImage } from '../components/OptimizedImage';
 import gsap from 'gsap';
 import {
@@ -518,7 +518,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                       className="cursor-pointer overflow-hidden relative"
                     >
                       <OptimizedImage
-                        src={prop.image || '/images/appleton_court_exterior_real.jpg'}
+                        src={resolveProjectImage(prop.image, prop.id)}
                         alt={prop.title}
                         aspectRatioClassName="aspect-[16/10]"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

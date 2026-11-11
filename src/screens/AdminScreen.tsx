@@ -73,7 +73,9 @@ import {
   getStoredProjects,
   saveStoredProjects,
   addOrUpdateProject,
-  deleteStoredProject
+  deleteStoredProject,
+  resolveProjectImage,
+  getProjectFallbackImage
 } from '../utils/projectsStore';
 import { sortProjectsByCanonicalOrder } from '../utils/propertyOrdering';
 import {
@@ -1358,7 +1360,18 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 <div key={p.id} className="rounded-2xl border border-[#CBD5E1] bg-[#F8FAFC] overflow-hidden flex flex-col justify-between">
                   <div>
                     <div className="relative h-48 w-full bg-slate-900">
-                      <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
+                      <img
+                        src={resolveProjectImage(p.image, p.id)}
+                        alt={p.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          const fallback = getProjectFallbackImage(p.id);
+                          if (target.src !== fallback) {
+                            target.src = fallback;
+                          }
+                        }}
+                      />
                       <div className="absolute top-3 left-3">
                         <span className="px-2.5 py-1 rounded bg-[#b7102a] text-white text-[10px] font-bold uppercase tracking-wider shadow">
                           {p.statusLabel}

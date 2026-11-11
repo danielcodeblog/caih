@@ -2,8 +2,8 @@ import { Project, VideoDispatch, Executive, Testimonial } from '../types';
 import { sortProjectsByCanonicalOrder } from '../utils/propertyOrdering';
 
 export const BRAND_ASSETS = {
-  headerLogo: 'https://caihgroup.com/wp-content/uploads/2024/10/Caih-group.png',
-  footerLogo: 'https://caihgroup.com/wp-content/uploads/2024/10/Caih-group.png',
+  headerLogo: '/images/Caih-group.png',
+  footerLogo: '/images/Caih-group.png',
   phone: '0906 688 7444',
   phoneClean: '+2349066887444',
   email: 'info@caihgroup.com',
@@ -277,22 +277,14 @@ const RAW_PROJECTS: Project[] = [
     statusLabel: 'Luxury Residential',
     badge: 'APPLETON HAVEN',
     secondaryBadge: 'VICTORIA ISLAND • LUXURY RESIDENCES',
-    image: 'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.10-1-e1770664687158.jpg',
+    image: '/images/appleton_haven_main.jpg',
     galleryImages: [
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.10-1-e1770664687158.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.14.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.14-1.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.14-2.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.14-3.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.13.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12-4.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12-3.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12-2.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12-5.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.10.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.11-3.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12.jpg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.12-1.jpg'
+      '/images/appleton_haven_main.jpg',
+      '/images/appleton_haven_facade.jpg',
+      '/images/appleton_apartments_main.jpg',
+      '/images/IMG_4379.jpg',
+      '/images/IMG_3523.jpg',
+      '/images/IMG_3525.jpg'
     ],
     priceDisplay: 'From ₦450M',
     priceSub: '2-Bed: ₦450M • 3-Bed: ₦750M • 4-Bed Maisonette: ₦1.4B',
@@ -377,13 +369,14 @@ const RAW_PROJECTS: Project[] = [
     statusLabel: 'Luxury Apartments',
     badge: 'LEKKI PHASE 1',
     secondaryBadge: 'REMI OLOWUDE STREET',
-    image: 'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette3-1-e1770664790399.jpeg',
+    image: '/images/appleton_apartments_main.jpg',
     galleryImages: [
-      'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette3-1-e1770664790399.jpeg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette1.jpeg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette2.jpeg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette3.jpeg',
-      'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette4.jpeg'
+      '/images/appleton_apartments_main.jpg',
+      '/images/IMG_4379.jpg',
+      '/images/IMG_4380.jpg',
+      '/images/IMG_4381.jpg',
+      '/images/IMG_4382.jpg',
+      '/images/IMG_3523.jpg'
     ],
     priceDisplay: 'From ₦220M',
     priceSub: '1-Bed: ₦220M • 2-Bed: ₦300M • 3-Bed: ₦450M',
@@ -459,9 +452,12 @@ const RAW_PROJECTS: Project[] = [
     statusLabel: 'Selling Fast',
     badge: 'OGOMBO ROAD • LEKKI',
     secondaryBadge: '96 UNITS • 3 & 4 BEDROOMS',
-    image: 'https://caihgroup.com/wp-content/uploads/2025/01/SL-070720-32260-33-scaled.jpg',
+    image: '/images/appleton_terraces_exterior.jpg',
     galleryImages: [
-      'https://caihgroup.com/wp-content/uploads/2025/01/SL-070720-32260-33-scaled.jpg'
+      '/images/appleton_terraces_exterior.jpg',
+      '/images/caih_luxury_residence_1791879278290.jpg',
+      '/images/IMG_3525.jpg',
+      '/images/appleton_court_exterior_real.jpg'
     ],
     priceDisplay: 'From ₦90M',
     priceSub: '3-Bed Duplex: ₦90M • 4-Bed Duplex: ₦110M',
@@ -679,10 +675,11 @@ const RAW_PROJECTS: Project[] = [
     statusLabel: 'Available for Allocation',
     badge: 'COMMERCIAL & RESIDENCES',
     secondaryBadge: 'FREE TRADE ZONE • C OF O',
-    image: 'https://caihgroup.com/wp-content/uploads/2026/02/commercial-e1770636774756.jpeg',
+    image: '/images/appleton_commercial_main.jpg',
     galleryImages: [
-      'https://caihgroup.com/wp-content/uploads/2026/02/commercial-e1770636774756.jpeg',
-      '/images/regenerated_image_1791992702647.png'
+      '/images/appleton_commercial_main.jpg',
+      '/images/regenerated_image_1791992702647.png',
+      '/images/regenerated_image_1791992506306.png'
     ],
     priceDisplay: 'From ₦95M',
     priceSub: '1,000 SQM (₦95M) • 2,000 SQM (₦190M) • 5,000 SQM (₦285M)',
@@ -773,7 +770,7 @@ export const VIDEO_DISPATCHES: VideoDispatch[] = [
     title: 'Appleton Haven: Luxury Penthouse & Maisonette Tour (Victoria Island)',
     tag: 'ON-SITE WALKTHROUGH',
     duration: '04:18',
-    thumbnail: 'https://caihgroup.com/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-09.28.10-1-e1770664687158.jpg',
+    thumbnail: '/images/appleton_haven_main.jpg',
     description: 'Exclusive tour of Appleton Haven in Victoria Island, showcasing bespoke Italian kitchens, soaring ceilings, and panoramic skyline views.',
     speaker: 'Caih Group Architectural Directorate',
     embedUrl: 'https://player.vimeo.com/video/1051104651'
@@ -783,7 +780,7 @@ export const VIDEO_DISPATCHES: VideoDispatch[] = [
     title: 'Welcome to Appleton Court (Ajah)',
     tag: 'COMPLETED PROJECT',
     duration: '03:15',
-    thumbnail: 'https://i.ytimg.com/vi/qa550kq6gc8/hqdefault.jpg',
+    thumbnail: '/images/yt_qa550kq6gc8.jpg',
     description: 'Official estate tour and walkthrough of Appleton Court on Emmanuel Akachukwu Street, Ajah by Caih Properties.',
     speaker: 'Caih Properties',
     embedUrl: 'https://www.youtube.com/embed/qa550kq6gc8'
@@ -793,7 +790,7 @@ export const VIDEO_DISPATCHES: VideoDispatch[] = [
     title: 'Appleton Apartments & Maisonette: Lekki Phase 1 Rooftop & Interiors',
     tag: 'LEKKI PHASE 1',
     duration: '05:12',
-    thumbnail: 'https://caihgroup.com/wp-content/uploads/2026/02/ApartmentMaisonnette3-1-e1770664790399.jpeg',
+    thumbnail: '/images/appleton_apartments_main.jpg',
     description: 'Exploring smart home features, executive maisonettes, and rooftop pool on Remi Olowude Street, Lekki Phase 1.',
     speaker: 'Caih Group Real Estate Advisory',
     embedUrl: 'https://player.vimeo.com/video/1051104651'
