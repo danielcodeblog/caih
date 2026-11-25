@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { PageId } from '../types';
 import { BRAND_ASSETS } from '../data/mockData';
 import { Phone, Menu, X, Mail } from 'lucide-react';
+import { BUNDLED_LOGO } from '../utils/imageAssets';
 
 interface HeaderProps {
   currentPage: PageId;
@@ -42,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
             aria-label="Caih Group Home"
           >
             <img
-              src="/images/Caih-group.png"
+              src={BUNDLED_LOGO}
               alt="Caih Group"
               loading="eager"
               fetchPriority="high"

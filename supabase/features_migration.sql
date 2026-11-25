@@ -198,3 +198,26 @@ CREATE POLICY "Enable all access for admin subscribers" ON public.newsletter_sub
 DROP POLICY IF EXISTS "Enable all access for admin users" ON public.admin_users;
 CREATE POLICY "Enable all access for admin users" ON public.admin_users
   FOR ALL USING (true) WITH CHECK (true);
+
+-- ============================================================================
+-- STORAGE BUCKET FOR UPLOADED PROPERTY & ARTICLE IMAGES
+-- ============================================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('caih-assets', 'caih-assets', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Public read caih-assets" ON storage.objects;
+CREATE POLICY "Public read caih-assets" ON storage.objects
+  FOR SELECT USING (bucket_id = 'caih-assets');
+
+DROP POLICY IF EXISTS "Allow upload to caih-assets" ON storage.objects;
+CREATE POLICY "Allow upload to caih-assets" ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'caih-assets');
+
+DROP POLICY IF EXISTS "Allow update caih-assets" ON storage.objects;
+CREATE POLICY "Allow update caih-assets" ON storage.objects
+  FOR UPDATE USING (bucket_id = 'caih-assets');
+
+DROP POLICY IF EXISTS "Allow delete caih-assets" ON storage.objects;
+CREATE POLICY "Allow delete caih-assets" ON storage.objects
+  FOR DELETE USING (bucket_id = 'caih-assets');

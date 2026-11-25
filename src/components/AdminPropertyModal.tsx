@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Project } from '../types';
-import { uploadImageToSupabaseStorage, isSupabaseConfigured, getSupabaseConfig } from '../lib/supabase';
+import { uploadImageWithDetails, isSupabaseConfigured, getSupabaseConfig } from '../lib/supabase';
+import { resolveImageAsset } from '../utils/imageAssets';
 import { DatabaseConnector } from './DatabaseConnector';
 import {
   X,
@@ -30,7 +31,7 @@ interface AdminPropertyModalProps {
   isCreating: boolean;
   project: Project | null;
   onClose: () => void;
-  onSave: (project: Project) => void;
+  onSave: (project: Project) => void | Promise<void>;
   onDelete?: (projectId: string) => void;
 }
 
@@ -104,6 +105,12 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
   // Database Connection State
   const [isDbConnected, setIsDbConnected] = useState(isSupabaseConfigured());
   const [showDbModal, setShowDbModal] = useState(false);
+
+  // Image upload & save states
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  const [uploadFeedback, setUploadFeedback] = useState<{ message: string; type: 'success' | 'warning' | 'error' } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const handleDbChange = () => {
@@ -272,22 +279,55 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isGallery = false) => {
     const file = e.target.files?.[0];
-    if (file) {
-      try {
-        const publicUrl = await uploadImageToSupabaseStorage(file);
-        if (isGallery) {
-          setFormData(prev => prev ? { ...prev, galleryImages: [...(prev.galleryImages || []), publicUrl] } : prev);
-        } else {
-          setFormData(prev => prev ? { ...prev, image: publicUrl } : prev);
-        }
-      } catch (err) {
-        console.error('File upload error:', err);
+    e.target.value = '';
+    if (!file) return;
+
+    setUploadFeedback(null);
+    if (isGallery) {
+      setIsUploadingGallery(true);
+    } else {
+      setIsUploadingCover(true);
+    }
+
+    try {
+      const result = await uploadImageWithDetails(file, 'properties');
+      if (!result.url) {
+        setUploadFeedback({ message: 'Failed to process selected image file.', type: 'error' });
+        return;
       }
+
+      if (isGallery) {
+        setFormData(prev => prev ? { ...prev, galleryImages: [...(prev.galleryImages || []), result.url] } : prev);
+      } else {
+        setFormData(prev => prev ? { ...prev, image: result.url } : prev);
+      }
+
+      if (result.source === 'supabase-storage') {
+        setUploadFeedback({
+          message: 'Image uploaded to Supabase Storage. Click Save to store in database.',
+          type: 'success'
+        });
+      } else {
+        setUploadFeedback({
+          message: 'Image compressed & attached. Click Save to store directly in database.',
+          type: 'warning'
+        });
+      }
+    } catch (err: any) {
+      console.error('File upload error:', err);
+      setUploadFeedback({
+        message: err?.message || 'Image upload failed.',
+        type: 'error'
+      });
+    } finally {
+      setIsUploadingCover(false);
+      setIsUploadingGallery(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isUploadingCover || isUploadingGallery || isSaving) return;
     if (!formData.title.trim()) {
       alert('Please enter a property title');
       return;
@@ -307,7 +347,6 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
       updatedBadge = 'Premier Estate';
     }
 
-    console.log('Saving project:', formData.title, 'with image:', formData.image);
     const finalProject: Project = {
       ...formData,
       badge: updatedBadge || undefined,
@@ -317,7 +356,12 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
         : [formData.image]
     };
 
-    onSave(finalProject);
+    setIsSaving(true);
+    try {
+      await onSave(finalProject);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -760,23 +804,41 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                       placeholder="Paste image URL (HTTPS) or pick a preset below"
                       className="flex-1 px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
                     />
-                    <label className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                    <label className={`px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${isUploadingCover ? 'opacity-60 cursor-wait' : 'cursor-pointer'}`}>
                       <ImageIcon className="w-4 h-4 text-[#b7102a]" />
-                      <span>Upload File</span>
+                      <span>{isUploadingCover ? 'Uploading...' : 'Upload File'}</span>
                       <input
                         type="file"
                         accept="image/*"
+                        disabled={isUploadingCover}
                         className="hidden"
                         onChange={e => handleFileUpload(e, false)}
                       />
                     </label>
                   </div>
 
+                  {uploadFeedback && (
+                    <div className={`mt-2 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border ${
+                      uploadFeedback.type === 'success'
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                        : uploadFeedback.type === 'warning'
+                        ? 'bg-amber-50 border-amber-200 text-amber-800'
+                        : 'bg-red-50 border-red-200 text-red-800'
+                    }`}>
+                      {uploadFeedback.type === 'success' ? (
+                        <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                      )}
+                      <span>{uploadFeedback.message}</span>
+                    </div>
+                  )}
+
                   {/* Cover Image Preview */}
                   {formData.image && (
                     <div className="mt-3 relative h-44 rounded-xl overflow-hidden border border-[#CBD5E1] bg-slate-900 max-w-md">
                       <img
-                        src={formData.image}
+                        src={resolveImageAsset(formData.image)}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -840,12 +902,13 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                     <label className="text-xs font-bold text-[#000f22] uppercase tracking-wider">
                       Photo Gallery ({formData.galleryImages?.length || 0} Images)
                     </label>
-                    <label className="text-xs text-[#b7102a] font-bold hover:underline cursor-pointer flex items-center gap-1">
+                    <label className={`text-xs text-[#b7102a] font-bold hover:underline flex items-center gap-1 ${isUploadingGallery ? 'opacity-60 cursor-wait' : 'cursor-pointer'}`}>
                       <Plus className="w-3.5 h-3.5" />
-                      <span>Upload Gallery Photo</span>
+                      <span>{isUploadingGallery ? 'Uploading Gallery Photo...' : 'Upload Gallery Photo'}</span>
                       <input
                         type="file"
                         accept="image/*"
+                        disabled={isUploadingGallery}
                         className="hidden"
                         onChange={e => handleFileUpload(e, true)}
                       />
@@ -873,7 +936,7 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                     <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                       {formData.galleryImages.map((img, idx) => (
                         <div key={idx} className="relative group rounded-lg overflow-hidden border border-[#CBD5E1] h-16 bg-slate-900">
-                          <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                          <img src={resolveImageAsset(img)} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
                           <button
                             type="button"
                             onClick={() => handleRemoveGalleryImage(idx)}
@@ -1241,7 +1304,7 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
                   <div className="relative">
                     <div className="h-52 overflow-hidden relative bg-slate-900">
                       <img
-                        src={formData.image || '/images/appleton_court_exterior_real.jpg'}
+                        src={resolveImageAsset(formData.image || '/images/appleton_court_exterior_real.jpg')}
                         alt={formData.title}
                         className="w-full h-full object-cover"
                       />
@@ -1304,10 +1367,19 @@ export const AdminPropertyModal: React.FC<AdminPropertyModalProps> = ({
               <div className="flex items-center gap-3">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  disabled={isUploadingCover || isUploadingGallery || isSaving}
+                  className="px-6 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] disabled:opacity-60 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
-                  <span>{isCreating ? 'Publish Property' : 'Save Property Changes'}</span>
+                  <span>
+                    {isUploadingCover || isUploadingGallery
+                      ? 'Uploading Image...'
+                      : isSaving
+                      ? 'Saving to Database...'
+                      : isCreating
+                      ? 'Publish Property'
+                      : 'Save Property Changes'}
+                  </span>
                 </button>
               </div>
             </div>

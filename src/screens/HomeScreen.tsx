@@ -4,6 +4,7 @@ import { VIDEO_DISPATCHES, TESTIMONIALS, BRAND_ASSETS } from '../data/mockData';
 import { getStoredArticles } from '../utils/articlesStore';
 import { getStoredProjects, sortProjectsByCanonicalOrder, resolveProjectImage } from '../utils/projectsStore';
 import { OptimizedImage } from '../components/OptimizedImage';
+import { resolveImageAsset } from '../utils/imageAssets';
 import gsap from 'gsap';
 import {
   Search,
@@ -1041,8 +1042,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     }`}
                   >
                     <img
-                      src={t.avatar}
+                      src={resolveImageAsset(t.avatar)}
                       alt={`Thumbnail ${idx + 1}`}
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -1106,8 +1108,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <X className="w-6 h-6" />
           </button>
           <img
-            src={lightboxImage}
+            src={resolveImageAsset(lightboxImage)}
             alt="Testimonial photo preview"
+            referrerPolicy="no-referrer"
             className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />

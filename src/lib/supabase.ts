@@ -4,6 +4,7 @@ import { PROJECTS } from '../data/mockData';
 import { ARTICLES } from '../data/articles';
 import { sortProjectsByCanonicalOrder } from '../utils/propertyOrdering';
 import { sanitizeProjectImages } from '../utils/projectsStore';
+import { normalizeImageForStorage, resolveImageAsset } from '../utils/imageAssets';
 
 // Fallback dummy client for when Supabase is not configured
 const createFallbackClient = (): any => {
@@ -563,7 +564,7 @@ export const fetchArticlesFromSupabase = async (): Promise<Article[]> => {
       readTime: row.read_time || row.readTime || '5 min read',
       date: row.date || 'April 2026',
       author: row.author || { name: 'Caih Group', avatarInitials: 'CG' },
-      image: row.image,
+      image: resolveImageAsset(row.image),
       videoUrl: row.video_url || row.videoUrl,
       excerpt: row.excerpt || '',
       content: normalizeStringArray(row.content),
@@ -577,17 +578,27 @@ export const fetchArticlesFromSupabase = async (): Promise<Article[]> => {
   }
 };
 
+export interface SupabaseSyncResult {
+  success: boolean;
+  synced: boolean;
+  error?: string;
+}
+
 export const upsertPropertyToSupabase = async (
   prop: Project,
   adminId?: string
-): Promise<void> => {
-  if (!isSupabaseConfigured()) return;
+): Promise<SupabaseSyncResult> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, synced: false, error: 'Supabase is not configured' };
+  }
   try {
     const client = getClient();
     const cleanKeyFeatures = normalizeStringArray(prop.keyFeatures);
-    const cleanGalleryImages = normalizeStringArray(prop.galleryImages);
+    const storableImage = normalizeImageForStorage(prop.image);
+    const storableGalleryImages = normalizeStringArray(prop.galleryImages).map((g) =>
+      normalizeImageForStorage(g)
+    );
 
-    // 1. Attempt to upsert the full payload
     const payload: any = {
       id: prop.id,
       title: prop.title,
@@ -599,7 +610,7 @@ export const upsertPropertyToSupabase = async (
       status_label: prop.statusLabel,
       badge: prop.badge,
       secondary_badge: prop.secondaryBadge,
-      image: prop.image,
+      image: storableImage,
       price_display: prop.priceDisplay,
       price_sub: prop.priceSub,
       specs: prop.specs || {},
@@ -610,7 +621,7 @@ export const upsertPropertyToSupabase = async (
       payment_type: prop.paymentType,
       starting_deposit: prop.startingDeposit,
       units_or_plots: prop.unitsOrPlots || [],
-      gallery_images: cleanGalleryImages,
+      gallery_images: storableGalleryImages,
       video_url: prop.videoList?.[0]?.url || null,
       video_list: prop.videoList || [],
       faq_pdf_url: prop.faqPdfUrl,
@@ -618,85 +629,113 @@ export const upsertPropertyToSupabase = async (
       neighbourhood: normalizeStringArray(prop.neighbourhood),
       payment_table: prop.paymentTable || [],
       banking_details: prop.bankingDetails || {},
-      faqs: prop.faqs || []
+      faqs: prop.faqs || [],
+      updated_by: adminId || null,
     };
 
-    let { error } = await client.from('properties').upsert(payload);
+    let { error } = await client.from('properties').upsert(payload, { onConflict: 'id' });
 
-    // If schema cache lacks an optional column (e.g. video_url), peel it off and retry
+    // If schema cache lacks optional columns (e.g. video_url / video_list), peel them off and retry
     let retries = 0;
-    while (error && retries < 4) {
-      retries++;
+    while (error && retries < 10) {
       const match = error.message.match(/Could not find the '([^']+)' column/i);
       if (match && match[1]) {
+        retries++;
         const missingCol = match[1];
         console.warn(`Supabase schema cache missing '${missingCol}', omitting column and retrying...`);
         delete payload[missingCol];
-        const res = await client.from('properties').upsert(payload);
+        const res = await client.from('properties').upsert(payload, { onConflict: 'id' });
         error = res.error;
       } else {
         break;
       }
     }
 
-    // 2. Resilient fallback payload preserving key_features and gallery_images
-    if (error) {
-      console.warn('Supabase full upsert failed, retrying with core payload:', error.message);
-      const corePayload: any = {
-        id: prop.id,
-        title: prop.title,
-        location: prop.location,
-        image: prop.image,
-        price_display: prop.priceDisplay,
-        summary: prop.summary || '',
-        detailed_description: prop.detailedDescription || '',
-        key_features: cleanKeyFeatures,
-        gallery_images: cleanGalleryImages,
-        specs: prop.specs || {}
-      };
-      const { error: retryError } = await client.from('properties').upsert(corePayload);
-      if (retryError) {
-        console.warn('Resilient retry failed, trying bare minimum:', retryError.message);
-        const barePayload = {
-          id: prop.id,
-          title: prop.title,
-          location: prop.location,
-          image: prop.image,
-          price_display: prop.priceDisplay,
-          summary: prop.summary || '',
-          detailed_description: prop.detailedDescription || ''
-        };
-        await client.from('properties').upsert(barePayload);
-      } else {
-        console.info('Property successfully saved with key_features to Supabase.');
-      }
-    } else {
-      console.info('Property successfully upserted to Supabase with all fields.');
+    if (!error) {
+      return { success: true, synced: true };
     }
-  } catch (err) {
-    console.error('Fatal network/system error during upsert:', err);
+
+    // If failure is RLS / permission / auth, do not silently pretend core fallback worked
+    const errMsg = error.message || 'Unknown Supabase error';
+    const isPermissionError =
+      error.code === '42501' ||
+      errMsg.toLowerCase().includes('row-level security') ||
+      errMsg.toLowerCase().includes('permission denied');
+
+    if (isPermissionError) {
+      console.error('Supabase RLS policy blocked property upsert:', errMsg);
+      return { success: false, synced: false, error: `Permission/RLS blocked write: ${errMsg}` };
+    }
+
+    // Resilient fallback payload preserving image, gallery_images, and key_features
+    console.warn('Supabase full upsert failed, retrying with core payload:', errMsg);
+    const corePayload: any = {
+      id: prop.id,
+      title: prop.title,
+      location: prop.location,
+      image: storableImage,
+      price_display: prop.priceDisplay,
+      summary: prop.summary || '',
+      detailed_description: prop.detailedDescription || '',
+      key_features: cleanKeyFeatures,
+      gallery_images: storableGalleryImages,
+      specs: prop.specs || {}
+    };
+    const { error: retryError } = await client.from('properties').upsert(corePayload, { onConflict: 'id' });
+    if (!retryError) {
+      return { success: true, synced: true };
+    }
+
+    const barePayload = {
+      id: prop.id,
+      title: prop.title,
+      location: prop.location,
+      image: storableImage,
+      price_display: prop.priceDisplay,
+      summary: prop.summary || '',
+      detailed_description: prop.detailedDescription || ''
+    };
+    const { error: bareError } = await client.from('properties').upsert(barePayload, { onConflict: 'id' });
+    if (!bareError) {
+      return { success: true, synced: true };
+    }
+
+    console.error('Supabase property upsert failed:', bareError.message);
+    return { success: false, synced: false, error: bareError.message };
+  } catch (err: any) {
+    console.error('Fatal network/system error during property upsert:', err);
+    return { success: false, synced: false, error: err?.message || 'Network error' };
   }
 };
 
-export const deletePropertyFromSupabase = async (id: string): Promise<void> => {
-  if (!isSupabaseConfigured()) return;
+export const deletePropertyFromSupabase = async (id: string): Promise<SupabaseSyncResult> => {
+  if (!isSupabaseConfigured()) return { success: false, synced: false, error: 'Supabase not configured' };
   try {
     const client = getClient();
-    await client.from('properties').delete().eq('id', id);
-  } catch (err) {
+    const { error } = await client.from('properties').delete().eq('id', id);
+    if (error) {
+      console.warn('Error deleting property from Supabase:', error.message);
+      return { success: false, synced: false, error: error.message };
+    }
+    return { success: true, synced: true };
+  } catch (err: any) {
     console.warn('Error deleting property from Supabase:', err);
+    return { success: false, synced: false, error: err?.message || 'Network error' };
   }
 };
 
 export const upsertArticleToSupabase = async (
   art: Article,
   adminId?: string
-): Promise<void> => {
-  if (!isSupabaseConfigured()) return;
+): Promise<SupabaseSyncResult> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, synced: false, error: 'Supabase is not configured' };
+  }
   try {
     const client = getClient();
     const cleanContent = normalizeStringArray(art.content);
     const cleanKeyTakeaways = normalizeStringArray(art.keyTakeaways);
+    const storableImage = normalizeImageForStorage(art.image);
 
     const payload: any = {
       id: art.id,
@@ -706,42 +745,80 @@ export const upsertArticleToSupabase = async (
       read_time: art.readTime,
       date: art.date,
       author: art.author,
-      image: art.image,
+      image: storableImage,
       video_url: art.videoUrl || null,
       excerpt: art.excerpt,
       content: cleanContent,
       sections: art.sections || [],
       key_takeaways: cleanKeyTakeaways,
-      featured: Boolean(art.featured)
+      featured: Boolean(art.featured),
+      updated_by: adminId || null,
     };
 
-    let { error } = await client.from('articles').upsert(payload);
-    if (error) {
-      console.warn('Error upserting article to Supabase:', error.message);
-      const corePayload = {
-        id: art.id,
-        title: art.title,
-        category: art.category,
-        image: art.image,
-        excerpt: art.excerpt,
-        content: cleanContent
-      };
-      await client.from('articles').upsert(corePayload);
-    } else {
-      console.info('Article successfully upserted to Supabase database.');
+    let { error } = await client.from('articles').upsert(payload, { onConflict: 'id' });
+
+    let retries = 0;
+    while (error && retries < 8) {
+      const match = error.message.match(/Could not find the '([^']+)' column/i);
+      if (match && match[1]) {
+        retries++;
+        delete payload[match[1]];
+        const res = await client.from('articles').upsert(payload, { onConflict: 'id' });
+        error = res.error;
+      } else {
+        break;
+      }
     }
-  } catch (err) {
+
+    if (!error) {
+      return { success: true, synced: true };
+    }
+
+    const errMsg = error.message || 'Unknown Supabase error';
+    const isPermissionError =
+      error.code === '42501' ||
+      errMsg.toLowerCase().includes('row-level security') ||
+      errMsg.toLowerCase().includes('permission denied');
+
+    if (isPermissionError) {
+      console.error('Supabase RLS policy blocked article upsert:', errMsg);
+      return { success: false, synced: false, error: `Permission/RLS blocked write: ${errMsg}` };
+    }
+
+    console.warn('Article full upsert failed, trying core payload:', errMsg);
+    const corePayload = {
+      id: art.id,
+      title: art.title,
+      category: art.category,
+      image: storableImage,
+      excerpt: art.excerpt,
+      content: cleanContent
+    };
+    const { error: coreError } = await client.from('articles').upsert(corePayload, { onConflict: 'id' });
+    if (!coreError) {
+      return { success: true, synced: true };
+    }
+
+    return { success: false, synced: false, error: coreError.message };
+  } catch (err: any) {
     console.warn('Error upserting article to Supabase:', err);
+    return { success: false, synced: false, error: err?.message || 'Network error' };
   }
 };
 
-export const deleteArticleFromSupabase = async (id: string): Promise<void> => {
-  if (!isSupabaseConfigured()) return;
+export const deleteArticleFromSupabase = async (id: string): Promise<SupabaseSyncResult> => {
+  if (!isSupabaseConfigured()) return { success: false, synced: false, error: 'Supabase not configured' };
   try {
     const client = getClient();
-    await client.from('articles').delete().eq('id', id);
-  } catch (err) {
+    const { error } = await client.from('articles').delete().eq('id', id);
+    if (error) {
+      console.warn('Error deleting article from Supabase:', error.message);
+      return { success: false, synced: false, error: error.message };
+    }
+    return { success: true, synced: true };
+  } catch (err: any) {
     console.warn('Error deleting article from Supabase:', err);
+    return { success: false, synced: false, error: err?.message || 'Network error' };
   }
 };
 
@@ -892,17 +969,19 @@ export const seedDatabase = async (): Promise<{ success: boolean; message: strin
   }
 
   try {
-    const client = getClient();
     let propCount = 0;
+    let lastError = '';
     for (const p of PROJECTS) {
-      await upsertPropertyToSupabase(p, 'seeder');
-      propCount++;
+      const res = await upsertPropertyToSupabase(p, 'seeder');
+      if (res.synced) propCount++;
+      else if (res.error) lastError = res.error;
     }
 
     let artCount = 0;
     for (const a of ARTICLES) {
-      await upsertArticleToSupabase(a, 'seeder');
-      artCount++;
+      const res = await upsertArticleToSupabase(a, 'seeder');
+      if (res.synced) artCount++;
+      else if (res.error && !lastError) lastError = res.error;
     }
 
     // Seed admin users into admin_users table
@@ -918,6 +997,13 @@ export const seedDatabase = async (): Promise<{ success: boolean; message: strin
       password: 'caih2026!',
       role: 'Managing Director'
     });
+
+    if (propCount === 0 && artCount === 0 && lastError) {
+      return {
+        success: false,
+        message: `Failed to write records to Supabase: ${lastError}`
+      };
+    }
 
     return {
       success: true,
@@ -940,7 +1026,7 @@ export const compressImageFile = (file: File): Promise<string> => {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-        const maxDim = 1000;
+        const maxDim = 960;
         if (width > maxDim || height > maxDim) {
           if (width > height) {
             height = Math.round((height * maxDim) / width);
@@ -954,48 +1040,78 @@ export const compressImageFile = (file: File): Promise<string> => {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          resolve(e.target?.result as string);
+          resolve((e.target?.result as string) || '');
           return;
         }
         ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.82));
+        resolve(canvas.toDataURL('image/jpeg', 0.78));
       };
-      img.onerror = () => resolve(e.target?.result as string);
-      img.src = e.target?.result as string;
+      img.onerror = () => resolve((e.target?.result as string) || '');
+      img.src = (e.target?.result as string) || '';
     };
     reader.onerror = () => resolve('');
     reader.readAsDataURL(file);
   });
 };
 
-export const uploadImageToSupabaseStorage = async (file: File): Promise<string> => {
+export interface ImageUploadResult {
+  url: string;
+  source: 'supabase-storage' | 'compressed-data-url';
+  storageError?: string;
+}
+
+export const uploadImageWithDetails = async (
+  file: File,
+  folder: 'properties' | 'articles' = 'properties'
+): Promise<ImageUploadResult> => {
   if (!isSupabaseConfigured()) {
-    return await compressImageFile(file);
+    const url = await compressImageFile(file);
+    return { url, source: 'compressed-data-url', storageError: 'Supabase not connected' };
   }
 
   try {
     const client = getClient();
-    const fileExt = file.name.split('.').pop() || 'jpg';
+    const rawExt = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const fileExt = rawExt || 'jpg';
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-    const filePath = `properties/${fileName}`;
+    const filePath = `${folder}/${fileName}`;
 
     const { error: uploadError } = await client.storage
       .from('caih-assets')
-      .upload(filePath, file, { upsert: true });
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type || 'image/jpeg',
+      });
 
     if (uploadError) {
-      console.warn('Supabase Storage upload error (falling back to compressed data URL):', uploadError);
-      return await compressImageFile(file);
+      console.warn('Supabase Storage upload error (falling back to compressed data URL):', uploadError.message);
+      const url = await compressImageFile(file);
+      return { url, source: 'compressed-data-url', storageError: uploadError.message };
     }
 
     const { data: { publicUrl } } = client.storage
       .from('caih-assets')
       .getPublicUrl(filePath);
 
-    return publicUrl || '';
-  } catch (err) {
+    if (publicUrl) {
+      return { url: publicUrl, source: 'supabase-storage' };
+    }
+
+    const url = await compressImageFile(file);
+    return { url, source: 'compressed-data-url', storageError: 'Missing public URL' };
+  } catch (err: any) {
     console.warn('Supabase Storage exception (falling back to compressed data URL):', err);
-    return await compressImageFile(file);
+    const url = await compressImageFile(file);
+    return { url, source: 'compressed-data-url', storageError: err?.message || 'Upload exception' };
   }
+};
+
+export const uploadImageToSupabaseStorage = async (
+  file: File,
+  folder: 'properties' | 'articles' = 'properties'
+): Promise<string> => {
+  const result = await uploadImageWithDetails(file, folder);
+  return result.url;
 };
 

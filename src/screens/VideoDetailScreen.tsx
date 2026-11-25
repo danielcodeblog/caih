@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { VideoDispatch, Project, PageId } from '../types';
 import { VIDEO_DISPATCHES, PROJECTS, BRAND_ASSETS } from '../data/mockData';
+import { resolveProjectImage } from '../utils/projectsStore';
+import { resolveImageAsset } from '../utils/imageAssets';
 import {
   ArrowLeft,
   Play,
@@ -127,8 +129,9 @@ export const VideoDetailScreen: React.FC<VideoDetailScreenProps> = ({
               <>
                 {/* Backdrop / Video Image */}
                 <img
-                  src={video.thumbnail}
+                  src={resolveImageAsset(video.thumbnail)}
                   alt={video.title}
+                  referrerPolicy="no-referrer"
                   className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-75 group-hover:opacity-85"
                 />
 
@@ -283,8 +286,9 @@ export const VideoDetailScreen: React.FC<VideoDetailScreenProps> = ({
                 </span>
                 <div className="aspect-[16/10] rounded-xl overflow-hidden border border-[#E2E8F0] relative">
                   <img
-                    src={matchedProject.image}
+                    src={resolveProjectImage(matchedProject.image, matchedProject.id)}
                     alt={matchedProject.title}
+                    referrerPolicy="no-referrer"
                     className="w-full h-full object-cover"
                   />
                   <span className="absolute bottom-2.5 left-2.5 px-2.5 py-1 rounded bg-black/75 backdrop-blur-sm text-white text-[11px] font-bold">
@@ -358,8 +362,9 @@ export const VideoDetailScreen: React.FC<VideoDetailScreenProps> = ({
               >
                 <div className="relative aspect-video overflow-hidden bg-black">
                   <img
-                    src={vid.thumbnail}
+                    src={resolveImageAsset(vid.thumbnail)}
                     alt={vid.title}
+                    referrerPolicy="no-referrer"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
                   />
                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center">

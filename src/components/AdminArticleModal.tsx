@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Article } from '../types';
+import { uploadImageWithDetails } from '../lib/supabase';
+import { resolveImageAsset } from '../utils/imageAssets';
 import {
   X,
   FileText,
@@ -13,7 +15,9 @@ import {
   User,
   Image as ImageIcon,
   Film,
-  ArrowRight
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
 
 interface AdminArticleModalProps {
@@ -21,7 +25,7 @@ interface AdminArticleModalProps {
   isCreating: boolean;
   article: Article | null;
   onClose: () => void;
-  onSave: (article: Article) => void;
+  onSave: (article: Article) => void | Promise<void>;
   onDelete?: (articleId: string) => void;
 }
 
@@ -30,7 +34,7 @@ const ARTICLE_IMAGE_PRESETS = [
   { label: 'Infrastructure & Roads', url: 'https://images.unsplash.com/photo-1541888946425-d0fbb186156f?auto=format&fit=crop&q=80&w=1200' },
   { label: 'Appleton Court Aerial', url: '/images/appleton_court_aerial_clean.jpg' },
   { label: 'Interior Living Architecture', url: '/images/appleton_court_interior_living.jpg' },
-  { label: 'Commercial Developments', url: '/images/commercial-e1770636774756.jpeg' },
+  { label: 'Commercial Developments', url: '/images/appleton_commercial_main.jpg' },
   { label: 'Luxury Residence Facade', url: '/images/caih_luxury_residence_1791879278290.jpg' },
 ];
 
@@ -47,6 +51,9 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
   const [paragraphsText, setParagraphsText] = useState('');
   const [newTakeawayText, setNewTakeawayText] = useState('');
   const [showLivePreview, setShowLivePreview] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadFeedback, setUploadFeedback] = useState<{ message: string; type: 'success' | 'warning' | 'error' } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (article) {
@@ -57,20 +64,41 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
         content: article.content || []
       });
       setParagraphsText(article.content ? article.content.join('\n\n') : '');
+      setUploadFeedback(null);
     }
   }, [article]);
 
   if (!isOpen || !formData) return null;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setFormData({ ...formData, image: base64String });
-      };
-      reader.readAsDataURL(file);
+    e.target.value = '';
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    setUploadFeedback(null);
+    try {
+      const result = await uploadImageWithDetails(file, 'articles');
+      if (!result.url) {
+        setUploadFeedback({ message: 'Failed to read image file.', type: 'error' });
+        return;
+      }
+      setFormData(prev => prev ? { ...prev, image: result.url } : prev);
+      if (result.source === 'supabase-storage') {
+        setUploadFeedback({
+          message: 'Cover photo uploaded to Supabase Storage. Save article to store in database.',
+          type: 'success'
+        });
+      } else {
+        setUploadFeedback({
+          message: 'Image compressed & attached. Save article to store directly in database.',
+          type: 'warning'
+        });
+      }
+    } catch (err: any) {
+      setUploadFeedback({ message: err?.message || 'Image upload failed.', type: 'error' });
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -90,8 +118,9 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isUploadingImage || isSaving) return;
     if (!formData.title.trim()) {
       alert('Please enter an article title');
       return;
@@ -118,7 +147,12 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
       }
     };
 
-    onSave(finalArticle);
+    setIsSaving(true);
+    try {
+      await onSave(finalArticle);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -361,17 +395,35 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
                       placeholder="Paste image URL (HTTPS) or pick a preset below"
                       className="flex-1 px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#b7102a]/30"
                     />
-                    <label className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                    <label className={`px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#000f22] text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${isUploadingImage ? 'opacity-60 cursor-wait' : 'cursor-pointer'}`}>
                       <ImageIcon className="w-4 h-4 text-[#b7102a]" />
-                      <span>Upload File</span>
+                      <span>{isUploadingImage ? 'Uploading...' : 'Upload File'}</span>
                       <input
                         type="file"
                         accept="image/*"
+                        disabled={isUploadingImage}
                         className="hidden"
                         onChange={handleFileUpload}
                       />
                     </label>
                   </div>
+
+                  {uploadFeedback && (
+                    <div className={`mb-3 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border ${
+                      uploadFeedback.type === 'success'
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                        : uploadFeedback.type === 'warning'
+                        ? 'bg-amber-50 border-amber-200 text-amber-800'
+                        : 'bg-red-50 border-red-200 text-red-800'
+                    }`}>
+                      {uploadFeedback.type === 'success' ? (
+                        <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                      )}
+                      <span>{uploadFeedback.message}</span>
+                    </div>
+                  )}
 
                   {/* Preset Buttons */}
                   <div className="space-y-1">
@@ -400,7 +452,7 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
                   {formData.image && (
                     <div className="mt-3 relative h-48 rounded-xl overflow-hidden border border-[#CBD5E1] bg-slate-900 max-w-md">
                       <img
-                        src={formData.image}
+                        src={resolveImageAsset(formData.image)}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -520,7 +572,7 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
                   <div>
                     <div className="relative h-48 overflow-hidden bg-slate-900">
                       <img
-                        src={formData.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200'}
+                        src={resolveImageAsset(formData.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200')}
                         alt={formData.title}
                         className="w-full h-full object-cover"
                       />
@@ -596,10 +648,19 @@ export const AdminArticleModal: React.FC<AdminArticleModalProps> = ({
               <div className="flex items-center gap-3">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  disabled={isUploadingImage || isSaving}
+                  className="px-6 py-2.5 rounded-xl bg-[#b7102a] hover:bg-[#db313f] disabled:opacity-60 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
-                  <span>{isCreating ? 'Publish Blog Post' : 'Save Article Changes'}</span>
+                  <span>
+                    {isUploadingImage
+                      ? 'Uploading Image...'
+                      : isSaving
+                      ? 'Saving to Database...'
+                      : isCreating
+                      ? 'Publish Blog Post'
+                      : 'Save Article Changes'}
+                  </span>
                 </button>
               </div>
             </div>

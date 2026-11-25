@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { EXECUTIVES, BRAND_ASSETS, TESTIMONIALS } from '../data/mockData';
 import { Executive } from '../types';
 import { OptimizedImage } from '../components/OptimizedImage';
+import { resolveImageAsset } from '../utils/imageAssets';
 import {
   ShieldCheck,
   Building2,
@@ -468,8 +469,9 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                     onClick={() => setLightboxImage(t.avatar)}
                   >
                     <img
-                      src={t.avatar}
+                      src={resolveImageAsset(t.avatar)}
                       alt={`Testimonial photo ${idx + 1}`}
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover object-center"
                     />
 
@@ -550,8 +552,9 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                     }`}
                   >
                     <img
-                      src={t.avatar}
+                      src={resolveImageAsset(t.avatar)}
                       alt={`Thumbnail ${idx + 1}`}
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -577,8 +580,9 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
             <X className="w-6 h-6" />
           </button>
           <img
-            src={lightboxImage}
+            src={resolveImageAsset(lightboxImage)}
             alt="Testimonial photo preview"
+            referrerPolicy="no-referrer"
             className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />
@@ -606,8 +610,9 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
             <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-200">
               <div className="w-20 h-24 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border">
                 <img
-                  src={selectedExecutive.image}
+                  src={resolveImageAsset(selectedExecutive.image)}
                   alt={selectedExecutive.name}
+                  referrerPolicy="no-referrer"
                   className="w-full h-full object-cover object-top"
                 />
               </div>

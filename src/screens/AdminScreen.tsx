@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Project, Article } from '../types';
 import { subscribeClient } from '../services/newsletterService';
+import { BUNDLED_ICON, resolveImageAsset } from '../utils/imageAssets';
 import {
   Shield,
   Users,
@@ -189,11 +190,31 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   const [copiedAuthSql, setCopiedAuthSql] = useState(false);
   const [authBackendNotice, setAuthBackendNotice] = useState<string | null>(null);
   const [isRefreshingDb, setIsRefreshingDb] = useState(false);
+  const [isSeedingDb, setIsSeedingDb] = useState(false);
+  const [isDbConnected, setIsDbConnected] = useState<boolean>(() => isSupabaseConfigured());
+  const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
+  const [noticeType, setNoticeType] = useState<'success' | 'warning' | 'error'>('success');
+  const noticeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showDashboardNotice = (
+    message: string,
+    type: 'success' | 'warning' | 'error' = 'success',
+    durationMs = 5500
+  ) => {
+    setNoticeType(type);
+    setDeleteNotice(message);
+    if (noticeTimerRef.current) {
+      clearTimeout(noticeTimerRef.current);
+    }
+    noticeTimerRef.current = setTimeout(() => {
+      setDeleteNotice(null);
+    }, durationMs);
+  };
 
   const handleRefreshFromDatabase = async () => {
     setIsRefreshingDb(true);
     if (!isSupabaseConfigured()) {
-      alert('Supabase is not configured yet. Please configure Supabase in settings.');
+      showDashboardNotice('Supabase is not configured yet. Enter your Project URL and Anon Key below.', 'warning');
       setIsRefreshingDb(false);
       return;
     }
@@ -216,8 +237,14 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           createdAt: u.createdAt || new Date().toISOString().split('T')[0],
         })));
       }
-      if (dbProps && dbProps.length > 0) setProjectsList(dbProps);
-      if (dbArticles && dbArticles.length > 0) setArticlesList(dbArticles);
+      if (dbProps && dbProps.length > 0) {
+        setProjectsList(dbProps);
+        saveStoredProjects(dbProps);
+      }
+      if (dbArticles && dbArticles.length > 0) {
+        setArticlesList(dbArticles);
+        saveStoredArticles(dbArticles);
+      }
       if (dbInqs && dbInqs.length > 0) {
         setInquiries(dbInqs.map((r: any) => ({
           id: r.id || 'INQ-' + Math.random().toString().slice(2, 6),
@@ -236,11 +263,30 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           source: s.source || 'Database'
         })));
       }
-      alert('Dashboard successfully fetched fresh records from Supabase PostgreSQL database!');
+      showDashboardNotice(
+        `Synced ${dbProps.length} properties & ${dbArticles.length} articles from Supabase to website!`,
+        'success'
+      );
     } catch (err: any) {
-      alert('Error fetching from database: ' + (err?.message || err));
+      showDashboardNotice('Error fetching from database: ' + (err?.message || err), 'error', 8000);
     } finally {
       setIsRefreshingDb(false);
+    }
+  };
+
+  const handleSeedToDatabase = async () => {
+    setIsSeedingDb(true);
+    try {
+      const res = await seedDatabase();
+      if (res.success) {
+        showDashboardNotice(res.message, 'success', 6500);
+      } else {
+        showDashboardNotice(res.message, 'error', 8500);
+      }
+    } catch (err: any) {
+      showDashboardNotice('Seed failed: ' + (err?.message || err), 'error', 8500);
+    } finally {
+      setIsSeedingDb(false);
     }
   };
 
@@ -320,7 +366,9 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   // Sync Supabase data on mount & when config changes
   useEffect(() => {
     const syncAll = async () => {
-      if (isSupabaseConfigured()) {
+      const configured = isSupabaseConfigured();
+      setIsDbConnected(configured);
+      if (configured) {
         try {
           const [dbAdmins, dbProps, dbArticles, dbInqs, dbSubs] = await Promise.all([
             fetchAdminUsersFromSupabase(),
@@ -350,10 +398,12 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 
           if (dbProps && dbProps.length > 0) {
             setProjectsList(dbProps);
+            saveStoredProjects(dbProps);
           }
 
           if (dbArticles && dbArticles.length > 0) {
             setArticlesList(dbArticles);
+            saveStoredArticles(dbArticles);
           }
 
           if (dbInqs && dbInqs.length > 0) {
@@ -705,13 +755,28 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
   };
 
   const handleSaveProjectModal = async (savedProject: Project) => {
-    const updated = await addOrUpdateProject(savedProject);
+    const updated = addOrUpdateProject(savedProject);
     setProjectsList(updated);
     if (isSupabaseConfigured()) {
-      await upsertPropertyToSupabase(savedProject, currentAdmin?.id);
-      setDeleteNotice(`Property "${savedProject.title}" saved and synced to Supabase database!`);
+      const syncRes = await upsertPropertyToSupabase(savedProject, currentAdmin?.id);
+      if (syncRes.synced) {
+        showDashboardNotice(
+          `Property "${savedProject.title || savedProject.id}" saved & stored in Supabase database!`,
+          'success'
+        );
+      } else {
+        showDashboardNotice(
+          `Saved locally, but Supabase sync failed: ${syncRes.error || 'Unknown database error'}. Check Database SQL/RLS setup.`,
+          'error',
+          9000
+        );
+      }
     } else {
-      setDeleteNotice(`Property "${savedProject.title}" saved locally. (Database not connected - configure in Database tab to sync).`);
+      showDashboardNotice(
+        `Property "${savedProject.title || savedProject.id}" saved locally only. Click "Database" in the header to connect Supabase.`,
+        'warning',
+        7500
+      );
     }
     setEditingProject(null);
     setIsCreatingProject(false);
@@ -724,7 +789,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     name: string;
   }
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
-  const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const executeDelete = async () => {
@@ -732,19 +796,27 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     setIsDeleting(true);
     try {
       if (deleteTarget.type === 'property') {
-        const updated = await deleteStoredProject(deleteTarget.id);
+        const updated = deleteStoredProject(deleteTarget.id);
         setProjectsList(updated);
         if (isSupabaseConfigured()) {
-          await deletePropertyFromSupabase(deleteTarget.id);
+          const delRes = await deletePropertyFromSupabase(deleteTarget.id);
+          if (!delRes.synced) {
+            showDashboardNotice(`Deleted locally, but Supabase delete failed: ${delRes.error}`, 'error', 8000);
+            return;
+          }
         }
-        setDeleteNotice(`Successfully deleted property: "${deleteTarget.name}"`);
+        showDashboardNotice(`Successfully deleted property: "${deleteTarget.name}"`, 'success');
       } else if (deleteTarget.type === 'article') {
         const updated = deleteStoredArticle(deleteTarget.id);
         setArticlesList(updated);
         if (isSupabaseConfigured()) {
-          await deleteArticleFromSupabase(deleteTarget.id);
+          const delRes = await deleteArticleFromSupabase(deleteTarget.id);
+          if (!delRes.synced) {
+            showDashboardNotice(`Deleted locally, but Supabase delete failed: ${delRes.error}`, 'error', 8000);
+            return;
+          }
         }
-        setDeleteNotice(`Successfully deleted article: "${deleteTarget.name}"`);
+        showDashboardNotice(`Successfully deleted article: "${deleteTarget.name}"`, 'success');
       } else if (deleteTarget.type === 'subscriber') {
         const updated = subscribers.filter(s => s.email !== deleteTarget.id);
         setSubscribers(updated);
@@ -752,7 +824,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         if (isSupabaseConfigured()) {
           await deleteSubscriberFromSupabase(deleteTarget.id);
         }
-        setDeleteNotice(`Removed ${deleteTarget.name} from subscriber list`);
+        showDashboardNotice(`Removed ${deleteTarget.name} from subscriber list`, 'success');
       } else if (deleteTarget.type === 'inquiry') {
         const updated = inquiries.filter(item => item.id !== deleteTarget.id);
         setInquiries(updated);
@@ -760,7 +832,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         if (isSupabaseConfigured()) {
           await deleteInspectionFromSupabase(deleteTarget.id);
         }
-        setDeleteNotice(`Removed inspection inquiry for ${deleteTarget.name}`);
+        showDashboardNotice(`Removed inspection inquiry for ${deleteTarget.name}`, 'success');
       } else if (deleteTarget.type === 'admin') {
         const updated = adminUsers.filter(u => u.id !== deleteTarget.id);
         setAdminUsers(updated);
@@ -768,11 +840,11 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         if (isSupabaseConfigured()) {
           await deleteAdminUserFromSupabase(deleteTarget.id);
         }
-        setDeleteNotice(`Removed team account: ${deleteTarget.name}`);
+        showDashboardNotice(`Removed team account: ${deleteTarget.name}`, 'success');
       }
     } catch (err: any) {
       console.error('Delete error:', err);
-      setDeleteNotice(`Delete operation encountered an issue: ${err.message || 'Error'}`);
+      showDashboardNotice(`Delete operation encountered an issue: ${err.message || 'Error'}`, 'error', 7000);
     } finally {
       setIsDeleting(false);
       setDeleteTarget(null);
@@ -784,7 +856,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         setEditingArticle(null);
         setIsCreatingArticle(false);
       }
-      setTimeout(() => setDeleteNotice(null), 4500);
     }
   };
 
@@ -827,7 +898,25 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     const updated = addOrUpdateArticle(savedArticle);
     setArticlesList(updated);
     if (isSupabaseConfigured()) {
-      await upsertArticleToSupabase(savedArticle, currentAdmin?.id);
+      const syncRes = await upsertArticleToSupabase(savedArticle, currentAdmin?.id);
+      if (syncRes.synced) {
+        showDashboardNotice(
+          `Article "${savedArticle.title || savedArticle.id}" saved & stored in Supabase database!`,
+          'success'
+        );
+      } else {
+        showDashboardNotice(
+          `Saved locally, but Supabase sync failed: ${syncRes.error || 'Unknown database error'}. Check Database SQL/RLS setup.`,
+          'error',
+          9000
+        );
+      }
+    } else {
+      showDashboardNotice(
+        `Article "${savedArticle.title || savedArticle.id}" saved locally only. Click "Database" in the header to connect Supabase.`,
+        'warning',
+        7500
+      );
     }
     setEditingArticle(null);
     setIsCreatingArticle(false);
@@ -918,7 +1007,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           {/* Header */}
           <div className="flex flex-col items-center text-center mb-6">
             <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-lg shadow-black/20 mb-3 border border-slate-700/30">
-              <img src="/images/cropped-Caih-icon-270x270.png" alt="Caih Group Logo" className="w-10 h-10 object-contain" />
+              <img src={BUNDLED_ICON} alt="Caih Group Logo" className="w-10 h-10 object-contain" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
               Caih Group Admin Console
@@ -1119,7 +1208,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         <div className="bg-[#000f22] text-white rounded-3xl p-6 sm:p-8 mb-8 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 border border-slate-800">
           <div className="flex items-start sm:items-center gap-4">
             <div className="h-14 px-3.5 rounded-2xl bg-white flex items-center justify-center shadow-lg shrink-0">
-              <img src="/images/cropped-Caih-icon-270x270.png" alt="Caih Group Logo" className="h-9 w-auto object-contain" />
+              <img src={BUNDLED_ICON} alt="Caih Group Logo" className="h-9 w-auto object-contain" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
@@ -1142,6 +1231,19 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setShowDbConnectModal(true)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 cursor-pointer ${
+                isDbConnected
+                  ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border-emerald-400/30'
+                  : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border-amber-400/40'
+              }`}
+              title="Configure Supabase connection & sync database"
+            >
+              <Database className="w-3.5 h-3.5" />
+              <span className={`w-2 h-2 rounded-full ${isDbConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+              <span>{isDbConnected ? 'Database Live' : 'Connect Database'}</span>
+            </button>
             <button
               onClick={() => onNavigate('home')}
               className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/15 cursor-pointer"
@@ -1263,17 +1365,22 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-[#CBD5E1] shadow-xs flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setShowDbConnectModal(true)}
+                className="bg-white p-6 rounded-2xl border border-[#CBD5E1] hover:border-[#000f22] shadow-xs flex items-center justify-between text-left transition-colors cursor-pointer"
+              >
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">System Status</span>
-                  <div className={`text-3xl font-black mt-1 ${isSupabaseConfigured() ? 'text-emerald-700' : 'text-amber-700'}`}>
-                    {isSupabaseConfigured() ? 'Live' : 'Demo Mode'}
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block">Database Status</span>
+                  <div className={`text-3xl font-black mt-1 ${isDbConnected ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    {isDbConnected ? 'Live' : 'Offline'}
                   </div>
+                  <span className="text-[10px] font-semibold text-slate-500 mt-0.5 block">Click to manage Supabase &amp; sync</span>
                 </div>
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isSupabaseConfigured() ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
-                  <CheckCircle2 className="w-6 h-6" />
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDbConnected ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                  {isDbConnected ? <CheckCircle2 className="w-6 h-6" /> : <Database className="w-6 h-6" />}
                 </div>
-              </div>
+              </button>
             </div>
 
             {/* Quick Actions Panel */}
@@ -1437,7 +1544,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                 <div key={art.id} className="bg-white rounded-2xl border border-[#CBD5E1] overflow-hidden shadow-xs flex flex-col justify-between group">
                   <div>
                     <div className="h-48 overflow-hidden relative">
-                      <img src={art.image} alt={art.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={resolveImageAsset(art.image)} alt={art.title} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       <span className="absolute top-3 left-3 px-2.5 py-1 rounded bg-[#b7102a] text-white text-[10px] font-bold uppercase tracking-wider">
                         {art.categoryLabel}
                       </span>
@@ -2023,14 +2130,83 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         </div>
       )}
 
+      {/* Logged-In Modal: Supabase Database Connection & Sync Tools */}
+      {showDbConnectModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="max-w-3xl w-full my-8 relative space-y-4">
+            <button
+              type="button"
+              onClick={() => setShowDbConnectModal(false)}
+              className="absolute -top-3 -right-3 z-10 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center shadow-lg border border-slate-600 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="bg-[#000f22] text-white rounded-2xl p-4 sm:p-5 border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-extrabold">Live Database Sync Controls</h4>
+                <p className="text-[11px] text-slate-300">
+                  Pull latest records from Supabase to the website, or push the starter catalog &amp; admin tables.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleRefreshFromDatabase}
+                  disabled={isRefreshingDb}
+                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/15 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingDb ? 'animate-spin' : ''}`} />
+                  <span>{isRefreshingDb ? 'Pulling...' : 'Pull from Supabase'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSeedToDatabase}
+                  disabled={isSeedingDb}
+                  className="px-3.5 py-2 rounded-xl bg-[#b7102a] hover:bg-[#db313f] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Database className="w-3.5 h-3.5" />
+                  <span>{isSeedingDb ? 'Seeding...' : 'Seed Catalog to DB'}</span>
+                </button>
+              </div>
+            </div>
+
+            <DatabaseConnector
+              onConnectionChange={(connected) => {
+                setIsDbConnected(connected);
+                if (connected) {
+                  handleRefreshFromDatabase();
+                }
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Global Dashboard Feedback Notification Toast */}
       {deleteNotice && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#000f22] text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 animate-slideUp">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-          <span className="text-xs font-semibold">{deleteNotice}</span>
+        <div
+          className={`fixed bottom-6 right-6 z-50 px-5 py-3.5 rounded-2xl shadow-2xl border flex items-center gap-3 max-w-md animate-slideUp ${
+            noticeType === 'error'
+              ? 'bg-red-950 text-red-50 border-red-700'
+              : noticeType === 'warning'
+              ? 'bg-amber-950 text-amber-50 border-amber-700'
+              : 'bg-[#000f22] text-white border-slate-700'
+          }`}
+        >
+          {noticeType === 'error' || noticeType === 'warning' ? (
+            <AlertCircle
+              className={`w-5 h-5 shrink-0 ${
+                noticeType === 'error' ? 'text-red-400' : 'text-amber-400'
+              }`}
+            />
+          ) : (
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          )}
+          <span className="text-xs font-semibold leading-snug">{deleteNotice}</span>
           <button
             onClick={() => setDeleteNotice(null)}
-            className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white cursor-pointer ml-2"
+            className="p-1 rounded hover:bg-white/10 text-slate-300 hover:text-white cursor-pointer ml-2 shrink-0"
           >
             <X className="w-3.5 h-3.5" />
           </button>

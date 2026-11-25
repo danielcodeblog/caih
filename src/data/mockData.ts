@@ -28,9 +28,9 @@ const RAW_PROJECTS: Project[] = [
       '/images/appleton_court_exterior_real.jpg',
       '/images/appleton_court_interior_living.jpg',
       '/images/appleton_court_interior_stairs.jpg',
-      '/images/IMG-20260919-WA0004 (1).jpg',
-      '/images/IMG-20260919-WA0005 (1).jpg',
-      '/images/IMG-20260919-WA0006.jpg'
+      '/images/testimonial-handover-1.jpg',
+      '/images/testimonial-handover-2.jpg',
+      '/images/testimonial-handover-3.jpg'
     ],
     priceDisplay: 'From ₦22M',
     priceSub: '300sqm (₦22M) • 500sqm (₦35M) • 1000sqm (₦70M)',
@@ -825,7 +825,7 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Dr. Babatunde Adeyemi',
     role: 'Diaspora Investor',
-    avatar: '/images/IMG-20260919-WA0004 (1).jpg',
+    avatar: '/images/testimonial-handover-1.jpg',
     pillar: 'Title Security',
     projectOrSector: 'Appleton Court & Haven',
     location: 'London, UK',
@@ -837,7 +837,7 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Mrs. Chinwe Okonkwo',
     role: 'Homeowner',
-    avatar: '/images/IMG-20260919-WA0005 (1).jpg',
+    avatar: '/images/testimonial-handover-2.jpg',
     pillar: 'Structural Integrity',
     projectOrSector: 'Appleton Terraces',
     location: 'Houston, TX',
@@ -849,7 +849,7 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Engr. Olumide Lawal',
     role: 'Civil Engineer & Investor',
-    avatar: '/images/IMG-20260919-WA0006.jpg',
+    avatar: '/images/testimonial-handover-3.jpg',
     pillar: 'Engineering & Drainage',
     projectOrSector: 'Appleton Estates',
     location: 'Lagos, Nigeria',

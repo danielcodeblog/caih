@@ -3,7 +3,7 @@ import { Project } from '../types';
 import { InspectionForm } from '../components/InspectionForm';
 import { fetchPropertiesFromSupabase, isSupabaseConfigured } from '../lib/supabase';
 import { PROJECTS } from '../data/mockData';
-import { getStoredProjects, resolveProjectImage } from '../utils/projectsStore';
+import { getStoredProjects, resolveProjectImage, getProjectFallbackImage, saveStoredProjects } from '../utils/projectsStore';
 import { sortProjectsByCanonicalOrder } from '../utils/propertyOrdering';
 import { OptimizedImage } from '../components/OptimizedImage';
 import {
@@ -64,14 +64,22 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
     const load = async () => {
-      if (isSupabaseConfigured() && (!passedProjects || passedProjects.length === 0)) {
+      if (isSupabaseConfigured()) {
         const fetched = await fetchPropertiesFromSupabase();
-        if (fetched && fetched.length > 0) setProjects(sortProjectsByCanonicalOrder(fetched));
+        if (isMounted && fetched && fetched.length > 0) {
+          const sorted = sortProjectsByCanonicalOrder(fetched);
+          setProjects(sorted);
+          saveStoredProjects(sorted);
+        }
       }
     };
     load();
-  }, [passedProjects]);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Search & Filter State
   const [activeStatus, setActiveStatus] = useState<string>('all');
@@ -417,6 +425,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
                     >
                       <OptimizedImage
                         src={resolveProjectImage(project.image, project.id)}
+                        fallbackSrc={getProjectFallbackImage(project.id)}
                         alt={project.title}
                         aspectRatioClassName="aspect-[16/10]"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

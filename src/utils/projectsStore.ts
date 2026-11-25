@@ -1,6 +1,7 @@
 import { Project } from '../types';
 import { PROJECTS as DEFAULT_PROJECTS } from '../data/mockData';
 import { getPropertyOrderRank, sortProjectsByCanonicalOrder } from './propertyOrdering';
+import { resolveImageAsset } from './imageAssets';
 
 import havenImg from '../assets/images/appleton_haven_main.jpg';
 import apartmentsImg from '../assets/images/appleton_apartments_main.jpg';
@@ -12,7 +13,7 @@ import terracesImg from '../assets/images/appleton_terraces_exterior.jpg';
 
 export { getPropertyOrderRank, sortProjectsByCanonicalOrder };
 
-const STORAGE_KEY = 'caih_admin_projects_v5';
+const STORAGE_KEY = 'caih_admin_projects_v6';
 
 export const PROJECT_CANONICAL_IMAGES: Record<string, string> = {
   'appleton-haven': havenImg,
@@ -35,95 +36,107 @@ export const getProjectFallbackImage = (projId: string): string => {
   return courtImg;
 };
 
+const isLegacyBrokenImage = (img: string): boolean => {
+  return (
+    img.includes('caihgroup.com') ||
+    img.includes('SL-070720') ||
+    img.includes('ApartmentMaisonnette') ||
+    img.includes('commercial-e1770636774756') ||
+    (img.startsWith('/images/') && img.includes('(1)'))
+  );
+};
+
 export const resolveProjectImage = (img?: string, projId: string = ''): string => {
   const canonical = projId ? PROJECT_CANONICAL_IMAGES[projId] : undefined;
-  if (canonical) {
-    if (
-      !img ||
-      img.includes('caihgroup.com') ||
-      img.includes('PHOTO-2025') ||
-      img.includes('(1)') ||
-      img.includes('SL-070720') ||
-      img.includes('ApartmentMaisonnette') ||
-      img.includes('commercial-e1770636774756') ||
-      img.includes('IMG_4378') ||
-      img.startsWith('/images/appleton_') ||
-      img.startsWith('/images/')
-    ) {
-      return canonical;
-    }
+  const fallback = canonical || getProjectFallbackImage(projId);
+  if (!img || !img.trim()) return fallback;
+
+  const trimmed = img.trim();
+  if (canonical && isLegacyBrokenImage(trimmed)) {
+    return canonical;
   }
-  if (!img) return getProjectFallbackImage(projId);
-  if (img.includes('caihgroup.com/wp-content') || img.includes('(1)')) {
-    return getProjectFallbackImage(projId);
-  }
-  return img;
+
+  return resolveImageAsset(trimmed, fallback);
 };
 
 export function sanitizeProjectImages(p: Project): Project {
   const canonical = PROJECT_CANONICAL_IMAGES[p.id];
-  let image = canonical || getProjectFallbackImage(p.id);
+  const fallback = canonical || getProjectFallbackImage(p.id);
+  const image = resolveProjectImage(p.image, p.id);
 
-  let galleryImages = p.galleryImages;
-  if (!galleryImages || galleryImages.length === 0 || galleryImages.some((g) => g.includes('caihgroup.com/wp-content') || g.includes('(1)'))) {
+  let galleryImages = Array.isArray(p.galleryImages) ? p.galleryImages.filter(Boolean) : [];
+  const allLegacyBroken =
+    galleryImages.length > 0 && galleryImages.every((g) => isLegacyBrokenImage(g));
+
+  if (galleryImages.length === 0 || allLegacyBroken) {
     if (p.id === 'appleton-haven') {
       galleryImages = [
-        havenImg,
-        '/images/appleton_haven_facade.jpg',
+        image || havenImg,
+        resolveImageAsset('/images/appleton_haven_facade.jpg'),
         apartmentsImg,
-        '/images/IMG_4379.jpg',
-        '/images/IMG_3523.jpg',
-        '/images/IMG_3525.jpg'
+        resolveImageAsset('/images/IMG_4379.jpg'),
+        resolveImageAsset('/images/IMG_3523.jpg'),
+        resolveImageAsset('/images/IMG_3525.jpg')
       ];
     } else if (p.id === 'appleton-luxury-apartments') {
       galleryImages = [
-        apartmentsImg,
-        '/images/IMG_4379.jpg',
-        '/images/IMG_4380.jpg',
-        '/images/IMG_4381.jpg',
-        '/images/IMG_4382.jpg',
-        '/images/IMG_3523.jpg'
+        image || apartmentsImg,
+        resolveImageAsset('/images/IMG_4379.jpg'),
+        resolveImageAsset('/images/IMG_4380.jpg'),
+        resolveImageAsset('/images/IMG_4381.jpg'),
+        resolveImageAsset('/images/IMG_4382.jpg'),
+        resolveImageAsset('/images/IMG_3523.jpg')
       ];
     } else if (p.id === 'appleton-terraces-and-apartments') {
       galleryImages = [
-        terracesImg,
-        '/images/caih_luxury_residence_1791879278290.jpg',
-        '/images/IMG_3525.jpg',
-        '/images/appleton_court_exterior_real.jpg'
+        image || terracesImg,
+        resolveImageAsset('/images/caih_luxury_residence_1791879278290.jpg'),
+        resolveImageAsset('/images/IMG_3525.jpg'),
+        resolveImageAsset('/images/appleton_court_exterior_real.jpg')
       ];
     } else if (p.id === 'appleton-commercial-residential') {
       galleryImages = [
-        commercialImg,
-        '/images/regenerated_image_1791992702647.png',
-        '/images/regenerated_image_1791992506306.png'
+        image || commercialImg,
+        resolveImageAsset('/images/regenerated_image_1791992702647.png'),
+        resolveImageAsset('/images/regenerated_image_1791992506306.png')
       ];
     } else if (p.id === 'appleton-gardens') {
       galleryImages = [
-        gardensImg,
-        '/images/appleton_gardens_greenery.jpg',
+        image || gardensImg,
+        resolveImageAsset('/images/appleton_gardens_greenery.jpg'),
         enclaveImg
       ];
     } else if (p.id === 'appleton-court') {
       galleryImages = [
-        courtImg,
-        '/images/appleton_court_exterior_real.jpg',
-        '/images/appleton_court_interior_living.jpg',
-        '/images/appleton_court_interior_stairs.jpg'
+        image || courtImg,
+        resolveImageAsset('/images/appleton_court_exterior_real.jpg'),
+        resolveImageAsset('/images/appleton_court_interior_living.jpg'),
+        resolveImageAsset('/images/appleton_court_interior_stairs.jpg'),
+        resolveImageAsset('/images/testimonial-handover-1.jpg'),
+        resolveImageAsset('/images/testimonial-handover-2.jpg'),
+        resolveImageAsset('/images/testimonial-handover-3.jpg')
       ];
     } else if (p.id === 'appleton-enclave') {
       galleryImages = [
-        enclaveImg,
-        '/images/yt_ihEzpBhqRjY.jpg'
+        image || enclaveImg,
+        resolveImageAsset('/images/yt_ihEzpBhqRjY.jpg')
       ];
     } else {
       galleryImages = [image].filter(Boolean) as string[];
     }
+  } else {
+    galleryImages = galleryImages
+      .map((g) => (isLegacyBrokenImage(g) ? fallback : resolveImageAsset(g, fallback)))
+      .filter(Boolean);
   }
+
+  // Deduplicate gallery images while keeping primary order
+  const uniqueGallery = Array.from(new Set(galleryImages));
 
   return {
     ...p,
     image,
-    galleryImages
+    galleryImages: uniqueGallery
   };
 }
 
@@ -139,7 +152,9 @@ export const getStoredProjects = (): Project[] => {
         const merged = missing.length > 0 ? [...parsed, ...missing] : parsed;
         const sanitized = merged.map(sanitizeProjectImages);
         const sorted = sortProjectsByCanonicalOrder(sanitized);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
+        } catch {}
         return sorted;
       }
     }
@@ -157,25 +172,26 @@ export const getStoredProjects = (): Project[] => {
 
 export const saveStoredProjects = (projects: Project[]): void => {
   if (typeof window === 'undefined') return;
+  const sorted = sortProjectsByCanonicalOrder(projects.map(sanitizeProjectImages));
   try {
-    const sorted = sortProjectsByCanonicalOrder(projects);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
-    window.dispatchEvent(
-      new CustomEvent('caih_projects_updated', {
-        detail: sorted,
-      })
-    );
   } catch (e) {
-    console.warn('Failed to save stored projects:', e);
+    console.warn('Failed to save stored projects to localStorage (quota or privacy mode):', e);
   }
+  window.dispatchEvent(
+    new CustomEvent('caih_projects_updated', {
+      detail: sorted,
+    })
+  );
 };
 
 export const addOrUpdateProject = (project: Project): Project[] => {
+  const sanitizedProject = sanitizeProjectImages(project);
   const current = getStoredProjects();
-  const exists = current.some((p) => p.id === project.id);
+  const exists = current.some((p) => p.id === sanitizedProject.id);
   const updated = exists
-    ? current.map((p) => (p.id === project.id ? project : p))
-    : [project, ...current];
+    ? current.map((p) => (p.id === sanitizedProject.id ? sanitizedProject : p))
+    : [sanitizedProject, ...current];
   const sorted = sortProjectsByCanonicalOrder(updated);
   saveStoredProjects(sorted);
   return sorted;

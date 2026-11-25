@@ -3,6 +3,7 @@ import { PageId } from '../types';
 import { BRAND_ASSETS } from '../data/mockData';
 import { MapPin, Phone, Mail, Globe, Share2, Newspaper, Check, Info, Send } from 'lucide-react';
 import { subscribeClient } from '../services/newsletterService';
+import { BUNDLED_LOGO } from '../utils/imageAssets';
 
 interface FooterProps {
   onNavigate: (page: PageId) => void;
@@ -84,7 +85,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenContact }) => 
         <div>
           <div className="bg-white/95 p-3 rounded-xl border border-slate-800 inline-block mb-5 shadow-sm">
             <img
-              src="/images/Caih-group.png"
+              src={BUNDLED_LOGO}
               alt="Caih Group"
               loading="lazy"
               decoding="async"

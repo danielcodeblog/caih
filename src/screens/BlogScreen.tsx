@@ -4,6 +4,7 @@ import { Article, VideoDispatch } from '../types';
 import { getStoredArticles } from '../utils/articlesStore';
 import { TESTIMONIALS } from '../data/mockData';
 import { OptimizedImage } from '../components/OptimizedImage';
+import { resolveImageAsset } from '../utils/imageAssets';
 import { subscribeClient, EmailUpdate, Subscriber } from '../services/newsletterService';
 import { NewsletterBroadcastModal } from '../components/NewsletterBroadcastModal';
 import {
@@ -461,8 +462,9 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
                   <div>
                     <div className="relative h-44 overflow-hidden">
                       <img
-                        src={art.image}
+                        src={resolveImageAsset(art.image)}
                         alt={art.title}
+                        referrerPolicy="no-referrer"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-[#000f22] text-white text-[10px] font-semibold">
@@ -770,8 +772,9 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
                     onClick={() => setLightboxImage(t.avatar)}
                   >
                     <img
-                      src={t.avatar}
+                      src={resolveImageAsset(t.avatar)}
                       alt={`Handover Celebration ${idx + 1}`}
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover object-center"
                     />
 
@@ -845,8 +848,9 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
                     }`}
                   >
                     <img
-                      src={t.avatar}
+                      src={resolveImageAsset(t.avatar)}
                       alt={`Thumbnail ${idx + 1}`}
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -1072,8 +1076,9 @@ export const BlogScreen: React.FC<BlogScreenProps> = ({
         >
           <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl">
             <img
-              src={lightboxImage}
+              src={resolveImageAsset(lightboxImage)}
               alt="Enlarged celebration photo"
+              referrerPolicy="no-referrer"
               className="w-full h-full object-contain max-h-[85vh]"
             />
             <button

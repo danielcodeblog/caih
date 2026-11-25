@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Building2 } from 'lucide-react';
-import defaultCourtImg from '../assets/images/appleton_court_aerial_clean.jpg';
+import { resolveImageAsset, BUNDLED_DEFAULT_COURT } from '../utils/imageAssets';
 
 interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -21,22 +21,26 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   aspectRatioClassName = '',
   priority = false,
   fallbackText,
-  fallbackSrc = defaultCourtImg,
+  fallbackSrc = BUNDLED_DEFAULT_COURT,
   onError,
   onLoad,
+  referrerPolicy = 'no-referrer',
   ...restProps
 }) => {
-  const [currentSrc, setCurrentSrc] = useState<string>(src || fallbackSrc || defaultCourtImg);
+  const resolvedFallback = resolveImageAsset(fallbackSrc, BUNDLED_DEFAULT_COURT);
+  const resolvedPrimary = resolveImageAsset(src, resolvedFallback);
+
+  const [currentSrc, setCurrentSrc] = useState<string>(resolvedPrimary);
   const [hasTriedFallback, setHasTriedFallback] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isError, setIsError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    setCurrentSrc(src || fallbackSrc || defaultCourtImg);
+    setCurrentSrc(resolvedPrimary);
     setHasTriedFallback(false);
     setIsError(false);
-  }, [src, fallbackSrc]);
+  }, [resolvedPrimary]);
 
   useEffect(() => {
     if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
@@ -53,19 +57,16 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    // 1. Try provided fallbackSrc if different from current
-    if (!hasTriedFallback && fallbackSrc && currentSrc !== fallbackSrc) {
+    if (!hasTriedFallback && resolvedFallback && currentSrc !== resolvedFallback) {
       setHasTriedFallback(true);
-      setCurrentSrc(fallbackSrc);
+      setCurrentSrc(resolvedFallback);
       return;
     }
-    // 2. Try bundled defaultCourtImg if still different
-    if (currentSrc !== defaultCourtImg) {
+    if (currentSrc !== BUNDLED_DEFAULT_COURT) {
       setHasTriedFallback(true);
-      setCurrentSrc(defaultCourtImg);
+      setCurrentSrc(BUNDLED_DEFAULT_COURT);
       return;
     }
-    // 3. Fallback to placeholder box only as absolute last resort
     setIsError(true);
     setIsLoaded(true);
     if (onError) {
@@ -100,6 +101,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
           loading={priority ? 'eager' : 'lazy'}
           fetchPriority={priority ? 'high' : 'auto'}
           decoding="async"
+          referrerPolicy={referrerPolicy}
           onLoad={handleImageLoad}
           onError={handleImageError}
           className={`w-full h-full object-cover transition-opacity duration-300 relative z-[1] ${
