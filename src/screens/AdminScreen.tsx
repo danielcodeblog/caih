@@ -1232,19 +1232,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 
           <div className="flex flex-wrap items-center gap-3">
             <button
-              onClick={() => setShowDbConnectModal(true)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 cursor-pointer ${
-                isDbConnected
-                  ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border-emerald-400/30'
-                  : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border-amber-400/40'
-              }`}
-              title="Configure Supabase connection & sync database"
-            >
-              <Database className="w-3.5 h-3.5" />
-              <span className={`w-2 h-2 rounded-full ${isDbConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-              <span>{isDbConnected ? 'Database Live' : 'Connect Database'}</span>
-            </button>
-            <button
               onClick={() => onNavigate('home')}
               className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/15 cursor-pointer"
             >
